@@ -1,0 +1,111 @@
+<div class="adminSwitchHolder">
+  <i class="fa-solid fa-gears" (click)="navigateToConfig()"></i>
+</div>
+<div class="component-wrapper">
+  <div class="row">
+    <div class="col-lg-3 col-md-3 col col-12-sm-1"></div>
+    <div class="col-lg-6 col-md-6 col-sm-10 col-12 midContainer">
+      <form [formGroup]="customForm" (ngSubmit)="onSubmit()" class="text-white">
+        <div class="row">
+          <div class="col-md-6 mb-3 locationWrapper">
+            <label class="form-label alignLeft-5">Current location:</label>
+            <div class="row">
+              <div class="halfFiled col-md-4">
+                <input type="number" min="0" id="current_roadNbr" formControlName="current_roadNbr" class="form-control"
+                placeholder="N° Rue"
+                [class.is-invalid]="!customForm.get('current_roadNbr')?.valid && customForm.get('current_roadNbr')?.touched" />
+              </div>
+              <div class="halfFiled col-md-8">
+                <input type="text" id="current_roadName" formControlName="current_roadName" class="form-control"
+                placeholder="Nom du Rue"
+                [class.is-invalid]="!customForm.get('current_roadName')?.valid && customForm.get('current_roadName')?.touched" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="halfFiled col-md-5">
+                <input type="number" min="0" id="current_postalCode" formControlName="current_postalCode" class="form-control"
+                placeholder="Code postal"
+                [class.is-invalid]="!customForm.get('current_postalCode')?.valid && customForm.get('current_postalCode')?.touched" />
+              </div>
+              <div class="halfFiled col-md-7">
+                <input type="text" id="current_city" formControlName="current_city" class="form-control"
+                placeholder="Ville"
+                [class.is-invalid]="!customForm.get('current_city')?.valid && customForm.get('current_city')?.touched" />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3 locationWrapper">
+            <label class="form-label alignLeft-5">Destination</label>
+            <div class="row">
+              <div class="halfFiled col-md-4">
+                <input type="number" min="0" id="destination_roadNbr" formControlName="destination_roadNbr" class="form-control"
+                placeholder="N° Rue"
+                [class.is-invalid]="!customForm.get('destination_roadNbr')?.valid && customForm.get('destination_roadNbr')?.touched" />
+              </div>
+              <div class="halfFiled col-md-8">
+                <input type="text" id="destination_roadName" formControlName="destination_roadName" class="form-control"
+                placeholder="Nom du Rue"
+                [class.is-invalid]="!customForm.get('destination_roadName')?.valid && customForm.get('destination_roadName')?.touched" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="halfFiled col-md-5">
+                <input type="number" min="0" id="destination_postalCode" formControlName="destination_postalCode" class="form-control"
+                placeholder="Code postal"
+                [class.is-invalid]="!customForm.get('destination_postalCode')?.valid && customForm.get('destination_postalCode')?.touched" />
+              </div>
+              <div class="halfFiled col-md-7">
+                <input type="text" id="destination_city" formControlName="destination_city" class="form-control"
+                placeholder="Ville"
+                [class.is-invalid]="!customForm.get('destination_city')?.valid && customForm.get('destination_city')?.touched" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="carType" class="form-label">Car Type:</label>
+            <select id="carType" class="form-control form-select" formControlName="carType"
+              [class.is-invalid]="!customForm.get('carType')?.valid && customForm.get('carType')?.touched">
+              <option value="" selected disabled hidden>Select a car type</option>
+              <option *ngFor="let carType of carTypes" [value]="carType.id">
+                {{carType.name}}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="zone" class="form-label">Zone:</label>
+            <select id="zone" class="form-control form-select" formControlName="zone"
+              [class.is-invalid]="!customForm.get('zone')?.valid && customForm.get('zone')?.touched">
+              <option value="" selected disabled hidden>Select a car type</option>
+              <option *ngFor="let zone of zones" [value]="zone.id">
+                {{zone.name}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="phoneNumber" class="form-label">Phone Number:</label>
+          <input type="text" id="phoneNumber" formControlName="phoneNumber" class="form-control"
+            placeholder="+123 456 789"
+            [class.is-invalid]="!customForm.get('phoneNumber')?.valid && customForm.get('phoneNumber')?.touched" />
+        </div>
+        <div class="mb-3">
+          <div class="form-check">
+            <input type="checkbox" id="isDeferred" formControlName="isDeferred" class="form-check-input"
+              (change)="onDeferredChange($event)" />
+            <label for="isDeferred" class="form-check-label">Deferred</label>
+          </div>
+          <div *ngIf="isDeferredChecked()" class="mt-2">
+            <label for="deferredDateTime" class="form-label">Deferred Date/Time:</label>
+            <input type="datetime-local" id="deferredDateTime" formControlName="deferredDateTime" class="form-control"
+              [min]="minDateTime"
+              [class.is-invalid]="!customForm.get('deferredDateTime')?.valid && customForm.get('deferredDateTime')?.touched" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-warning w-100">Submit</button>
+      </form>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-1 col-12"></div>
+  </div>
+</div>

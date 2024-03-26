@@ -1,0 +1,40 @@
+<div *ngIf="rideDoesntExist">
+    <div class="text-center mt-5">
+        <p class="fs-3"> <span class="text-danger">Opps!</span> Une erreur s'est produite.</p>
+        <p class="lead">
+            Le lien de la course est erroné.
+        </p>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist">
+    <div class="mapWrapper">
+        <div class="row">
+            <div id="map"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+            <div class="detailsWrapper">
+                <div class="detailsCard">
+                    <p style="font-size: 1.4rem;">Arriving in <strong class="metrics">
+                            {{timeToReachClient ? timeToReachClient : 'counting'}}</strong></p>
+                    <hr>
+                    <p class="cardDesc"><strong>Client Phone number: </strong> {{data.phoneNumber}}</p>
+                    <p class="cardDesc"><strong>Final Destination: </strong> {{getDestination()}}</p>
+                    <p class="cardDesc">Distance left <strong class="metrics">{{distanceLeft? distanceLeft:
+                            'counting'}}</strong></p>
+                </div>
+                <!-- Buttons -->
+                <hr>
+                <div class="w-100 button-wrapper">
+                    <button class="btn btn-success" (click)="callUser()">Call Client</button>
+                    <button class="btn btn-danger" (click)="cancelRide()">Cancel Ride</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+            </div>
+        </div>
+    </div>
+</div>

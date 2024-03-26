@@ -1,0 +1,297 @@
+<!-- driver-list.component.html -->
+<div class="adminSwitchHolder">
+    <i class="fa-solid fa-paper-plane" (click)="navigateToNoitifier()"></i>
+</div>
+<div class="container mt-4">
+    <!-- Add/Edit Driver Modal -->
+    <!-- Add/Edit Driver Modal -->
+    <div class="modal fade modal-lg" [ngClass]="{ 'show': showModal }" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" *ngIf="driverModal">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ isEditing ? 'Edit Driver' : 'Add Driver' }}</h5>
+                    <button type="button" class="btnClose" (click)="closeModal()" aria-label="Close"><i
+                            class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="driverForm" (ngSubmit)="isEditing ? updateDriver() : addDriver()">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" placeholder="Name" id="name" class="form-control"
+                                    formControlName="name"
+                                    [class.is-invalid]="!driverForm.get('name')?.valid && driverForm.get('name')?.touched" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="familyName" class="form-label">Family Name:</label>
+                                <input type="text" placeholder="Family Name" id="familyName" class="form-control"
+                                    formControlName="familyName"
+                                    [class.is-invalid]="!driverForm.get('familyName')?.valid && driverForm.get('familyName')?.touched" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phoneNbr" class="form-label">Phone Number:</label>
+                                <input type="text" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
+                                    formControlName="phoneNbr"
+                                    [class.is-invalid]="!driverForm.get('phoneNbr')?.valid && driverForm.get('phoneNbr')?.touched" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="carType" class="form-label">Car Type:</label>
+                                <select id="carType" class="form-control form-select" formControlName="carType"
+                                    [class.is-invalid]="!driverForm.get('carType')?.valid && driverForm.get('carType')?.touched">
+                                    <option value="" selected disabled hidden>Select a car type</option>
+                                    <option *ngFor="let carType of carTypes" [value]="carType.id">
+                                        {{carType.name}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="carDescription" class="form-label">Car Description:</label>
+                                <input type="text" placeholder="Car Description" id="carDescription"
+                                    class="form-control" formControlName="carDescription"
+                                    [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="zone" class="form-label">Zone:</label>
+                                <select id="zone" class="form-control form-select" formControlName="zone"
+                                    [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
+                                    <option value="" selected disabled hidden>Select a zone</option>
+                                    <option *ngFor="let zone of zones" [value]="zone.id">
+                                        {{zone.name}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="drivingPermit" class="form-label">Driver's license:</label>
+                                <i *ngIf="filesForm.drivingPermitURL" class="fa fa-eye" aria-hidden="true" 
+                                    (click)="fetchFileAndRedirect(filesForm.drivingPermitURL)"></i>
+                                <input type="file" class="form-control" (change)="onFileSelected($event, 'drivingPermit')"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="transportPermit" class="form-label">Transport authorization:</label>
+                                <i *ngIf="filesForm.transportPermitURL" class="fa fa-eye" aria-hidden="true" 
+                                    (click)="fetchFileAndRedirect(filesForm.transportPermitURL)"></i>
+                                <input type="file" class="form-control" (change)="onFileSelected($event, 'transportPermit')"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="taxiPermit" class="form-label">Taxi License:</label>
+                                <i *ngIf="filesForm.taxiPermitURL" class="fa fa-eye" aria-hidden="true" 
+                                    (click)="fetchFileAndRedirect(filesForm.taxiPermitURL)"></i>
+                                <input type="file" class="form-control" (change)="onFileSelected($event, 'taxiPermit')"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="GrayCard" class="form-label">Vehicle registration document:</label>
+                                <i *ngIf="filesForm.GrayCardURL" class="fa fa-eye" aria-hidden="true" 
+                                    (click)="fetchFileAndRedirect(filesForm.GrayCardURL)"></i>
+                                <input type="file" class="form-control" (change)="onFileSelected($event, 'GrayCard')"/>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning w-100">{{ isEditing ? 'Update Driver' : 'Add Driver' }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-content" *ngIf="carTypeModal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Car Type</h5>
+                    <button type="button" class="btnClose" (click)="closeModal()" aria-label="Close">
+                        <i class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="carTypeForm" (ngSubmit)="addCarType()">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" placeholder="Name" id="name" class="form-control"
+                                    formControlName="name"
+                                    [class.is-invalid]="!carTypeForm.get('name')?.valid && carTypeForm.get('name')?.touched" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning w-100">Add Car Type</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-content" *ngIf="zoneModal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Zone</h5>
+                    <button type="button" class="btnClose" (click)="closeModal()" aria-label="Close"><i
+                            class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="zoneForm" (ngSubmit)="addZone()">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" placeholder="Name" id="name" class="form-control"
+                                    formControlName="name"
+                                    [class.is-invalid]="!zoneForm.get('name')?.valid && zoneForm.get('name')?.touched" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning w-100">Add Zone</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-content" *ngIf="driverStatusModal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Switch Driver Status</h5>
+                    <button type="button" class="btnClose" (click)="closeModal()" aria-label="Close"><i
+                            class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <h5><span [ngStyle]="{'color': driverToSwitchStatus!.isActive ? '#dc415b': '#4bda4b'}">{{driverToSwitchStatus!.isActive ? 'Disable' : 'Enable'}}</span> driver ?</h5>
+                    <p class="mb-4">A disabled driver can't recieve SMS, but will remain in the data base</p>
+                    <div class="modal-footer">
+                        <button (click)="toggleDriverStatus(driverToSwitchStatus!)" class="btn btn-warning w-100">Switch</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="custom-accordian">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 accordianTitle"><span>Cars Types</span> List</h4>
+                <div>
+                    <button *ngIf="carTypesAccordianOn" class="btn btn-warning addBtn" (click)="openModal('carTypes')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="arrowIcon" (click)="openAccordian('carTypes')"
+                        [ngStyle]="{'transform':carTypesAccordianOn?'rotate(90deg)':'rotate(0deg)'}">
+                        <i class="fa-solid fa-circle-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4 accordian-content"
+            [ngClass]="{'accordianOn':carTypesAccordianOn, 'accordianOff':!carTypesAccordianOn}">
+            <!-- Card System for Low Resolution -->
+            <div class="accordian-innerContent">
+                <div class="row" *ngIf="carTypes.length">
+                    <div *ngFor="let carType of carTypes"
+                        class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
+                        <div class="custom-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5>{{ carType.name }}</h5><button class="btn btn-danger"
+                                    (click)="deleteCarType(carType.id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="!carTypes.length">
+                    <h3 class="emptyList">No Car Types defined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="custom-accordian">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 accordianTitle"><span>Zones</span> List</h4>
+                <div>
+                    <button *ngIf="zonesAccordianOn" class="btn btn-warning addBtn" (click)="openModal('zones')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="arrowIcon" (click)="openAccordian('zones')"
+                        [ngStyle]="{'transform':zonesAccordianOn?'rotate(90deg)':'rotate(0deg)'}">
+                        <i class="fa-solid fa-circle-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4 accordian-content"
+            [ngClass]="{'accordianOn':zonesAccordianOn, 'accordianOff':!zonesAccordianOn}">
+            <!-- Card System for Low Resolution -->
+            <div class="accordian-innerContent">
+                <div class="row" *ngIf="zones.length">
+                    <div *ngFor="let zone of zones" class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
+                        <div class="custom-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5>{{ zone.name }}</h5><button class="btn btn-danger" (click)="deleteZone(zone.id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="!zones.length">
+                    <h3 class="emptyList">No Zones defined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="custom-accordian">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 accordianTitle"><span>Driver</span> List</h4>
+                <div>
+                    <button *ngIf="driversAccordianOn" class="btn btn-warning addBtn" (click)="openModal('drivers')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="arrowIcon" (click)="openAccordian('drivers')"
+                        [ngStyle]="{'transform':driversAccordianOn?'rotate(90deg)':'rotate(0deg)'}">
+                        <i class="fa-solid fa-circle-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4 accordian-content"
+            [ngClass]="{'accordianOn longAccordian':driversAccordianOn, 'accordianOff':!driversAccordianOn}">
+            <!-- Card System for Low Resolution -->
+            <div class="accordian-innerContent">
+                <div class="row" *ngIf="drivers.length">
+                    <div *ngFor="let driver of drivers" class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
+                        <div class="custom-card {{driver.confNok?'confNok':''}}">
+                            <div>
+                                <h5>{{ driver.familyName }} - <span style="color:#dc415b">{{ driver.name }}</span></h5>
+                                <p>Zone : <span [ngStyle]="{'color':getZoneNameById(driver.zone)=='NOK'?'red':'white'}">{{ getZoneNameById(driver.zone) }}</span></p>
+                                <p>Car : <span [ngStyle]="{'color':getCarTypeNameById(driver.carType)=='NOK'?'red':'white'}"> 
+                                    {{ getCarTypeNameById(driver.carType) }}</span> {{' - ' + driver.carDescription }}
+                                </p>
+                                <p>Phone: {{ driver.phoneNbr }}</p>
+                            </div>
+                            <div class="mt-4 row buttons-wrapper">
+                                <div class="col-3 cancel-padding">
+                                    <button class="btn w-100 btn-warning btn-left" (click)="editDriver(driver)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                                <div class="col-3 cancel-padding">
+                                    <button class="btn w-100 btn-danger" (click)="deleteDriver(driver.id)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="col-6 cancel-padding">
+                                    <button
+                                        class="btn btn-right w-100 {{ driver.isActive ? 'btn-success' : 'btn-secondary' }}"
+                                        (click)="initDriverSwitchStatus(driver)">
+                                        {{driver.isActive ? 'Active ' : 'Inactive '}} <i
+                                            class="fas {{ driver.isActive ? 'fa-check' : 'fa-times' }}"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="!drivers.length">
+                    <h3 class="emptyList">No Drivers defined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

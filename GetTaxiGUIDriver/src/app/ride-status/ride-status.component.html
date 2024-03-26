@@ -1,0 +1,51 @@
+<div *ngIf="rideDoesntExist">
+    <div class="text-center mt-5">
+        <p class="fs-3"> <span class="text-danger">Opps!</span> Une erreur s'est produite.</p>
+        <p class="lead">
+            Le lien de la course est erroné.
+        </p>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist">
+    <div class="mt-5">
+        <div class="subContainer-center">
+            <h2 class="welcome-msg">Cher <span class="username">{{data.driverName}}</span> !</h2>
+            <div class="info-wrapperBG">
+                <div class="info-wrapper mt-2"
+                    *ngIf="!data.takenByDriver || (data.takenByDriver && data.takenByDriver == driverId)">
+                    <p><strong>Proposal:</strong> {{rideId}}</p>
+                    <hr>
+                    <p>Nous avons reçu une réservation de l'un de nos clients et nous souhaitons savoir si vous êtes
+                        disponible
+                        pour assurer le transport.</p>
+                    <hr>
+                    <p>Voici les détails de la course :</p>
+                    <p><strong>Date de la course :</strong> {{ data.isDeferred ? formatDate(data.deferredDateTime) :
+                        "Immédiatement - "+(data.created_at) }}</p>
+                    <!-- toDo: change this using new format -->
+                    <p><strong>De :</strong> {{ getDestination() }}</p>
+                </div>
+            </div>
+            <div class="button-wrapper mt-3" *ngIf="!data.takenByDriver">
+                <button class="btn btn-success mr-2 w-100" (click)="acceptRide()">Accept Ride</button>
+            </div>
+            <div class="text-center" *ngIf="data.takenByDriver && data.takenByDriver != driverId">
+                <h1 class="display-1 fw-bold m-4">Expiré</h1>
+                <p class="fs-3"> <span class="text-danger">Opps!</span> La course a déjà été effectuée.</p>
+                <p class="lead">
+                    Le lien de la course est expiré.
+                </p>
+            </div>
+            <div class="text-center" *ngIf="data.takenByDriver && data.takenByDriver == driverId">
+                <h2 class="fw-bold m-4" style="color: #00bb99;">Cette course est la vôtre !</h2>
+                <div class="button-wrapper mt-3">
+                    <button class="btn btn-success mr-2 w-100" style="font-size: 0.9rem;"
+                        (click)="redirectToRealTime()">Cliquez ici
+                        pour partager votre
+                        position</button>
+                    <!-- <button class="btn btn-danger mr-2 w-50" style="font-size: 0.9rem;" (click)="cancelRide()">Cancel Ride</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

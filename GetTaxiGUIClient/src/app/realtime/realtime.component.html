@@ -1,0 +1,68 @@
+<div *ngIf="rideDoesntExist">
+    <div class="text-center mt-5">
+        <p class="fs-3"> <span class="text-danger">Opps!</span> Une erreur s'est produite.</p>
+        <p class="lead">
+            Le lien de la course est erroné.
+        </p>
+    </div>
+</div>
+<div *ngIf="connectionLost">
+    <div class="text-center mt-10">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le chauffeur</p>
+        <p class="lead">
+            Rétablissement de la connexion, veuillez patienter
+        </p>
+    </div>
+    <div class="loading-container-visible">
+        <div class="loading-center">
+            <h1>Loading</h1>
+            <div class="loading-bar">
+                <div class="loading-obj"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="canceledRide">
+    <div class="text-center mt-10">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
+        <p class="lead">
+            veuillez patienter jusqu'à ce que nous vous trouvions un autre conducteur <br>( un sms vous avertira )
+        </p>
+        <p></p>
+    </div>
+</div>
+<div *ngIf="ready && !rideDoesntExist">
+    <div class="mapWrapper">
+        <div class="row">
+            <div id="map"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+            <div class="detailsWrapper">
+                <div class="detailsCard">
+                    <p style="font-size: 1.4rem;">Driver arrives in <strong class="metrics">{{timeToReachClient ?
+                            timeToReachClient : 'counting'}}</strong></p>
+                    <hr>
+                    <p class="cardDesc"><strong>Car Type: </strong> {{data ? data.carType : '...'}}</p>
+                    <p class="cardDesc"><strong>Car description: </strong> {{driver ? driver.carDescription : '...'}}
+                    </p>
+                    <p class="cardDesc"><strong>Driver Name: </strong> {{data ? data.driverName : '...'}}</p>
+                    <p class="cardDesc"><strong>Driver Id: </strong> {{driver ? driver.id : '...'}}</p>
+                    <p class="cardDesc">Distance left <strong class="metrics">{{distanceLeft ? distanceLeft :
+                            'counting'}}</strong></p>
+                </div>
+                <!-- Buttons -->
+                <hr>
+                <div class="w-100 button-wrapper">
+                    <button class="btn btn-success" (click)="callDriver()">Call Driver</button>
+                    <button class="btn btn-danger" (click)="cancelRide()">Cancel Ride</button>
+                </div>
+            </div>
+            <div class="col-md-3">
+            </div>
+        </div>
+    </div>
+</div>

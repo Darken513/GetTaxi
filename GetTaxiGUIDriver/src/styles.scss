@@ -1,0 +1,293 @@
+html,
+body {
+  height: 100%;
+  background-color: #121927;
+  color: #dcdaff;
+  font-family: "Rubik", sans-serif;
+  font-optical-sizing: auto;
+  font-weight:400;
+  font-style: normal;
+}
+.is-invalid {
+  border: 1px solid red;
+  box-shadow: 0 0 1px 1.5px #dc3545;
+}
+.modal.fade.show {
+  background: #000000d9;
+}
+.component-wrapper {
+  margin-top: 2rem;
+  padding: 2rem;
+}
+.show {
+  display: block;
+}
+.text-danger{
+  color: #da4295 !important;
+}
+.custom-card {
+  padding: 1.5rem;
+  background: #272c3a;
+  border-radius: 6px;
+}
+.confNok {
+  position: relative;
+  overflow: hidden;
+}
+.confNok::after {
+  content: "NOK";
+  color: black;
+  line-height: 1.3rem;
+  font-weight: 800;
+  font-size: 0.7rem;
+  position: absolute;
+  top: 6px;
+  right: -23px;
+  height: 20px;
+  width: 79px;
+  background: #dc3944;
+  transform: rotate(45deg);
+  text-align: center;
+}
+.cancel-padding {
+  padding: 0 !important;
+}
+/* Custom dark modal style */
+.modal-content {
+  background-color: #272c3a; /* Dark background color */
+  color: #ffffff; /* Light text color */
+}
+
+.modal-header {
+  border-bottom: 1px solid #454d55; /* Border color for the header */
+}
+
+.modal-header h5 {
+  color: #ffffff; /* Light text color for the header title */
+}
+
+.modal-body,
+.modal-footer {
+  border-top: 1px solid #454d55; /* Border color for the body and footer */
+}
+
+/* Close button color */
+.modal-header .btnClose {
+  color: #ffffff;
+  border: none;
+  background: transparent;
+}
+
+/* Close button hover color */
+.modal-header .btnClose:hover {
+  color: #007bff; /* Bootstrap's primary color */
+}
+
+#loading-container {
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  z-index: 999;
+  position: fixed;
+  background-color: #121927;
+  top: 0;
+  left: 0;
+
+  .loading-center {
+    position: fixed;
+    height: 250px;
+    width: 250px;
+    top: calc(calc(100vh - 250px) / 2);
+    left: calc(calc(100vw - 250px) / 2);
+
+    h1::after {
+      content: "...";
+      animation-name: points-animation;
+      animation-duration: 1.2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      border-radius: 10px;
+    }
+
+    h1 {
+      color: #dcdaff;
+      font-size: 2.3rem;
+      margin-left: 55px;
+      font-weight: 600;
+    }
+
+    .loading-bar {
+      height: 15px;
+      background-color: #304266;
+      border-radius: 10px;
+      overflow: hidden;
+
+      .loading-obj {
+        height: 15px;
+        background: linear-gradient(90deg, #b95ef7, #00bb99);
+        width: 75px;
+        animation-name: move-leftright;
+        animation-duration: 1.2s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+        border-radius: 10px;
+      }
+    }
+  }
+}
+
+#notification-container .notification {
+  display: block;
+  position: fixed;
+  width: 230px;
+  z-index: 99;
+  top: -150px;
+  color: #121927;
+  right: 20px;
+  opacity: 0.95;
+  border-radius: 15px;
+  animation-name: slideinTop;
+  animation-duration: 0.85s;
+  animation-fill-mode: forwards;
+  padding: 10px 20px;
+}
+
+#notification-container {
+  z-index: 99;
+  .notification.error {
+    background: #ff7466;
+  }
+
+  .notification.success {
+    background: #66ff80;
+  }
+
+  .notification.warning {
+    background: #ffec66;
+  }
+
+  .notification {
+    p.body {
+      font-size: 0.7rem;
+      margin-bottom: 5px;
+    }
+
+    h3.title {
+      font-size: 1.2rem;
+      font-weight: 400;
+    }
+
+    .btn {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      padding: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+@keyframes slideinTop {
+  from {
+    top: -150px;
+  }
+
+  to {
+    top: 20px;
+  }
+}
+
+@keyframes move-leftright {
+  0% {
+    margin-left: -45px;
+  }
+
+  100% {
+    margin-left: 250px;
+  }
+}
+
+@keyframes points-animation {
+  0% {
+    content: "";
+  }
+
+  30% {
+    content: ".";
+  }
+
+  60% {
+    content: "..";
+  }
+
+  100% {
+    content: "...";
+  }
+}
+
+@media (min-width: 576px) {
+  :root {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    font-size: 18px;
+  }
+  .component-wrapper {
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #121927;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #475788;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #272c3a;
+}
+
+.leaflet-control-container .leaflet-routing-container-hide,
+.leaflet-marker-draggable {
+  display: none;
+}
+.mt-6 {
+  margin-top: 3rem !important;
+}
+.mt-7 {
+  margin-top: 4rem !important;
+}
+.mt-8 {
+  margin-top: 5rem !important;
+}
+.mt-9 {
+  margin-top: 6rem !important;
+}
+.mt-10 {
+  margin-top: 7rem !important;
+}

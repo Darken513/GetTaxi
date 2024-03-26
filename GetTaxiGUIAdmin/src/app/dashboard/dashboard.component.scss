@@ -1,0 +1,98 @@
+p {
+  margin: 0;
+}
+.custom-card-wrapper {
+  padding: 5px !important;
+  p,
+  h5 {
+    width: 15rem;
+    text-wrap: nowrap;
+    overflow: hidden;
+    display: block;
+    text-overflow: ellipsis;
+  }
+}
+.buttons-wrapper {
+  padding: 0 0.75rem;
+  .btn {
+    border-radius: 0;
+  }
+  .btn-left {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+  }
+  .btn-right {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+}
+.custom-accordian {
+  padding: 1rem;
+  margin: 5px 0;
+  background: #1c283f;
+  border-radius: 6px;
+  .accordianTitle {
+    span {
+      color: #ffc107;
+    }
+  }
+  .arrowIcon {
+    transition: 0.5s;
+    border: none;
+    background: transparent;
+    color: #ffc107;
+    font-size: 2rem;
+  }
+  .addBtn {
+    position: relative;
+    top: -8px;
+    margin-right: 1rem;
+  }
+}
+.emptyList {
+  color: #444d68;
+  padding: 2rem 0;
+  text-align: center;
+}
+.accordian-content {
+  transition: 0.5s;
+  overflow: hidden;
+  border-top: none;
+  border: 3px solid #1c283f;
+  position: relative;
+  padding-top: 10px;
+  top: -10px;
+  margin: 0 !important;
+  .accordian-innerContent {
+    padding: 0 1.5rem;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+}
+.accordianOff {
+  height: 0 !important;
+}
+.accordianOn {
+  height: 300px;
+  margin-bottom: 2rem !important;
+}
+.accordianOn.longAccordian {
+  height: 500px;
+}
+.fa-eye {
+  color: greenyellow;
+  margin: 0px 10px;
+  cursor: pointer;
+}
+.adminSwitchHolder{
+  padding: 2rem 0 0 2rem;
+}
+.adminSwitchHolder i.fa-solid.fa-paper-plane {
+  background: #ffc107;
+  color: #121927;
+  padding: 0.9rem 1.1rem 0.9rem 0.9rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
