@@ -10,6 +10,10 @@ import { Subscription, take } from "rxjs";
 })
 export class RideStatusDataFetcher {
     rideDoesntExist = false;
+    public ready: boolean = false;
+    public canceledRide: boolean = false;
+    public connectionLost: boolean = false;
+
     public data: any = {
         phoneNumber: '...', //'+123 456 789',
         isDeferred: false,
@@ -28,6 +32,7 @@ export class RideStatusDataFetcher {
         driverName: '...',
         takenByDriver: '...',
     };
+
     public driverId: string = '';
     public rideId: string = '';
 
@@ -58,7 +63,6 @@ export class RideStatusDataFetcher {
                         this.rideDoesntExist = true;
                     }
                     this.parseRideDetails(val);
-                    if (cb) cb(this);
                     const toPush = this.driverService.getDriverById(this.driverId).subscribe({
                         next: (val) => {
                             if (val.title == "error") {
@@ -83,6 +87,8 @@ export class RideStatusDataFetcher {
                                         },
                                     });
                                     this.subs.push(toPush);
+                                    this.ready = true;
+                                    if (cb) cb(this);
                                 },
                             });
                             this.subs.push(toPush);
@@ -132,7 +138,7 @@ export class RideStatusDataFetcher {
     public cancelRide() {
         //toDo-P1 : should probably display a modal saying this ride will no longer be available if canceled 
         this.driverService.changeRideStatus(this.rideId, this.driverId).pipe(take(1)).subscribe({
-            next: (value) => {
+            next: (value: any) => {
                 if (!value.error) {
                     this.data.takenByDriver = undefined;
                     //toDo-P1 : ask for reason before canceling

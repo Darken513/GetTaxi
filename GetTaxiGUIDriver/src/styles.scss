@@ -5,7 +5,7 @@ body {
   color: #dcdaff;
   font-family: "Rubik", sans-serif;
   font-optical-sizing: auto;
-  font-weight:400;
+  font-weight: 400;
   font-style: normal;
 }
 .is-invalid {
@@ -22,7 +22,7 @@ body {
 .show {
   display: block;
 }
-.text-danger{
+.text-danger {
   color: #da4295 !important;
 }
 .custom-card {
@@ -83,7 +83,8 @@ body {
   color: #007bff; /* Bootstrap's primary color */
 }
 
-#loading-container {
+#loading-container,
+.loading-container-visible {
   width: 100vw;
   height: 100vh;
   display: none;
@@ -133,6 +134,14 @@ body {
         border-radius: 10px;
       }
     }
+  }
+}
+.loading-container-visible {
+  display: block;
+  width: auto;
+  height: auto;
+  .loading-center {
+    top: 45vh;
   }
 }
 
@@ -272,10 +281,6 @@ body {
   background: #272c3a;
 }
 
-.leaflet-control-container .leaflet-routing-container-hide,
-.leaflet-marker-draggable {
-  display: none;
-}
 .mt-6 {
   margin-top: 3rem !important;
 }
@@ -290,4 +295,69 @@ body {
 }
 .mt-10 {
   margin-top: 7rem !important;
+}
+
+.leaflet-control-container {
+  display: none !important;
+}
+
+.leaflet-control-container 
+.leaflet-zoom-animated.leaflet-marker-shadow,
+.leaflet-routing-container-hide,
+.leaflet-pane.leaflet-shadow-pane,
+.leaflet-marker-draggable {
+  display: none !important;
+}
+
+.row {
+  margin: 0;
+  .col-md-6 {
+    padding: 0;
+  }
+}
+.mapWrapper {
+  #map {
+    position: relative;
+    z-index: 0;
+    height: calc(100vh - 300px);
+  }
+}
+
+strong.metrics {
+  color: #da4295 !important;
+}
+.detailsWrapper {
+  position: relative;
+  color: #dcdaff;
+  z-index: 99;
+  padding: 1rem;
+  background-color: #121927;
+  margin-top: -25px;
+  border-radius: 25px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  .detailsCard {
+    .cardDesc {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      strong {
+        color: #00bb99;
+      }
+    }
+  }
+  .button-wrapper .btn {
+    color: #121927;
+    font-weight: 600;
+    width: calc(50% - 10px);
+    margin: 5px;
+    font-size: 1.2rem;
+    border: none;
+    padding: 0.8rem;
+  }
+  .button-wrapper .btn-success {
+    background-color: #00bb99;
+  }
+  .button-wrapper .btn-danger {
+    background-color: #d53a90;
+  }
 }

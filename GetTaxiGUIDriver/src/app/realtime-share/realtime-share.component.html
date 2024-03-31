@@ -6,12 +6,37 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist">
+<div *ngIf="!rideDoesntExist && connectionLost">
+    <div class="text-center mt-10">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le client</p>
+        <p class="lead">
+            Rétablissement de la connexion, veuillez patienter
+        </p>
+    </div>
+    <div class="loading-container-visible">
+        <div class="loading-center">
+            <h1>Loading</h1>
+            <div class="loading-bar">
+                <div class="loading-obj"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist && !connectionLost && canceledRide ">
+    <div class="text-center mt-10">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le client</p>
+        <p class="lead">
+            Restez à l'écoute pour d'autres courses
+        </p>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist && !connectionLost && !canceledRide && ready">
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>
         </div>
     </div>
+    <app-cancel-ride *ngIf="cancelingRideInProgress" (update)="onCancelReasonEvent($event)"></app-cancel-ride>
     <div class="row">
         <div class="col-md-3">
         </div>
@@ -30,7 +55,7 @@
                 <hr>
                 <div class="w-100 button-wrapper">
                     <button class="btn btn-success" (click)="callUser()">Call Client</button>
-                    <button class="btn btn-danger" (click)="cancelRide()">Cancel Ride</button>
+                    <button class="btn btn-danger" (click)="cancelingRideInProgress=true">Cancel Ride</button>
                 </div>
             </div>
             <div class="col-md-3">

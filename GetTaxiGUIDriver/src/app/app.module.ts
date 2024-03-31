@@ -10,6 +10,7 @@ import { DriverService } from './driver.service';
 import { SocketService } from './socket.service';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule, HttpHandler } from '@angular/common/http';
 import { LoadingInterceptor } from './loading.interceptor';
+import { CancelRideComponent } from './cancel-ride/cancel-ride.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { LoadingInterceptor } from './loading.interceptor';
     RideStatusComponent,
     RealtimeShareComponent,
     Error404Component,
+    CancelRideComponent,
   ],
   imports: [
     BrowserModule,

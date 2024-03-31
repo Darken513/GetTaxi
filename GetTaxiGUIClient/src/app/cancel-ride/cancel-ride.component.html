@@ -1,0 +1,26 @@
+<div class="row globalContainer" [style.bottom]="ready ? '0px' : '-500px'">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div class="detailsWrapper">
+            <div>
+                <p style="font-size: 1.4rem;">
+                    <i (click)="cancel()" class="fa-solid fa-arrow-left"></i>
+                    <strong class="metrics">Annuler</strong> la course ?
+                </p>
+            </div>
+            <hr>
+            <p>Pourquoi voulez-vous annuler votre course ?</p>
+            <div class="detailsCard">
+                <div class="reason" *ngFor="let reason of reasons" (click)="selectReason(reason)">
+                    <p><i class="{{reason.icon}}"></i>{{reason.name}}</p>
+                </div>
+            </div>
+            <div class="w-100 button-wrapper">
+                <button (click)="cancel()" class="btn btn-success">Conserver ma course</button>
+            </div>
+        </div>
+        <div class="col-md-3">
+        </div>
+    </div>
+</div>

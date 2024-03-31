@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RideStatusDataFetcher } from '../rideStatusDataFetcher';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DriverService } from '../driver.service';
@@ -22,13 +22,17 @@ enum rideState {
 })
 export class RealtimeShareComponent
   extends RideStatusDataFetcher
-  implements OnInit, OnDestroy, AfterViewInit {
+  implements OnInit, OnDestroy {
+
   timeToReachClient: string = "";
   distanceLeft: string = "";
   currentState: rideState = rideState.goingToClient;
+
   map: L.Map | null = null;
   clientMarker: L.Marker | null = null;
+  clientPosition: L.LatLngExpression = [0, 0];
   driverMarker: L.Marker | null = null;
+  driverPosition: L.LatLngExpression = [0, 0];
   routeControl: L.Routing.Control | null = null;
 
   protected lastEmitTime: number = 0;
@@ -36,6 +40,11 @@ export class RealtimeShareComponent
   protected idleTimer: ReturnType<typeof setTimeout> | null = null;
   protected navigatorWatch: ReturnType<typeof navigator.geolocation.watchPosition> | null = null;
   protected socketSub: Subscription | null = null;
+
+  lastClientUpdateTime: number | null = null;
+  protected clientIdleTimer: ReturnType<typeof setInterval> | null = null;
+
+  cancelingRideInProgress: boolean = false;
 
   constructor(
     public override socketService: SocketService,
@@ -52,56 +61,50 @@ export class RealtimeShareComponent
 
   override ngOnInit(): void {
     const cb = (data: any) => {
-      if (this.data.takenByDriver != this.driverId) {
-        this.redirectToRideStatus();
-      }
-      this.socketService.initRoomJoin(data);
-      this.socketSub = this.socketService.socketEvent.subscribe({
-        next: (response: any) => {
-          if (response.event == 'clientUpdate') {
-            this.setUserLocation(response.data.position, false);
-          }
-        },
-      });
+      setTimeout(() => {
+        this.cbOnceReady();
+        this.socketService.initRoomJoin(data);
+        this.socketSub = this.socketService.socketEvent.subscribe({
+          next: (response: any) => {
+            if (response.event == 'clientUpdate') {
+              this.setUserLocation(response.data.position, false);
+              this.handleCaseConnectionLost();
+            }
+            if (response.event == 'canceledRide') {
+              alert(JSON.stringify(response))
+              console.log('canceled Ride !!!! should display reason');
+            }
+          },
+        });
+      }, 500);
     }
     super.ngOnInit(cb);
   }
+
   ngOnDestroy(): void {
     this.killTimersAndWatchers();
-    this.subs.forEach(sub => {
-      sub.unsubscribe();
-    })
   }
-  ngAfterViewInit(): void {
+
+  cbOnceReady(): void {
+    if (this.data.takenByDriver != this.driverId) {
+      this.redirectToRideStatus();
+    }
     this.initializeMap();
     this.setupLocationTracking();
+    this.startIdleCheck();
     //this.setupOrientationTracking();
   }
 
-  formatDistance(distance: number) {
-    if (distance >= 1000) {
-      return (distance / 1000).toFixed(1) + ' km';
-    } else {
-      return distance + ' m';
+  handleCaseConnectionLost() {
+    this.lastClientUpdateTime = Date.now();
+    if (this.connectionLost) {
+      this.connectionLost = false;
+      setTimeout(() => {
+        this.reInitilizeComponent();
+      }, 500);
     }
   }
 
-  formatSeconds(seconds: number) {
-    var hours = Math.floor(seconds / 3600);
-    var minutes = Math.floor((seconds % 3600) / 60);
-    var remainingSeconds = Math.floor(seconds % 60);
-
-    var result = '';
-    if (hours > 0) {
-      result += hours + 'h ';
-    }
-    if (minutes > 0 || hours > 0) {
-      result += minutes + 'min ';
-    }
-    result += remainingSeconds + 'sec';
-
-    return result;
-  }
   protected initializeMap(): void {
     this.map = L.map('map').setView([0, 0], 2); // Set the initial map center and zoom level
     L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
@@ -109,8 +112,13 @@ export class RealtimeShareComponent
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     }).addTo(this.map);
   }
+
   protected setUserLocation(position: any, isDriver?: boolean) {
-    const userLocation: L.LatLngTuple = [position.latitude + (!isDriver ? 0.02 : 0), position.longitude + (!isDriver ? 0.02 : 0)];
+    const randomNumber = 0.02 // Math.random() * (0.02 - 0.01) + 0.01;
+    const userLocation: L.LatLngTuple = [
+      position.latitude + (!isDriver ? randomNumber : 0),
+      position.longitude + (!isDriver ? randomNumber : 0)
+    ];
     if (isDriver) {
       if (!this.driverMarker) {
         const taxiIcon = L.icon({
@@ -123,56 +131,62 @@ export class RealtimeShareComponent
           this.map!
         );
       } else {
-        this.driverMarker.setLatLng(userLocation);
+        this.driverPosition = userLocation;
       }
     } else {
       if (!this.clientMarker) {
         this.clientMarker = L.marker(userLocation).addTo(this.map!);
       } else {
-        this.clientMarker.setLatLng(userLocation);
+        this.clientPosition = userLocation;
       }
     }
-    let toFit: any = [];
-    if (this.driverMarker) {
-      toFit.push([
-        this.driverMarker!.getLatLng().lat,
-        this.driverMarker!.getLatLng().lng,
-      ]);
-    }
-    if (this.clientMarker) {
-      toFit.push([
-        this.clientMarker!.getLatLng().lat,
-        this.clientMarker!.getLatLng().lng,
-      ]);
-    }
-    this.map!.fitBounds(toFit);
     if (this.driverMarker && this.clientMarker) {
       if (this.routeControl) {
-        this.map?.removeControl(this.routeControl);
-        this.routeControl.remove();
-      }
-      this.routeControl = L.Routing.control({
-        waypoints: [
-          this.driverMarker.getLatLng(),
-          this.clientMarker.getLatLng()
-        ],
-        routeWhileDragging: true,
-        addWaypoints: false,
-        show: false,
-        lineOptions: {
-          styles: [
-            { color: '#26f', opacity: 0.7, weight: 5 } // Customize color, opacity, and weight of the route
+        this.routeControl.setWaypoints([
+          (this.driverPosition as L.LatLng),
+          (this.clientPosition as L.LatLng),
+        ]);
+      } else {
+        this.routeControl = L.Routing.control({
+          waypoints: [
+            (this.driverPosition as L.LatLng),
+            (this.clientPosition as L.LatLng),
           ],
-          extendToWaypoints: false,
-          missingRouteTolerance: 0
-        }
-      }).addTo(this.map!);
-      this.routeControl.hide()
-      this.routeControl.on('routesfound', (event) => {
-        const route = event.routes[0];
-        this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
-        this.distanceLeft = this.formatDistance(route.summary.totalDistance)
-      });
+          addWaypoints: false,
+          show: false,
+          lineOptions: {
+            styles: [
+              { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
+            ],
+            extendToWaypoints: false,
+            missingRouteTolerance: 0,
+          },
+        }).addTo(this.map!);
+        this.routeControl.hide();
+        this.routeControl.on('routesfound', (event) => {
+          const route = event.routes[0];
+          this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
+          this.distanceLeft = this.formatDistance(route.summary.totalDistance);
+          if(this.driverMarker)
+            this.driverMarker!.setLatLng(this.driverPosition);
+          if(this.clientMarker)
+            this.clientMarker!.setLatLng(this.clientPosition);
+          let toFit: any = [];
+          if (this.driverMarker) {
+            toFit.push([
+              this.driverMarker!.getLatLng().lat,
+              this.driverMarker!.getLatLng().lng,
+            ]);
+          }
+          if (this.clientMarker) {
+            toFit.push([
+              this.clientMarker!.getLatLng().lat,
+              this.clientMarker!.getLatLng().lng,
+            ]);
+          }
+          this.map!.fitBounds(toFit, { padding: [50, 50] });
+        });
+      }
     }
   }
 
@@ -199,7 +213,7 @@ export class RealtimeShareComponent
   protected startIdleTimer(): void {
     this.idleTimer = setTimeout(() => {
       this.emitLastLocation();
-    }, 5000);
+    }, 3000);
   }
 
   protected resetIdleTimer(): void {
@@ -210,7 +224,7 @@ export class RealtimeShareComponent
   protected emitLastLocation(): void {
     if (this.lastLocationSent && this.rideId) {
       const currentTime = Date.now();
-      if (currentTime - this.lastEmitTime >= 5000) {
+      if (currentTime - this.lastEmitTime >= 3000) {
         this.emitLocation();
         this.resetIdleTimer();
       }
@@ -229,12 +243,110 @@ export class RealtimeShareComponent
     }
   }
 
-  public killTimersAndWatchers() {
-    clearTimeout(this.idleTimer!);
-    navigator.geolocation.clearWatch(this.navigatorWatch!);
-    this.socketSub?.unsubscribe();
+  startIdleCheck() {
+    this.clientIdleTimer = setInterval(() => {
+      if (this.lastClientUpdateTime && Date.now() - this.lastClientUpdateTime >= 6000) {
+        this.connectionLost = true;
+      }
+    }, 6000);
   }
 
+  public killTimersAndWatchers() {
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer);
+    }
+    if (this.clientIdleTimer) {
+      clearInterval(this.clientIdleTimer);
+    }
+    if (this.navigatorWatch) {
+      navigator.geolocation.clearWatch(this.navigatorWatch);
+    }
+    if (this.socketSub) {
+      this.socketSub?.unsubscribe();
+    }
+    this.subs.forEach(sub => {
+      sub.unsubscribe();
+    })
+  }
+
+  protected onCancelReasonEvent(event: any): void {
+    if (event && event.cancel) {
+      this.cancelingRideInProgress = false;
+      return;
+    }
+    if (event && event.reason) {
+      console.log('canceling ride with reason:', event.reason);
+    }
+  }
+
+  protected reInitilizeComponent(): void {
+    this.ngOnDestroy();
+    this.resetAllProperties();
+    this.ngOnInit();
+  }
+
+  protected resetAllProperties(): void {
+    this.timeToReachClient = '';
+    this.distanceLeft = '';
+    this.currentState = rideState.goingToClient;
+    this.map = null;
+    this.clientMarker = null;
+    this.driverMarker = null;
+    this.routeControl = null;
+    this.lastEmitTime = 0;
+    this.lastLocationSent = null;
+    this.idleTimer = null;
+    this.navigatorWatch = null;
+    this.socketSub = null;
+    this.lastClientUpdateTime = null;
+    this.canceledRide = false;
+    this.connectionLost = false;
+    this.data = {
+      phoneNumber: '...',
+      isDeferred: false,
+      deferredDateTime: '...',
+      created_at: '...',
+      current_roadName: '...',
+      current_roadNbr: '...',
+      current_postalCode: '...',
+      current_city: '...',
+      destination_roadName: '...',
+      destination_roadNbr: '...',
+      destination_postalCode: '...',
+      destination_city: '...',
+      zone: '...',
+      carType: '...',
+      driverName: '...',
+      takenByDriver: '...',
+    };
+    this.rideId = '';
+    this.driverId = '';
+  }
+
+  formatDistance(distance: number) {
+    if (distance >= 1000) {
+      return (distance / 1000).toFixed(1) + ' km';
+    } else {
+      return distance + ' m';
+    }
+  }
+
+  formatSeconds(seconds: number) {
+    var hours = Math.floor(seconds / 3600);
+    var minutes = Math.floor((seconds % 3600) / 60);
+    var remainingSeconds = Math.floor(seconds % 60);
+
+    var result = '';
+    if (hours > 0) {
+      result += hours + 'h ';
+    }
+    if (minutes > 0 || hours > 0) {
+      result += minutes + 'min ';
+    }
+    result += remainingSeconds + 'sec';
+
+    return result;
+  }
   /* protected setupOrientationTracking(): void {
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', event => {

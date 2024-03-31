@@ -1,0 +1,32 @@
+.reason {
+  background-color: #202e49;
+  border-radius: 10px;
+  p {
+    margin: 0;
+    margin-top: 5px;
+    padding: 10px;
+    i {
+      width: 35px;
+    }
+  }
+}
+
+.globalContainer{
+    position: absolute;
+    transition: all 0.5s;
+    bottom: -500px;
+    z-index: 999;
+    width: 100%;
+}
+
+.detailsWrapper {
+  .button-wrapper .btn {
+    margin: 0;
+    margin-top: 15px;
+    width: 100%;
+  }
+  .fa-arrow-left{
+    width: 30px;
+    margin-right: calc(calc(100% - 267px) / 2 );
+  }
+}

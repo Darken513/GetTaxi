@@ -2,7 +2,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DriverService } from "../driver.service";
 import { SocketService } from "../socket.service";
 import { Component, Inject } from "@angular/core";
-import { Subscription } from "rxjs";
+import { Subscription, take } from "rxjs";
 
 @Component({
     selector: 'app-BasicDataFetcher',
@@ -13,6 +13,7 @@ export class RideStatusDataFetcher {
     public ready: boolean = false;
     public canceledRide: boolean = false;
     public connectionLost: boolean = false;
+
     public data: any = {
         phoneNumber: '...', //'+123 456 789',
         isDeferred: false,
@@ -31,6 +32,7 @@ export class RideStatusDataFetcher {
         driverName: '...',
         takenByDriver: '...',
     };
+
     public rideId: string = '';
 
     public driver: any; //todo-P3 : use modals
@@ -59,29 +61,11 @@ export class RideStatusDataFetcher {
                         this.rideDoesntExist = true;
                         return;
                     }
-                    this.ride = val;
-                    this.data.takenByDriver = val.takenByDriver;
-                    this.data.phoneNumber = val.phoneNumber;
-                    this.data.isDeferred = val.isDeferred;
-                    this.data.deferredDateTime = val.deferredDateTime;
-
-                    this.data.currentLocation = val.currentLocation;
-                    this.data.created_at = this.formatDate(
-                        val.created_at._seconds * 1000
-                    );
-                    this.data.current_roadName = val.current_roadName;
-                    this.data.current_roadNbr = val.current_roadNbr;
-                    this.data.current_postalCode = val.current_postalCode;
-                    this.data.current_city = val.current_city;
-                    this.data.destination_roadName = val.destination_roadName;
-                    this.data.destination_roadNbr = val.destination_roadNbr;
-                    this.data.destination_postalCode = val.destination_postalCode;
-                    this.data.destination_city = val.destination_city;
-                    if(!this.data.takenByDriver){
+                    this.parseRideDetails(val);
+                    if (!this.data.takenByDriver) {
                         this.canceledRide = true;
                         return;
                     }
-                    //fetch the driver that tooksthe ride  details 
                     let toPush = this.driverService.getDriverById(this.data.takenByDriver).subscribe({
                         next: (val) => {
                             if (val.title == "error") {
@@ -119,6 +103,38 @@ export class RideStatusDataFetcher {
             this.subs.push(toPush);
         });
         this.subs.push(toPush);
+    }
+    parseRideDetails(val: any) {
+        this.ride = val;
+        this.data.takenByDriver = val.takenByDriver;
+        this.data.phoneNumber = val.phoneNumber;
+        this.data.isDeferred = val.isDeferred;
+        this.data.deferredDateTime = val.deferredDateTime;
+
+        this.data.currentLocation = val.currentLocation;
+        this.data.created_at = this.formatDate(
+            val.created_at._seconds * 1000
+        );
+        this.data.current_roadName = val.current_roadName;
+        this.data.current_roadNbr = val.current_roadNbr;
+        this.data.current_postalCode = val.current_postalCode;
+        this.data.current_city = val.current_city;
+        this.data.destination_roadName = val.destination_roadName;
+        this.data.destination_roadNbr = val.destination_roadNbr;
+        this.data.destination_postalCode = val.destination_postalCode;
+        this.data.destination_city = val.destination_city;
+
+    }
+
+    public cancelRide() {
+        //toDo-P1 : should probably display a modal saying this ride will no longer be available if canceled 
+        this.driverService.changeRideStatus(this.rideId).pipe(take(1)).subscribe({
+            next: (value: any) => {
+                if (!value.error) {
+                    //toDo-P1 : ask for reason before canceling
+                }
+            },
+        });
     }
 
     formatDate(inputDate: any) {
