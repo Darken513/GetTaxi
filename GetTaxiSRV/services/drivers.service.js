@@ -33,7 +33,7 @@ exports.getDriverByID = async (driverId) => {
     if(!snapshot.exists){
       throw Error('Driver with id : ' + driverId + ' Doesnt exist')
     }
-    //todo : should store def in cache
+    //todo-P2 : should store def in cache
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
     console.error("Error getting driver:", error);

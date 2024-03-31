@@ -22,7 +22,7 @@
         </div>
     </div>
 </div>
-<div *ngIf="canceledRide">
+<div *ngIf="canceledRide && !connectionLost">
     <div class="text-center mt-10">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
         <p class="lead">
@@ -31,7 +31,7 @@
         <p></p>
     </div>
 </div>
-<div *ngIf="ready && !rideDoesntExist">
+<div *ngIf="ready && !rideDoesntExist && !canceledRide && !connectionLost">
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>

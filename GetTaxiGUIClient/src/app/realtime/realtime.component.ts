@@ -40,6 +40,9 @@ export class RealtimeComponent
   protected navigatorWatch: ReturnType<typeof navigator.geolocation.watchPosition> | null = null;
   protected socketSub: Subscription | null = null;
 
+  lastDriverUpdateTime: number | null = null;
+  protected driverIdleTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     public override socketService: SocketService,
     public override driverService: DriverService,
@@ -54,6 +57,16 @@ export class RealtimeComponent
   }
   cancelRide() { }
 
+  handleCaseConnectionLost() {
+    this.lastDriverUpdateTime = Date.now();
+    if (this.connectionLost) {
+      this.connectionLost = false;
+      setTimeout(() => {
+        this.reInitilizeComponent();
+      }, 500);
+    }
+  }
+
   override ngOnInit(): void {
     const cb = (data: any) => {
       setTimeout(() => {
@@ -63,6 +76,7 @@ export class RealtimeComponent
           next: (response: any) => {
             if (response.event == 'driverUpdate') {
               this.setUserLocation(response.data.position, true);
+              this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
               alert(JSON.stringify(response))
@@ -74,22 +88,42 @@ export class RealtimeComponent
     }
     super.ngOnInit(cb);
   }
+
+  startIdleCheck() {
+    this.driverIdleTimer = setInterval(() => {
+      console.log('checking driver idle time');
+      if (this.lastDriverUpdateTime && Date.now() - this.lastDriverUpdateTime >= 10000) {
+        this.connectionLost = true;
+      }
+    }, 10000);
+  }
+
   ngOnDestroy(): void {
     this.killTimersAndWatchers();
+  }
+
+  public killTimersAndWatchers() {
+    if (this.idleTimer) {
+      clearInterval(this.idleTimer);
+    }
+    if (this.driverIdleTimer) {
+      clearInterval(this.driverIdleTimer);
+    }
+    if (this.navigatorWatch) {
+      navigator.geolocation.clearWatch(this.navigatorWatch);
+    }
+    if (this.socketSub) {
+      this.socketSub?.unsubscribe();
+    }
     this.subs.forEach(sub => {
       sub.unsubscribe();
     })
   }
 
-  public killTimersAndWatchers() {
-    clearTimeout(this.idleTimer!);
-    navigator.geolocation.clearWatch(this.navigatorWatch!);
-    this.socketSub?.unsubscribe();
-  }
-
   cbOnceReady(): void {
     this.initializeMap();
     this.setupLocationTracking();
+    this.startIdleCheck();
     //this.setupOrientationTracking();
   }
 
@@ -117,6 +151,49 @@ export class RealtimeComponent
 
     return result;
   }
+  protected reInitilizeComponent(): void {
+    this.ngOnDestroy();
+    this.resetAllProperties();
+    this.ngOnInit();
+  }
+
+  protected resetAllProperties(): void {
+    this.timeToReachClient = '';
+    this.distanceLeft = '';
+    this.currentState = rideState.goingToClient;
+    this.map = null;
+    this.clientMarker = null;
+    this.driverMarker = null;
+    this.routeControl = null;
+    this.lastEmitTime = 0;
+    this.lastLocationSent = null;
+    this.idleTimer = null;
+    this.navigatorWatch = null;
+    this.socketSub = null;
+    this.lastDriverUpdateTime = null;
+    this.canceledRide = false;
+    this.connectionLost = false;
+    this.data = {
+      phoneNumber: '...',
+      isDeferred: false,
+      deferredDateTime: '...',
+      created_at: '...',
+      current_roadName: '...',
+      current_roadNbr: '...',
+      current_postalCode: '...',
+      current_city: '...',
+      destination_roadName: '...',
+      destination_roadNbr: '...',
+      destination_postalCode: '...',
+      destination_city: '...',
+      zone: '...',
+      carType: '...',
+      driverName: '...',
+      takenByDriver: '...',
+    };
+    this.rideId = '';
+  }
+
   protected initializeMap(): void {
     this.map = L.map('map').setView([0, 0], 2); // Set the initial map center and zoom level
     L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
@@ -124,6 +201,7 @@ export class RealtimeComponent
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }).addTo(this.map);
   }
+  
   protected setUserLocation(position: any, isDriver?: boolean) {
     const userLocation: L.LatLngTuple = [
       position.latitude + (!isDriver ? 0.02 : 0),

@@ -56,15 +56,15 @@ export class RealtimeShareComponent
         this.redirectToRideStatus();
       }
       this.socketService.initRoomJoin(data);
+      this.socketSub = this.socketService.socketEvent.subscribe({
+        next: (response: any) => {
+          if (response.event == 'clientUpdate') {
+            this.setUserLocation(response.data.position, false);
+          }
+        },
+      });
     }
     super.ngOnInit(cb);
-    this.socketSub = this.socketService.socketEvent.subscribe({
-      next: (response: any) => {
-        if (response.event == 'clientUpdate') {
-          this.setUserLocation(response.data.position, false);
-        }
-      },
-    });
   }
   ngOnDestroy(): void {
     this.killTimersAndWatchers();

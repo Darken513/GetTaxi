@@ -31,10 +31,10 @@ export class RideStatusDataFetcher {
     public driverId: string = '';
     public rideId: string = '';
 
-    public driver: any; //todo : use modals
-    public ride: any; //todo : use modals
-    public zone: any; //todo : use modals
-    public car: any; //todo : use modals
+    public driver: any; //todo-P3 : use modals
+    public ride: any; //todo-P3 : use modals
+    public zone: any; //todo-P3 : use modals
+    public car: any; //todo-P3 : use modals
 
     public subs: Array<Subscription> = [];
 
@@ -58,34 +58,34 @@ export class RideStatusDataFetcher {
                         this.rideDoesntExist = true;
                     }
                     this.parseRideDetails(val);
+                    if (cb) cb(this);
                     const toPush = this.driverService.getDriverById(this.driverId).subscribe({
                         next: (val) => {
                             if (val.title == "error") {
                                 this.rideDoesntExist = true;
                             }
-                            this.driver = val; //todo if error redirect to 404
+                            this.driver = val;
                             this.data.driverName = val.name + ' ' + val.familyName;
-                            if (cb) cb(this);
-
-                            const toPush0 = this.driverService.getZoneById(this.driver.zone).subscribe({
+                            const toPush = this.driverService.getZoneById(this.driver.zone).subscribe({
                                 next: (val) => {
                                     if (val.title == "error") {
                                         this.rideDoesntExist = true;
                                     }
                                     this.data.zone = val.name;
                                     this.zone = val;
+                                    const toPush = this.driverService.getCarByID(this.driver.carType).subscribe({
+                                        next: (val) => {
+                                            if (val.title == "error") {
+                                                this.rideDoesntExist = true;
+                                            }
+                                            this.data.carType = val.name;
+                                            this.car = val;
+                                        },
+                                    });
+                                    this.subs.push(toPush);
                                 },
                             });
-                            const toPush1 = this.driverService.getCarByID(this.driver.carType).subscribe({
-                                next: (val) => {
-                                    if (val.title == "error") {
-                                        this.rideDoesntExist = true;
-                                    }
-                                    this.data.carType = val.name;
-                                    this.car = val;
-                                },
-                            });
-                            this.subs.push(toPush0, toPush1);
+                            this.subs.push(toPush);
                         },
                     });
                     this.subs.push(toPush);
@@ -102,7 +102,7 @@ export class RideStatusDataFetcher {
         this.data.phoneNumber = val.phoneNumber;
         this.data.isDeferred = val.isDeferred;
         this.data.deferredDateTime = val.deferredDateTime;
-        // toDo: change this using new format
+
         this.data.currentLocation = val.currentLocation;
         this.data.created_at = this.formatDate(
             val.created_at._seconds * 1000
@@ -130,12 +130,12 @@ export class RideStatusDataFetcher {
     }
 
     public cancelRide() {
-        //toDo : should probably display a modal saying this ride will no longer be available if canceled 
+        //toDo-P1 : should probably display a modal saying this ride will no longer be available if canceled 
         this.driverService.changeRideStatus(this.rideId, this.driverId).pipe(take(1)).subscribe({
             next: (value) => {
                 if (!value.error) {
                     this.data.takenByDriver = undefined;
-                    //to-do : ask for reason before canceling
+                    //toDo-P1 : ask for reason before canceling
                     this.redirectToRideStatus();
                 }
             },

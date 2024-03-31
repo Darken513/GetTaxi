@@ -12,8 +12,6 @@ export class RideStatusDataFetcher {
     rideDoesntExist = false;
     public ready: boolean = false;
     public canceledRide: boolean = false;
-    //todo : if driver position is idle for 15 seconds => estimate connection lost
-    //connection restablishement is treated by simply receiving a new position 
     public connectionLost: boolean = false;
     public data: any = {
         phoneNumber: '...', //'+123 456 789',
@@ -35,10 +33,10 @@ export class RideStatusDataFetcher {
     };
     public rideId: string = '';
 
-    public driver: any; //todo : use modals
-    public ride: any; //todo : use modals
-    public zone: any; //todo : use modals
-    public car: any; //todo : use modals
+    public driver: any; //todo-P3 : use modals
+    public ride: any; //todo-P3 : use modals
+    public zone: any; //todo-P3 : use modals
+    public car: any; //todo-P3 : use modals
 
     public subs: Array<Subscription> = [];
 
@@ -66,7 +64,7 @@ export class RideStatusDataFetcher {
                     this.data.phoneNumber = val.phoneNumber;
                     this.data.isDeferred = val.isDeferred;
                     this.data.deferredDateTime = val.deferredDateTime;
-                    // toDo: change this using new format
+
                     this.data.currentLocation = val.currentLocation;
                     this.data.created_at = this.formatDate(
                         val.created_at._seconds * 1000
@@ -89,7 +87,7 @@ export class RideStatusDataFetcher {
                             if (val.title == "error") {
                                 this.rideDoesntExist = true;
                             }
-                            this.driver = val; //todo if error redirect to 404
+                            this.driver = val;
                             this.data.driverName = val.name + ' ' + val.familyName;
                             const toPush = this.driverService.getZoneById(this.driver.zone).subscribe({
                                 next: (val) => {

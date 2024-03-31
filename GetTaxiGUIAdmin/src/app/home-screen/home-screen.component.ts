@@ -54,7 +54,7 @@ export class AdminHomeScreenComponent {
     })
     this.customForm = this.fb.group({
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
-      //achraf-to-do : maybe add email for defered case, to remind user
+      //todo-p3 : maybe add email/sms for defered case, to remind user
       isDeferred: [false],
       deferredDateTime: [''],
       current_roadName: ['', [Validators.required]],

@@ -18,7 +18,7 @@ export class SocketService {
     }
   }
   public canceledRide(data: any) {
-    //todo
+    //todo-P1 : add a modal to show the user that the ride has been canceled
     this.emit('canceledRide', { rideId: data.rideId, isDriver: true });
   }
   public initRoomJoin(data: any) {

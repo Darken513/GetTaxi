@@ -30,11 +30,6 @@ exports.initRideStatus = async (data) => {
       return new DriverURL(driver, rideStatus);
     });
     // send sms to all drivers
-    // to-do : create a client side project for drivers
-    // it should ask the driver if he is sure he wants to take the ride
-    // it should also connect to backend via web socket, to verify if the ride is not yet taken
-    // once the driver accepts, a second check should be done, if taken display error
-    // else affect the ride to that driver, and disable all other links
     for (let i = 0; i < driverUrls.length; i++) {
       const driverUrl = driverUrls[i];
       let body = `Proposal: ${driverUrl.rideStatusObj.id}
@@ -88,7 +83,7 @@ exports.getRideById = async (rideId) => {
     if(!snapshot.exists){
       throw Error('Ride status with id : ' + rideId + ' Doesnt exist')
     }
-    //todo : should store def in cache
+    //todo-P2 : should store def in cache
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
     console.error("Error getting Ride:", error);

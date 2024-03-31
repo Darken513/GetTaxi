@@ -10,6 +10,5 @@ export const routes: Routes = [
             { path: '**', component: Error404Component }
         ]
     },
-    //achraf-to-do : use same component int admin project but with redirection
     { path: '**', component: Error404Component }
 ];
