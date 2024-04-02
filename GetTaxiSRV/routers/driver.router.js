@@ -17,6 +17,7 @@ router.get('/getZoneById/:zoneId', zone_controller.getZoneById);
 
 //RideStatus section
 router.get('/getRideById/:rideId', rideStatus_controller.getRideById);
-router.get('/changeRideStatus/:rideId/:driverId', rideStatus_controller.changeRideStatus);
+router.get('/acceptRide/:rideId/:driverId', rideStatus_controller.acceptRide);
+router.post('/cancelRide/:rideId', rideStatus_controller.cancelRide);
 
 module.exports = router;

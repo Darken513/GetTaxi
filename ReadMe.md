@@ -15,3 +15,15 @@ secondary stuff :
     - ⁠Permis de taxi 
     - ⁠et la carte grise de sa voiture. 
 - a realtime location update user-driver
+
+
+
+TODO : 
+- on driver & user cancel ride
+- keep track of the driver behavior ( cancel & accept ) rides
+- add a proprety to disable ridestatus if user canceled it
+- add credis to drivers
+
+- we should find a solution for calculating the distance between start & end
+- we should find a way for online payment so that the driver charges his wallet
+- 

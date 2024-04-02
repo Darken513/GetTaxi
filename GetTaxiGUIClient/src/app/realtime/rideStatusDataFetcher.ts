@@ -126,9 +126,8 @@ export class RideStatusDataFetcher {
 
     }
 
-    public cancelRide() {
-        //toDo-P1 : should probably display a modal saying this ride will no longer be available if canceled 
-        this.driverService.changeRideStatus(this.rideId).pipe(take(1)).subscribe({
+    public cancelRide(reason:any) {
+        this.driverService.cancelRide(this.rideId, reason).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
                     //toDo-P1 : ask for reason before canceling

@@ -276,7 +276,7 @@ export class RealtimeComponent
       return;
     }
     if (event && event.reason) {
-      console.log('canceling ride with reason:', event.reason);
+      this.cancelRide(event.reason);
     }
   }
 

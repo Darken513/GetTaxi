@@ -3,10 +3,12 @@ const zonesRef = db.collection("zones");
 const carTypesRef = db.collection("carTypes");
 const driversRef = db.collection("Drivers");
 const rideStatusRef = db.collection("RideStatus");
+const driverBehaviorRef = db.collection("DriverBehavior");
 const { DriverURL } = require("../models/DriverURL");
 
 const cacheService = require("./cache.service");
-const cachePath = ["rideStatus", "values"];
+const RS_cachepath = ["rideStatus", "values"];
+const DBH_cachepath = ["driverBehavior", "values"];
 
 exports.initRideStatus = async (data) => {
   try {
@@ -23,7 +25,7 @@ exports.initRideStatus = async (data) => {
     }
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
-    cacheService.storeOrUpdateDef([...cachePath, docRef.id], rideStatus);
+    cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
     console.log("Ride status initiated with ID:", docRef.id);
 
     const driverUrls = drivers.map((driver) => {
@@ -34,18 +36,16 @@ exports.initRideStatus = async (data) => {
       const driverUrl = driverUrls[i];
       let body = `Proposal: ${driverUrl.rideStatusObj.id}
 Date/heure: 
-${
-  driverUrl.rideStatusObj.isDeferred
-    ? "Différée, " + formatDate(driverUrl.rideStatusObj.deferredDateTime)
-    : "Immédiatement"
-}
+${driverUrl.rideStatusObj.isDeferred
+          ? "Différée, " + formatDate(driverUrl.rideStatusObj.deferredDateTime)
+          : "Immédiatement"
+        }
 
 Adresse de prise en charge: 
-${
-  driverUrl.rideStatusObj.current_roadName +
-  driverUrl.rideStatusObj.current_postalCode +
-  driverUrl.rideStatusObj.current_city
-}
+${driverUrl.rideStatusObj.current_roadName +
+        driverUrl.rideStatusObj.current_postalCode +
+        driverUrl.rideStatusObj.current_city
+        }
 
 Cliquez ici pour accepter la course: 
 ${driverUrl.rideStatusURL}
@@ -73,14 +73,14 @@ ${driverUrl.rideStatusURL}
 };
 
 exports.getRideById = async (rideId) => {
-  const cachedResult = cacheService.getByPath([...cachePath, rideId]);
+  const cachedResult = cacheService.getByPath([...RS_cachepath, rideId]);
   if (cachedResult) {
     return cachedResult;
   }
   try {
     const docRef = rideStatusRef.doc(rideId);
     const snapshot = await docRef.get();
-    if(!snapshot.exists){
+    if (!snapshot.exists) {
       throw Error('Ride status with id : ' + rideId + ' Doesnt exist')
     }
     //todo-P2 : should store def in cache
@@ -91,11 +91,11 @@ exports.getRideById = async (rideId) => {
   }
 };
 
-exports.changeRideStatus = async (rideId, driverId) => {
+exports.acceptRide = async (rideId, driverId) => {
   try {
     const docRef = rideStatusRef.doc(rideId);
     const snapshot = await docRef.get();
-    if(!snapshot.exists){
+    if (!snapshot.exists) {
       throw Error('Ride status with id : ' + rideId + ' Doesnt exist')
     }
     const isOwner = snapshot.data().takenByDriver == driverId;
@@ -110,7 +110,7 @@ exports.changeRideStatus = async (rideId, driverId) => {
       ...snapshot.data(),
       takenByDriver: !isOwner ? driverId : "",
     };
-    cacheService.storeOrUpdateDef([...cachePath, docRef.id], toSaveCache);
+    cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], toSaveCache);
     console.log(
       "Ride ",
       rideId,
@@ -121,6 +121,75 @@ exports.changeRideStatus = async (rideId, driverId) => {
   } catch (error) {
     console.error("Error initiating Ride status:", error);
     return -1;
+  }
+};
+
+exports.cancelRide = async (rideId, reasonObj) => {
+  try {
+    const rideS_docRef = rideStatusRef.doc(rideId);
+    const rideS_snapshot = await rideS_docRef.get();
+    if (!rideS_snapshot.exists) {
+      throw Error('Ride status with id : ' + rideId + ' Doesnt exist');
+    }
+    if (rideS_snapshot.data().canceled) {
+      throw Error('Ride status with id : ' + rideId + ' Already canceled');
+    }
+    if (reasonObj && reasonObj.driverId) {
+      const isOwner = (rideS_snapshot.data().takenByDriver && rideS_snapshot.data().takenByDriver == driverId);
+      if (!isOwner) {
+        return -1;
+      } else {
+        //toDo-P1 : should cancel ride and save a log to track it + reason
+        await rideS_docRef.update({
+          takenByDriver: "",
+        });
+        const toSaveCache = {
+          id: rideS_docRef.id,
+          ...rideS_snapshot.data(),
+          takenByDriver: "",
+        };
+        cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
+        let driverBH = {
+          behaviorType: "rideCanceled",
+          created_at: new Date(),
+          creditsAffected: rideS_snapshot.data().creditsCost,
+          driverId: reasonObj.driverId,
+          rideId: rideId,
+          reason: reasonObj.reason
+        }
+        //todo-P1: should reduce driver credits
+        //should get current credits first ...
+        // import the driverService to avoid retyping code
+
+        /* const updatedData = {
+          credits: 0
+        };
+        const result = await driversService.updateDriver(driverId, updatedData)
+        if (result != -1) {
+          res.status(201).json({ title: "success", body: "Driver updated successfully." });
+        } else {
+          res.status(201).json({ title: "error", body: "Driver update failed." });
+        } */
+        const driverBH_docRef = await driverBehaviorRef.add(driverBH);
+        driverBH = { id: driverBH_docRef.id, ...driverBH };
+        cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
+        console.log(
+          "Ride ",
+          rideId,
+          "canceled by driver",
+          driverId
+        );
+        return {
+          status: 0,
+          body: toSaveCache
+        };
+      }
+    } else {
+      //todo-P1: case user ( not driver, make the ridestatus state canceled )
+    }
+  } catch (error) {
+    console.error("Error initiating Ride status:", error);
+    return { status: -1 };
   }
 };
 

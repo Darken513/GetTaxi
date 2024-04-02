@@ -124,7 +124,7 @@ export class RideStatusDataFetcher {
     }
 
     public acceptRide() {
-        this.driverService.changeRideStatus(this.rideId, this.driverId).pipe(take(1)).subscribe({
+        this.driverService.acceptRide(this.rideId, this.driverId).pipe(take(1)).subscribe({
             next: (value) => {
                 if (value.error) {
                     this.data.takenByDriver = 'other';
@@ -135,13 +135,11 @@ export class RideStatusDataFetcher {
         });
     }
 
-    public cancelRide() {
-        //toDo-P1 : should probably display a modal saying this ride will no longer be available if canceled 
-        this.driverService.changeRideStatus(this.rideId, this.driverId).pipe(take(1)).subscribe({
+    public cancelRide(reason:any) {
+        this.driverService.cancelRide(this.rideId, this.driverId, reason).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
                     this.data.takenByDriver = undefined;
-                    //toDo-P1 : ask for reason before canceling
                     this.redirectToRideStatus();
                 }
             },

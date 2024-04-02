@@ -40,8 +40,8 @@ const cache = {
         fetchedAllOnce: false
     },
 };
-const ttlInSeconds = 15;
-const cleanTimerInSeconds = 10;
+const ttlInSeconds = 45;
+const cleanTimerInSeconds = 25;
 
 exports.storeOrUpdateDef = function (pathArray, value) {
     //console.info('attempting to store/update def in cache')

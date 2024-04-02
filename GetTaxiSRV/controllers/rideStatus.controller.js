@@ -25,17 +25,33 @@ exports.getRideById = async (req, res) => {
   if (result != -1) {
     res.json(result);
   } else {
+    //todo-P3 : log the errors
     res.json({ title: "error", body: "Ride not available." });
   }
 }
 
-exports.changeRideStatus = async (req, res) => {
+exports.acceptRide = async (req, res) => {
   const rideId = req.params.rideId;
   const driverId = req.params.driverId;
-  const result = await rideStatusService.changeRideStatus(rideId, driverId);
+  const result = await rideStatusService.acceptRide(rideId, driverId);
   if (result != -1) {
     res.json(result);
   } else {
+    //todo-P3 : log the errors
     res.json({ title: "error", body: "Ride no longer available.", error: true });
+  }
+}
+
+exports.cancelRide = async (req, res) => {
+  const rideId = req.params.rideId;
+  const reasonObj = req.body;
+  const result = await rideStatusService.cancelRide(rideId, reasonObj);
+  if (result.state == 0) {
+    res.json(result.body);
+    return;
+  }
+  if (result.state == -1) {
+    //todo-P3 : log the errors
+    res.json({ title: "error", body: `Driver with Id ${reasonObj.driverId} attempting to cancel unowned ride ${rideId}.`, error: true });
   }
 }

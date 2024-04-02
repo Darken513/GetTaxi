@@ -25,7 +25,7 @@ export class DriverService {
   public getRideById(rideId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getRideById/${rideId}`);
   }
-  public changeRideStatus(rideId: string): Observable<any> {
-    return this.http.get<{ response: any }>(`${this.apiUrl}/changeRideStatus/${rideId}`);
+  public cancelRide(rideId: string, reason:any): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/cancelRide/${rideId}`, {reason});
   }
 }
