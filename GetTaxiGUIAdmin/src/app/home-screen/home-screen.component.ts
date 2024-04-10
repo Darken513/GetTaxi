@@ -96,15 +96,12 @@ export class AdminHomeScreenComponent {
     if (this.customForm.valid) {
       this.adminService.initRideStatus(this.customForm.value).subscribe({
         next: (val) => {
-          console.log(val);
           this.notificationService.showNotification(val)
         },
         error: (error) => {
           this.notificationService.showNotification({ title: 'error', body: 'Error initating Ride status' })
         }
       })
-    } else {
-      console.log('Form contains errors. Please fix them before submitting.');
     }
   }
 

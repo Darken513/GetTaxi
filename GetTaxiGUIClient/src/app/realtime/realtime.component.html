@@ -6,7 +6,7 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && isCanceledRide ">
+<div *ngIf="!rideDoesntExist && isCanceledByDriver ">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
         <p class="lead">
@@ -15,7 +15,7 @@
         <p></p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledRide && connectionLost">
+<div *ngIf="!rideDoesntExist && !isCanceledByDriver && connectionLost">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le chauffeur</p>
         <p class="lead">
@@ -31,7 +31,7 @@
         </div>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !connectionLost && !isCanceledRide && ready">
+<div *ngIf="!rideDoesntExist && !connectionLost && !isCanceledByDriver && ready">
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>

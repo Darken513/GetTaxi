@@ -44,9 +44,7 @@ const ttlInSeconds = 45;
 const cleanTimerInSeconds = 25;
 
 exports.storeOrUpdateDef = function (pathArray, value) {
-    //console.info('attempting to store/update def in cache')
     if (!Array.isArray(pathArray)) {
-        console.error("pathArray should be an Array")
         return -1;
     }
     let currentObj = cache;
@@ -66,17 +64,13 @@ exports.storeOrUpdateDef = function (pathArray, value) {
         expirationTime: Date.now() + ttlInSeconds * 1000
     };
     if (shouldIncrement) {
-        //console.info('stored a new def in cache')
         cache[pathArray[0]].totalCount += 1;
     } else {
-        //console.info('updated an existing def in cache')
     }
 }
 
 exports.updateDefSpecificProp = function (pathArray, value) {
-    //console.info('attempting to update specific prop in cache')
     if (!Array.isArray(pathArray)) {
-        console.error("pathArray should be an Array")
         return -1;
     }
     let currentObj = cache;
@@ -93,9 +87,7 @@ exports.updateDefSpecificProp = function (pathArray, value) {
     currentObj[pathArray[pathArray.length - 1]] = value;
 }
 exports.storeOrUpdateArrayofDefs = function (nodeName, values, ttlInSeconds = 10) {
-    //console.info('attempting to store an array of defs in cache')
     if (!Array.isArray(values)) {
-        console.error("pathArray & values should be of type Array")
         return -1;
     }
     const toSaveObj = {};
@@ -113,7 +105,6 @@ exports.storeOrUpdateArrayofDefs = function (nodeName, values, ttlInSeconds = 10
 }
 
 exports.deleteByPath = function (pathArray) {
-    //console.info('attempting to delete a def from cache')
     let currentObj = cache;
     for (let i = 0; i < pathArray.length - 1; i++) {
         const key = pathArray[i];
@@ -129,7 +120,6 @@ exports.deleteByPath = function (pathArray) {
 }
 
 exports.getByPath = function (pathArray) {
-    //console.info('attempting to get a def from cache')
     let currentObj = cache;
     for (let i = 0; i < pathArray.length - 1; i++) {
         const key = pathArray[i];
@@ -146,7 +136,6 @@ exports.getByPath = function (pathArray) {
 }
 
 exports.getArrayOfDefs = function (nodeName) {
-    //console.info('attempting to get an array of defs from cache')
     let toParse = cache[nodeName]['values'];
     if (!toParse) {
         return undefined;

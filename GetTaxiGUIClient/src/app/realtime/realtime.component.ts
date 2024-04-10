@@ -75,7 +75,7 @@ export class RealtimeComponent
               this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
-              this.isCanceledRide = true;
+              this.isCanceledByDriver = true;
             }
           },
         });
@@ -205,7 +205,6 @@ export class RealtimeComponent
         this.lastEmitTime = currentTime;
       },
       (error) => {
-        console.error('Error getting user location:', error);
       }
     );
   }
@@ -299,7 +298,7 @@ export class RealtimeComponent
     this.navigatorWatch = null;
     this.socketSub = null;
     this.lastDriverUpdateTime = null;
-    this.isCanceledRide = false;
+    this.isCanceledByDriver = false;
     this.connectionLost = false;
     this.data = {
       phoneNumber: '...',
@@ -353,8 +352,6 @@ export class RealtimeComponent
         const alpha = event.alpha; // Yaw angle in degrees (0 to 360)
         this.socketService.emit("driverUpdate", { rotation: alpha, rideId: this.rideId, isDriver:true });
       }, false);
-    } else {
-      console.error('Device orientation events are not supported.');
     }
   } 
   protected setUserRotation(rotation: any, isDriver?: boolean) {

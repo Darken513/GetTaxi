@@ -203,9 +203,6 @@ export class RealtimeShareComponent
           this.resetIdleTimer();
         }
         this.lastEmitTime = currentTime;
-      },
-      (error) => {
-        console.error('Error getting user location:', error);
       }
     );
   }
@@ -353,8 +350,6 @@ export class RealtimeShareComponent
         const alpha = event.alpha; // Yaw angle in degrees (0 to 360)
         this.socketService.emit("driverUpdate", { rotation: alpha, rideId: this.rideId, isDriver:true });
       }, false);
-    } else {
-      console.error('Device orientation events are not supported.');
     }
   } 
   protected setUserRotation(rotation: any, isDriver?: boolean) {

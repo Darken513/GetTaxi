@@ -17,7 +17,6 @@ exports.getAllDrivers = async () => {
     cacheService.storeOrUpdateArrayofDefs(cachePath[0], drivers);
     return drivers;
   } catch (error) {
-    console.error("Error getting drivers:", error);
     return -1; //error case "-1"
   }
 };
@@ -36,7 +35,6 @@ exports.getDriverByID = async (driverId) => {
     //todo-P2 : should store def in cache
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
-    console.error("Error getting driver:", error);
     return -1; //error case "-1"
   }
 };
@@ -44,12 +42,10 @@ exports.getDriverByID = async (driverId) => {
 exports.createDriver = async (data) => {
   try {
     const docRef = await driversRef.add(data);
-    console.log("Driver added with ID:", docRef.id);
     const toret = { id: docRef.id, ...data };
     cacheService.storeOrUpdateDef([...cachePath, docRef.id], toret)
     return toret;
   } catch (error) {
-    console.error("Error adding Driver:", error);
     return -1;
   }
 };
@@ -60,10 +56,8 @@ exports.updateDriver = async (driverId, updatedData) => {
     await docRef.update(updatedData);
     const toSaveCache = { id: driverId, ...updatedData }
     cacheService.storeOrUpdateDef([...cachePath, driverId], toSaveCache);
-    console.log("Driver with ID:", driverId, "updated successfully.");
     return 0;
   } catch (error) {
-    console.error("Error updating Driver:", error);
     return -1;
   }
 };
@@ -72,10 +66,8 @@ exports.updateDriversCredit = async (driverId, updatedData) => {
     const docRef = driversRef.doc(driverId);
     await docRef.update(updatedData);
     cacheService.updateDefSpecificProp([...cachePath, driverId, 'value', updatedData], updatedData.credits);
-    console.log("Driver with ID:", driverId, "updated successfully.");
     return 0;
   } catch (error) {
-    console.error("Error updating Driver:", error);
     return -1;
   }
 };
@@ -85,10 +77,8 @@ exports.changeDriverStatus = async (driverId, updatedData, res) => {
     const docRef = driversRef.doc(driverId);
     await docRef.update(updatedData);
     cacheService.updateDefSpecificProp([...cachePath, driverId, 'value', 'isActive'], updatedData.isActive);
-    console.log("Driver with ID:", driverId, "updated successfully.");
     return 0;
   } catch (error) {
-    console.error("Error updating Driver:", error);
     return -1;
   }
 };
@@ -98,14 +88,8 @@ exports.deleteDriverById = async (driverId) => {
     const docRef = driversRef.doc(driverId);
     await docRef.delete();
     cacheService.deleteByPath([...cachePath, driverId])
-    console.log(
-      "Driver with ID:",
-      driverId,
-      "deleted successfully."
-    );
     return 0;
   } catch (error) {
-    console.error("Error deleting carType:", error);
     return -1;
   }
 };
@@ -124,7 +108,6 @@ exports.uploadFile = (file, driverId, fileId) => {
     const updatedData = {};
     updatedData[fileId] = fileName;
     await exports.updateDriver(driverId, updatedData);
-    console.log(`File ${file.originalname} uploaded to Firebase Storage.`);
   });
 
   blobStream.end(file.buffer);

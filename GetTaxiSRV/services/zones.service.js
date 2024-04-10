@@ -17,7 +17,6 @@ exports.getAllZones = async () => {
     cacheService.storeOrUpdateArrayofDefs(cachePath[0], zones);
     return zones;
   } catch (error) {
-    console.error("Error getting zones:", error);
     return -1; //error case "-1"
   }
 };
@@ -35,7 +34,6 @@ exports.getZoneById = async (zoneId) => {
     }
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
-    console.error("Error getting zone :", error);
     return -1; //error case "-1"
   }
 };
@@ -43,12 +41,10 @@ exports.getZoneById = async (zoneId) => {
 exports.createZone = async (data) => {
   try {
     const docRef = await zonesRef.add(data);
-    console.log("Zone added with ID:", docRef.id);
     const toret = { id: docRef.id, ...data };
     cacheService.storeOrUpdateDef([...cachePath, docRef.id], toret)
     return toret;
   } catch (error) {
-    console.error("Error adding Zone:", error);
     return -1;
   }
 };
@@ -58,14 +54,8 @@ exports.deleteZoneById = async (zoneId) => {
     const docRef = zonesRef.doc(zoneId);
     await docRef.delete();
     cacheService.deleteByPath([...cachePath, zoneId])
-    console.log(
-      "Zone with ID:",
-      zoneId,
-      "deleted successfully."
-    );
     return 0;
   } catch (error) {
-    console.error("Error deleting carType:", error);
     return -1;
   }
 };

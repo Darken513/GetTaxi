@@ -45,7 +45,6 @@ exports.initRideStatus = async (data) => {
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
-    console.log("Ride status initiated with ID:", docRef.id);
 
     const driverUrls = drivers.map((driver) => {
       return new DriverURL(driver, rideStatus);
@@ -69,7 +68,6 @@ ${driverUrl.rideStatusObj.current_roadName +
 Cliquez ici pour accepter la course: 
 ${driverUrl.rideStatusURL}
       `;
-      console.log(body);
       continue;
       twilioClient.messages
         .create({
@@ -82,11 +80,9 @@ ${driverUrl.rideStatusURL}
           console.log("Sent sms to " + driverUrl.driver.phoneNbr);
         })
         .catch((error) => console.error(error));
-      //console.log(body);
     }
     return 0;
   } catch (error) {
-    console.error("Error initiating Ride status:", error);
     return -1;
   }
 };
@@ -110,7 +106,6 @@ exports.getRideById = async (rideId) => {
     //todo-P2 : should store def in cache
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
-    console.error("Error getting Ride:", error);
     return -1; //error case "-1"
   }
 };
@@ -141,10 +136,8 @@ exports.acceptRide = async (rideId, driverId) => {
       takenByDriver: !isOwner ? driverId : "",
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], toSaveCache);
-    console.log("Ride ", rideId, " taken by driver", driverId);
     return toSaveCache;
   } catch (error) {
-    console.error("Error initiating Ride status:", error);
     return -1;
   }
 };
@@ -175,7 +168,6 @@ exports.cancelRide = async (rideId, reasonObj) => {
       return await cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reasonObj)
     }
   } catch (error) {
-    console.error("Error initiating Ride status:", error);
     return { error: true, body: "Error initiating Ride status" };
   }
 };
@@ -218,7 +210,6 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     const driverBH_docRef = await driverBehaviorRef.add(driverBH);
     driverBH = { id: driverBH_docRef.id, ...driverBH };
     cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
-    console.log("Ride ", rideId, "canceled by driver", reasonObj.driverId);
     return { error: false, body: 'successfully cancelled ride' };
   }
 }
