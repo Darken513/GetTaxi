@@ -15,8 +15,8 @@ import { numberValidator } from '../validator';
 export class AdminHomeScreenComponent {
   customForm!: FormGroup;
   minDateTime: string;
-  zones:Array<Zone> = []
-  carTypes:Array<CarType> = []
+  zones: Array<Zone> = []
+  carTypes: Array<CarType> = []
 
   constructor(
     private fb: FormBuilder,
@@ -52,6 +52,11 @@ export class AdminHomeScreenComponent {
         this.notificationService.showNotification({ title: 'error', body: 'Error fetching Zones' })
       }
     })
+    //todo-P2 : shold estimated distance & price & calculated credits to consume
+    //variable names used in backend : 
+    // - estimatedDistance:number
+    // - estimatedPrice:number
+    // - creditsCost:number
     this.customForm = this.fb.group({
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
       //todo-p3 : maybe add email/sms for defered case, to remind user
@@ -74,12 +79,12 @@ export class AdminHomeScreenComponent {
     return this.customForm?.get('isDeferred')?.value;
   }
 
-  onDeferredChange(event:any){
-    if(event.target.checked){
+  onDeferredChange(event: any) {
+    if (event.target.checked) {
       this.customForm?.get('deferredDateTime')?.setValidators([
         Validators.required
       ]);
-    }else{
+    } else {
       this.customForm?.get('deferredDateTime')?.clearValidators();
       this.customForm?.get('deferredDateTime')?.updateValueAndValidity();
     }
@@ -90,11 +95,11 @@ export class AdminHomeScreenComponent {
     this.markAllAsTouched();
     if (this.customForm.valid) {
       this.adminService.initRideStatus(this.customForm.value).subscribe({
-        next:(val)=>{
+        next: (val) => {
           console.log(val);
           this.notificationService.showNotification(val)
         },
-        error:(error)=>{
+        error: (error) => {
           this.notificationService.showNotification({ title: 'error', body: 'Error initating Ride status' })
         }
       })

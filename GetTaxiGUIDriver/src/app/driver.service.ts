@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class DriverService {
 
-  private apiUrl = 'http://localhost:8080/driver';
+  private apiUrl = 'http://localhost:8080/driver'; //todo-P2 : use env files
 
   constructor(
     private http: HttpClient

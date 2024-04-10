@@ -67,6 +67,18 @@ exports.updateDriver = async (driverId, updatedData) => {
     return -1;
   }
 };
+exports.updateDriversCredit = async (driverId, updatedData) => {
+  try {
+    const docRef = driversRef.doc(driverId);
+    await docRef.update(updatedData);
+    cacheService.updateDefSpecificProp([...cachePath, driverId, 'value', updatedData], updatedData.credits);
+    console.log("Driver with ID:", driverId, "updated successfully.");
+    return 0;
+  } catch (error) {
+    console.error("Error updating Driver:", error);
+    return -1;
+  }
+};
 
 exports.changeDriverStatus = async (driverId, updatedData, res) => {
   try {

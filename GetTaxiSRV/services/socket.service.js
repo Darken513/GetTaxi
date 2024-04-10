@@ -1,15 +1,16 @@
 const { io } = require("../server");
 
 // Define a map to store rooms (rideId => { clients: [], drivers: [] })
-const rooms = new Map();
+exports.rooms = new Map();
+exports.io = io;
 
 exports.initSocketSystem = () => {
     io.on('connection', (socket) => {
         socket.on('joinRoom', (message) => {
-            let room = rooms.get(message.rideId);
+            let room = exports.rooms.get(message.rideId);
             if (!room) {
                 room = {};
-                rooms.set(message.rideId, room);
+                exports.rooms.set(message.rideId, room);
             };
             if (message.isDriver) {
                 room.driver = socket.id;
@@ -18,7 +19,7 @@ exports.initSocketSystem = () => {
             }
         });
         socket.on('canceledRide', (message) => {
-            let room = rooms.get(message.rideId);
+            let room = exports.rooms.get(message.rideId);
             if (!room) {
                 return;
             };
@@ -33,14 +34,14 @@ exports.initSocketSystem = () => {
             }
         });
         socket.on('driverUpdate', (message) => {
-            let room = rooms.get(message.rideId);
+            let room = exports.rooms.get(message.rideId);
             if (!room || !room.client) {
                 return;
             };
             io.to(room.client).emit('driverUpdate', message);
         });
         socket.on('clientUpdate', (message) => {
-            let room = rooms.get(message.rideId);
+            let room = exports.rooms.get(message.rideId);
             if (!room || !room.driver) {
                 return;
             };

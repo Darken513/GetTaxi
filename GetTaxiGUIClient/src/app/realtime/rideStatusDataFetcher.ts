@@ -11,7 +11,7 @@ import { Subscription, take } from "rxjs";
 export class RideStatusDataFetcher {
     rideDoesntExist = false;
     public ready: boolean = false;
-    public canceledRide: boolean = false;
+    public isCanceledRide: boolean = false;
     public connectionLost: boolean = false;
 
     public data: any = {
@@ -63,7 +63,7 @@ export class RideStatusDataFetcher {
                     }
                     this.parseRideDetails(val);
                     if (!this.data.takenByDriver) {
-                        this.canceledRide = true;
+                        this.isCanceledRide = true;
                         return;
                     }
                     let toPush = this.driverService.getDriverById(this.data.takenByDriver).subscribe({
@@ -127,7 +127,8 @@ export class RideStatusDataFetcher {
     }
 
     public cancelRide(reason:any) {
-        this.driverService.cancelRide(this.rideId, reason).pipe(take(1)).subscribe({
+        let toSend = {id: reason.id, name: reason.name }
+        this.driverService.cancelRide(this.rideId, toSend).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
                     //toDo-P1 : ask for reason before canceling

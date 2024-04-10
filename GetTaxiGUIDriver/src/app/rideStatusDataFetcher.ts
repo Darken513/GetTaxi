@@ -11,7 +11,7 @@ import { Subscription, take } from "rxjs";
 export class RideStatusDataFetcher {
     rideDoesntExist = false;
     public ready: boolean = false;
-    public canceledRide: boolean = false;
+    public isCanceledRide: boolean = false;
     public connectionLost: boolean = false;
 
     public data: any = {
@@ -135,11 +135,12 @@ export class RideStatusDataFetcher {
         });
     }
 
-    public cancelRide(reason:any) {
+    public cancelRide(reason: any) {
         this.driverService.cancelRide(this.rideId, this.driverId, reason).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
                     this.data.takenByDriver = undefined;
+                    this.socketService.cancelRide(this.rideId);
                     this.redirectToRideStatus();
                 }
             },
@@ -150,7 +151,6 @@ export class RideStatusDataFetcher {
         this.router.navigate([`driver/realtime/${this.rideId}/${this.driverId}`]);
     }
     public redirectToRideStatus() {
-        this.socketService.canceledRide(this.data);
         this.router.navigate([`driver/ride-status/${this.rideId}/${this.driverId}`]);
     }
 

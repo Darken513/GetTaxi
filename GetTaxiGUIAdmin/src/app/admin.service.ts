@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = 'http://localhost:8080/admin';
+  private apiUrl = 'http://localhost:8080/admin'; //todo-P2 : use env files
 
   constructor(
     private http: HttpClient

@@ -6,8 +6,17 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && connectionLost">
-    <div class="text-center mt-10">
+<div *ngIf="!rideDoesntExist && isCanceledRide ">
+    <div class="text-center mt-10 container">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
+        <p class="lead">
+            veuillez patienter jusqu'à ce que nous vous trouvions un autre conducteur <br>( un sms vous avertira )
+        </p>
+        <p></p>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist && !isCanceledRide && connectionLost">
+    <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le chauffeur</p>
         <p class="lead">
             Rétablissement de la connexion, veuillez patienter
@@ -22,16 +31,7 @@
         </div>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !connectionLost && canceledRide ">
-    <div class="text-center mt-10">
-        <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
-        <p class="lead">
-            veuillez patienter jusqu'à ce que nous vous trouvions un autre conducteur <br>( un sms vous avertira )
-        </p>
-        <p></p>
-    </div>
-</div>
-<div *ngIf="!rideDoesntExist && !connectionLost && !canceledRide && ready">
+<div *ngIf="!rideDoesntExist && !connectionLost && !isCanceledRide && ready">
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>

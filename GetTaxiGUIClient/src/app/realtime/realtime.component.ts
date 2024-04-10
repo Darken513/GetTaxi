@@ -75,8 +75,7 @@ export class RealtimeComponent
               this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
-              alert(JSON.stringify(response))
-              console.log('canceled Ride !!!! should display reason');
+              this.isCanceledRide = true;
             }
           },
         });
@@ -300,7 +299,7 @@ export class RealtimeComponent
     this.navigatorWatch = null;
     this.socketSub = null;
     this.lastDriverUpdateTime = null;
-    this.canceledRide = false;
+    this.isCanceledRide = false;
     this.connectionLost = false;
     this.data = {
       phoneNumber: '...',

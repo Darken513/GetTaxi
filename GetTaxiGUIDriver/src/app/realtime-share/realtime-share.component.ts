@@ -275,7 +275,7 @@ export class RealtimeShareComponent
       return;
     }
     if (event && event.reason) {
-      console.log('canceling ride with reason:', event.reason);
+      this.cancelRide(event.reason);
     }
   }
 
@@ -299,7 +299,7 @@ export class RealtimeShareComponent
     this.navigatorWatch = null;
     this.socketSub = null;
     this.lastClientUpdateTime = null;
-    this.canceledRide = false;
+    this.isCanceledRide = false;
     this.connectionLost = false;
     this.data = {
       phoneNumber: '...',

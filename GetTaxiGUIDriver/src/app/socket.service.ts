@@ -11,16 +11,13 @@ export class SocketService {
 
   public initSocket() {
     if (!this.socket) {
-      this.socket = io('http://localhost:8080', {
+      this.socket = io('http://localhost:8080', { //todo-P2 : use env files
         withCredentials: true,
         transports: ['websocket', 'polling'],
       });
     }
   }
-  public canceledRide(data: any) {
-    //todo-P1 : add a modal to show the user that the ride has been canceled
-    this.emit('canceledRide', { rideId: data.rideId, isDriver: true });
-  }
+  
   public initRoomJoin(data: any) {
     if (!this.socket) {
       this.initSocket();
@@ -45,6 +42,11 @@ export class SocketService {
       })
     });
   }
+
+  public cancelRide(rideId: any) {
+    this.emit('canceledRide', { rideId, isDriver: true });
+  }
+  
   public emit(event: string, data: any) {
     this.socket.emit(event, data);
   }
