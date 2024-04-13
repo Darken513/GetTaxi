@@ -110,6 +110,8 @@ export class RideStatusDataFetcher {
         this.data.takenByDriver = val.takenByDriver;
         this.data.phoneNumber = val.phoneNumber;
         this.data.isDeferred = val.isDeferred;
+        this.data.isCanceled = val.isCanceled;
+        this.isCanceledByClient = val.isCanceled;
         this.data.deferredDateTime = val.deferredDateTime;
 
         this.data.currentLocation = val.currentLocation;
@@ -132,7 +134,7 @@ export class RideStatusDataFetcher {
         this.driverService.cancelRide(this.rideId, toSend).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
-                    this.socketService.cancelRide(this.rideId);
+                    this.socketService.cancelRide({rideId: this.rideId});
                     this.isCanceledByClient = true;
                 }
             },

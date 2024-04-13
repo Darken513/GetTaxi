@@ -15,6 +15,10 @@ const DBH_cachepath = ["driverBehavior", "values"];
 const REFUND_ON_CANCEL_PERCENTAGE = 0.9;
 const COMMISION_ON_RIDE_PERCENTAGE = 0.05;
 
+const { Client } = require('@googlemaps/google-maps-services-js');
+const client = new Client({});
+
+
 /**
  * Initializes the status of a new ride. (saves information to cache)
  * @param {Object} data - The data object containing ride information.
@@ -172,9 +176,24 @@ exports.cancelRide = async (rideId, reasonObj) => {
   }
 };
 
-//todo-P1: case user ( not driver, make the ridestatus state canceled )
-async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reasonObj) {
-
+//todo-P1: case user ( refund all credits to the driver )
+async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reasonObj) {
+  try {
+    await rideS_docRef.update({
+      isCanceled: true,
+      cancelReason: reasonObj.reason
+    });
+    const toSaveCache = {
+      id: rideS_docRef.id,
+      ...rideS_snapshot.data(),
+      isCanceled: true,
+      cancelReason: reasonObj.reason
+    };
+    cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
+    return { error: false, body: "successfully cancelled ride" };
+  } catch (error) {
+    return { error: true, body: "Error initiating Ride status" };
+  }
 }
 
 async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reasonObj) {
@@ -212,6 +231,29 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
     return { error: false, body: 'successfully cancelled ride' };
   }
+}
+
+function calculateDistanceBetweenAdrs(origin, destination){
+  client.directions({
+    params: {
+      origin: origin,
+      destination: destination,
+      key: 'AIzaSyAsh5nn3ADF9DpWipZ3_TuMpZ9m0fjsBr8',
+      mode: 'driving',
+    },
+  })
+    .then((response) => {
+      const route = response.data.routes[0];
+      const distance = route.legs[0].distance.text;
+      const duration = route.legs[0].duration.text;
+      console.log(client);
+      console.log(`The shortest route from \n${origin} \nto \n${destination} is \n${distance} \nand will take \n${duration}.`);
+    })
+    .catch((err) => {
+      console.error('Error:', err.response.data.error_message);
+    });
+
+  return;
 }
 
 function formatDate(inputDate) {

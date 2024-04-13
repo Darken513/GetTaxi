@@ -104,6 +104,8 @@ export class RideStatusDataFetcher {
 
     parseRideDetails(val: any) {
         this.ride = val;
+        this.data.isCanceledRide = val.isCanceled;
+        this.isCanceledRide = val.isCanceled;
         this.data.takenByDriver = val.takenByDriver;
         this.data.phoneNumber = val.phoneNumber;
         this.data.isDeferred = val.isDeferred;

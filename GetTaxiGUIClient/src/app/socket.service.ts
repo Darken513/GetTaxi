@@ -44,7 +44,7 @@ export class SocketService {
   }
   
   public cancelRide(data: any) {
-    this.emit('canceledRide', { rideId: data.rideId, isDriver: true });
+    this.emit('canceledRide', { rideId: data.rideId, isDriver: false });
   }
 
   public emit(event: string, data: any) {

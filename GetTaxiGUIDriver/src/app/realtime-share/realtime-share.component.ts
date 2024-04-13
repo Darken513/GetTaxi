@@ -71,8 +71,8 @@ export class RealtimeShareComponent
               this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
-              alert(JSON.stringify(response))
-              console.log('canceled Ride !!!! should display reason');
+              this.data.isCanceledRide = true;
+              this.isCanceledRide = true;
             }
           },
         });
@@ -86,6 +86,10 @@ export class RealtimeShareComponent
   }
 
   cbOnceReady(): void {
+    if(this.data.isCanceledRide){
+      this.isCanceledRide = true;
+      return;
+    }
     if (this.data.takenByDriver != this.driverId) {
       this.redirectToRideStatus();
     }

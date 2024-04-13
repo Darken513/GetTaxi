@@ -6,7 +6,15 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist">
+<div *ngIf="!rideDoesntExist && isCanceledRide">
+    <div class="text-center mt-10 container">
+        <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le client</p>
+        <p class="lead">
+            Restez à l'écoute pour d'autres courses
+        </p>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist && !isCanceledRide">
     <div class="mt-5">
         <div class="subContainer-center">
             <h2 class="welcome-msg">Cher <span class="username">{{data.driverName}}</span> !</h2>
