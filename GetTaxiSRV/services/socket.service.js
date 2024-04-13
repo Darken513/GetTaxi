@@ -24,11 +24,11 @@ exports.initSocketSystem = () => {
                 return;
             };
             if (message.isDriver) {
-                if(!room.client)
+                if (!room.client)
                     return;
                 io.to(room.client).emit('canceledRide', { reason: 'todo' });
             } else {
-                if(!room.driver)
+                if (!room.driver)
                     return;
                 io.to(room.driver).emit('canceledRide', { reason: 'todo' });
             }

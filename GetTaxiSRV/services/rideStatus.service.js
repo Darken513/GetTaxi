@@ -44,8 +44,8 @@ exports.initRideStatus = async (data) => {
     if (!drivers.length) {
       return -2; //no drivers found
     }
-    //todo-P1: should calculate distance between current location and destination
-    //todo-P1: should save info and estimated price
+    //todo-P1 : should calculate distance between current location and destination
+    //todo-P1 : should save info and estimated price
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
@@ -122,24 +122,25 @@ exports.getRideById = async (rideId) => {
  */
 exports.acceptRide = async (rideId, driverId) => {
   try {
-    const docRef = rideStatusRef.doc(rideId);
-    const snapshot = await docRef.get();
-    if (!snapshot.exists) {
+    const rideS_docRef = rideStatusRef.doc(rideId);
+    const rideS_snapshot = await rideS_docRef.get();
+    if (!rideS_snapshot.exists) {
       throw Error('Ride status with id : ' + rideId + ' Doesnt exist')
     }
-    const isOwner = snapshot.data().takenByDriver == driverId;
-    if (!isOwner && snapshot.data().takenByDriver) {
+    const isOwner = rideS_snapshot.data().takenByDriver == driverId;
+    if (!isOwner && rideS_snapshot.data().takenByDriver) {
       return -1;
     }
-    await docRef.update({
+    await rideS_docRef.update({
       takenByDriver: !isOwner ? driverId : "",
     });
     const toSaveCache = {
-      id: docRef.id,
-      ...snapshot.data(),
+      id: rideS_docRef.id,
+      ...rideS_snapshot.data(),
       takenByDriver: !isOwner ? driverId : "",
     };
-    cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], toSaveCache);
+    cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
+    updateDriverCredits(rideS_snapshot, rideId, driverId);
     return toSaveCache;
   } catch (error) {
     return -1;
@@ -176,7 +177,6 @@ exports.cancelRide = async (rideId, reasonObj) => {
   }
 };
 
-//todo-P1: case user ( refund all credits to the driver )
 async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reasonObj) {
   try {
     await rideS_docRef.update({
@@ -189,7 +189,11 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
       isCanceled: true,
       cancelReason: reasonObj.reason
     };
+    reasonObj = {byClient:true, ...reasonObj}
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
+    if(rideS_snapshot.data().takenByDriver){
+      updateDriverCredits(rideS_snapshot, rideId, rideS_snapshot.data().takenByDriver, reasonObj);
+    }
     return { error: false, body: "successfully cancelled ride" };
   } catch (error) {
     return { error: true, body: "Error initiating Ride status" };
@@ -213,27 +217,37 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     //preparing driverBehavior record
     //on cancel refund 90% of the commission.
-    let driverBH = {
-      behaviorType: "rideCanceled",
-      created_at: new Date(),
-      creditsChange: rideS_snapshot.data().creditsCost * REFUND_ON_CANCEL_PERCENTAGE,
-      driverId: reasonObj.driverId,
-      rideId: rideId,
-      reason: reasonObj.reason
-    }
-    //update driver (refund some credits) & saving changes to cache
-    let driverData = await driverService.getDriverByID(reasonObj.driverId);
-    driverData.credits += driverBH.creditsChange;
-    driverService.updateDriversCredit(reasonObj.driverId, { credits: driverData.credits });
-    //saving driverBehavior record & saving changes to cache
-    const driverBH_docRef = await driverBehaviorRef.add(driverBH);
-    driverBH = { id: driverBH_docRef.id, ...driverBH };
-    cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
+    updateDriverCredits(rideS_snapshot, rideId, reasonObj.driverId, reasonObj);
     return { error: false, body: 'successfully cancelled ride' };
   }
 }
 
-function calculateDistanceBetweenAdrs(origin, destination){
+async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) {
+  //preparing driverBehavior record
+  //on cancel refund 90% of the commission.
+  const canceledByDriver = reasonObj && !reasonObj.byClient;
+  const canceledByClient = reasonObj && reasonObj.byClient;
+  const behaviorType = canceledByClient ? 'RideCanceled_Client' : canceledByDriver ? 'RideCanceled_Driver' : 'rideAccepted'
+  const creditsChange = rideS_snapshot.data().creditsCost * (canceledByClient ? 1 : canceledByDriver ? REFUND_ON_CANCEL_PERCENTAGE : -1)
+  let driverBH = {
+    behaviorType: behaviorType,
+    created_at: new Date(),
+    creditsChange: creditsChange,
+    driverId: driverId,
+    rideId: rideId,
+    reason: reasonObj ? reasonObj.reason : {}
+  }
+  //update driver (refund some credits) & saving changes to cache
+  let driverData = await driverService.getDriverByID(driverId);
+  driverData.credits += driverBH.creditsChange;
+  driverService.updateDriversCredit(driverId, { credits: driverData.credits });
+  //saving driverBehavior record & saving changes to cache
+  const driverBH_docRef = await driverBehaviorRef.add(driverBH);
+  driverBH = { id: driverBH_docRef.id, ...driverBH };
+  cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
+}
+
+function calculateDistanceBetweenAdrs(origin, destination) {
   client.directions({
     params: {
       origin: origin,

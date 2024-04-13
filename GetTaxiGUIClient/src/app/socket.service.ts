@@ -17,7 +17,7 @@ export class SocketService {
       });
     }
   }
-  
+
   public initRoomJoin(data: any) {
     if (!this.socket) {
       this.initSocket();
@@ -42,7 +42,7 @@ export class SocketService {
       })
     });
   }
-  
+
   public cancelRide(data: any) {
     this.emit('canceledRide', { rideId: data.rideId, isDriver: false });
   }
