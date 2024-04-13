@@ -1,0 +1,5 @@
+<input id="{{isCurrent ? 'current_Addressformatted' : 'destination_Addressformatted'}}" type="text"
+    [(ngModel)]="autocompleteInput" class="form-control" [class.is-invalid]="
+        !customForm.get((isCurrent ? 'current_Addressformatted' : 'destination_Addressformatted'))?.valid && 
+        customForm.get((isCurrent ? 'current_Addressformatted' : 'destination_Addressformatted'))?.touched"
+    placeholder="Enter an address">

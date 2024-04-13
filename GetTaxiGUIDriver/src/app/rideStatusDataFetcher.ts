@@ -19,14 +19,10 @@ export class RideStatusDataFetcher {
         isDeferred: false,
         deferredDateTime: '...', //'yyyy-mm-ddThh:mm',
         created_at: '...', //'yyyy-mm-ddThh:mm',
-        current_roadName: '...', //'Nom du Rue',
-        current_roadNbr: '...', //'Numéro du Rue',
-        current_postalCode: '...', //'Code postal',
-        current_city: '...', //'Ville',
-        destination_roadName: '...', //'Nom du Rue ( dest )',
-        destination_roadNbr: '...', //'Numéro du Rue ( dest )',
-        destination_postalCode: '...', //'Code postal ( dest )',
-        destination_city: '...', //'Ville ( dest )',
+        current_roadNbr: '...',
+        current_Addressformatted: '...',
+        destination_roadNbr: '...',
+        destination_Addressformatted: '...',
         zone: '...', //'zone_id',
         carType: '...', //'car_id',
         driverName: '...',
@@ -112,17 +108,14 @@ export class RideStatusDataFetcher {
         this.data.deferredDateTime = val.deferredDateTime;
 
         this.data.currentLocation = val.currentLocation;
+        //todo-P1 : sometimes it doesnt have the _seconds prop instead it passes a date as a string
         this.data.created_at = this.formatDate(
             val.created_at._seconds * 1000
         );
-        this.data.current_roadName = val.current_roadName;
         this.data.current_roadNbr = val.current_roadNbr;
-        this.data.current_postalCode = val.current_postalCode;
-        this.data.current_city = val.current_city;
-        this.data.destination_roadName = val.destination_roadName;
+        this.data.current_Addressformatted = val.current_Addressformatted;
         this.data.destination_roadNbr = val.destination_roadNbr;
-        this.data.destination_postalCode = val.destination_postalCode;
-        this.data.destination_city = val.destination_city;
+        this.data.destination_Addressformatted = val.destination_Addressformatted;
     }
 
     public acceptRide() {
@@ -175,17 +168,21 @@ export class RideStatusDataFetcher {
         return formattedDate;
     }
 
-    getDestination() {
-        let toret = '';
+    getDestination(): string {
         if (this.data.takenByDriver && this.data.takenByDriver == this.driverId) {
-            toret += this.data.current_roadNbr + ' ';
+            return this.data.current_Addressformatted;
         }
-        toret +=
-            this.data.current_roadName.toString().trim() +
-            ' ' +
-            this.data.current_postalCode.toString().trim() +
-            ' ' +
-            this.data.current_city.toString().trim();
-        return toret;
+        return this.deleteFirstOccurrence(this.data.current_Addressformatted, this.data.current_roadNbr);
+    }
+
+    deleteFirstOccurrence(mainString: string, subString: string): string {
+        if (!subString)
+            return mainString;
+        if (!mainString)
+            return '';
+        const index = mainString.indexOf(subString);
+        if (index === -1)
+            return mainString;
+        return mainString.slice(0, index) + mainString.slice(index + subString.length);
     }
 }

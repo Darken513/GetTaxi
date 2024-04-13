@@ -20,14 +20,10 @@ export class RideStatusDataFetcher {
         isDeferred: false,
         deferredDateTime: '...', //'yyyy-mm-ddThh:mm',
         created_at: '...', //'yyyy-mm-ddThh:mm',
-        current_roadName: '...', //'Nom du Rue',
         current_roadNbr: '...', //'Numéro du Rue',
-        current_postalCode: '...', //'Code postal',
-        current_city: '...', //'Ville',
-        destination_roadName: '...', //'Nom du Rue ( dest )',
+        current_Addressformatted: '...', //'Ville',
         destination_roadNbr: '...', //'Numéro du Rue ( dest )',
-        destination_postalCode: '...', //'Code postal ( dest )',
-        destination_city: '...', //'Ville ( dest )',
+        destination_Addressformatted: '...', //'Ville',
         zone: '...', //'zone_id',
         carType: '...', //'car_id',
         driverName: '...',
@@ -115,26 +111,22 @@ export class RideStatusDataFetcher {
         this.data.deferredDateTime = val.deferredDateTime;
 
         this.data.currentLocation = val.currentLocation;
+        //todo-P1 : sometimes it doesnt have the _seconds prop instead it passes a date as a string
         this.data.created_at = this.formatDate(
             val.created_at._seconds * 1000
         );
-        this.data.current_roadName = val.current_roadName;
         this.data.current_roadNbr = val.current_roadNbr;
-        this.data.current_postalCode = val.current_postalCode;
-        this.data.current_city = val.current_city;
-        this.data.destination_roadName = val.destination_roadName;
+        this.data.current_Addressformatted = val.current_Addressformatted;
         this.data.destination_roadNbr = val.destination_roadNbr;
-        this.data.destination_postalCode = val.destination_postalCode;
-        this.data.destination_city = val.destination_city;
-
+        this.data.destination_Addressformatted = val.destination_Addressformatted;
     }
 
-    public cancelRide(reason:any) {
-        let toSend = {id: reason.id, name: reason.name }
+    public cancelRide(reason: any) {
+        let toSend = { id: reason.id, name: reason.name }
         this.driverService.cancelRide(this.rideId, toSend).pipe(take(1)).subscribe({
             next: (value: any) => {
                 if (!value.error) {
-                    this.socketService.cancelRide({rideId: this.rideId});
+                    this.socketService.cancelRide({ rideId: this.rideId });
                     this.isCanceledByClient = true;
                 }
             },

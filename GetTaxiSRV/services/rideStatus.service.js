@@ -13,6 +13,7 @@ const RS_cachepath = ["rideStatus", "values"];
 const DBH_cachepath = ["driverBehavior", "values"];
 
 const REFUND_ON_CANCEL_PERCENTAGE = 0.9;
+const PRICE_PER_METER = 0.01;
 const COMMISION_ON_RIDE_PERCENTAGE = 0.05;
 
 const { Client } = require('@googlemaps/google-maps-services-js');
@@ -26,9 +27,10 @@ const client = new Client({});
  * @param {string} data.zone - The zone for the ride.
  * @param {boolean} data.isDeferred - Indicates if the ride is deferred.
  * @param {string} data.deferredDateTime - The deferred date and time for the ride (if applicable).
- * @param {string} data.current_roadName - The road name for the current pickup location.
- * @param {string} data.current_postalCode - The postal code for the current pickup location.
- * @param {string} data.current_city - The city for the current pickup location.
+ * @param {string} data.current_roadNbr
+ * @param {string} data.current_Addressformatted
+ * @param {string} data.destination_roadNbr
+ * @param {string} data.destination_Addressformatted
  * @returns {Promise<number>} 0 if successful, -1 if there was an error initiating the ride status, -2 if no drivers were found.
  */
 exports.initRideStatus = async (data) => {
@@ -44,8 +46,14 @@ exports.initRideStatus = async (data) => {
     if (!drivers.length) {
       return -2; //no drivers found
     }
-    //todo-P1 : should calculate distance between current location and destination
-    //todo-P1 : should save info and estimated price
+    const distDura = await calculateDistanceBetweenAdrs(data.current_Addressformatted, data.destination_Addressformatted);
+    if (!distDura) {
+      return -1;
+    }
+    data.estimatedDistance = distDura.distance.text;
+    data.estimatedDuration = distDura.duration.text;
+    data.estimatedPrice = (Math.round(distDura.distance.value * PRICE_PER_METER * 100) / 100).toFixed(2);
+
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
@@ -64,14 +72,12 @@ ${driverUrl.rideStatusObj.isDeferred
         }
 
 Adresse de prise en charge: 
-${driverUrl.rideStatusObj.current_roadName +
-        driverUrl.rideStatusObj.current_postalCode +
-        driverUrl.rideStatusObj.current_city
-        }
+${deleteFirstOccurrence(driverUrl.rideStatusObj.current_Addressformatted, driverUrl.rideStatusObj.current_roadNbr)}
 
 Cliquez ici pour accepter la course: 
 ${driverUrl.rideStatusURL}
       `;
+      console.log(body);
       continue;
       twilioClient.messages
         .create({
@@ -189,9 +195,9 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
       isCanceled: true,
       cancelReason: reasonObj.reason
     };
-    reasonObj = {byClient:true, ...reasonObj}
+    reasonObj = { byClient: true, ...reasonObj }
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
-    if(rideS_snapshot.data().takenByDriver){
+    if (rideS_snapshot.data().takenByDriver) {
       updateDriverCredits(rideS_snapshot, rideId, rideS_snapshot.data().takenByDriver, reasonObj);
     }
     return { error: false, body: "successfully cancelled ride" };
@@ -223,12 +229,11 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
 }
 
 async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) {
-  //preparing driverBehavior record
-  //on cancel refund 90% of the commission.
   const canceledByDriver = reasonObj && !reasonObj.byClient;
   const canceledByClient = reasonObj && reasonObj.byClient;
   const behaviorType = canceledByClient ? 'RideCanceled_Client' : canceledByDriver ? 'RideCanceled_Driver' : 'rideAccepted'
-  const creditsChange = rideS_snapshot.data().creditsCost * (canceledByClient ? 1 : canceledByDriver ? REFUND_ON_CANCEL_PERCENTAGE : -1)
+  const creditsCost = (Math.round(rideS_snapshot.data().estimatedPrice * COMMISION_ON_RIDE_PERCENTAGE * 100) / 100).toFixed(2);
+  const creditsChange = creditsCost * (canceledByClient ? 1 : canceledByDriver ? REFUND_ON_CANCEL_PERCENTAGE : -1)
   let driverBH = {
     behaviorType: behaviorType,
     created_at: new Date(),
@@ -239,6 +244,7 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   }
   //update driver (refund some credits) & saving changes to cache
   let driverData = await driverService.getDriverByID(driverId);
+  //todo-P1: avoid NaN cases !
   driverData.credits += driverBH.creditsChange;
   driverService.updateDriversCredit(driverId, { credits: driverData.credits });
   //saving driverBehavior record & saving changes to cache
@@ -247,27 +253,23 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
 }
 
-function calculateDistanceBetweenAdrs(origin, destination) {
-  client.directions({
-    params: {
-      origin: origin,
-      destination: destination,
-      key: 'AIzaSyAsh5nn3ADF9DpWipZ3_TuMpZ9m0fjsBr8',
-      mode: 'driving',
-    },
-  })
-    .then((response) => {
-      const route = response.data.routes[0];
-      const distance = route.legs[0].distance.text;
-      const duration = route.legs[0].duration.text;
-      console.log(client);
-      console.log(`The shortest route from \n${origin} \nto \n${destination} is \n${distance} \nand will take \n${duration}.`);
-    })
-    .catch((err) => {
-      console.error('Error:', err.response.data.error_message);
+async function calculateDistanceBetweenAdrs(origin, destination) {
+  try {
+    const response = await client.directions({
+      params: {
+        origin: origin,
+        destination: destination,
+        key: 'AIzaSyAsh5nn3ADF9DpWipZ3_TuMpZ9m0fjsBr8',
+        mode: 'driving',
+      },
     });
-
-  return;
+    const route = response.data.routes[0];
+    const distance = route.legs[0].distance;
+    const duration = route.legs[0].duration;
+    return { distance, duration };
+  } catch (err) {
+    console.error('Error:', err.response.data.error_message);
+  }
 }
 
 function formatDate(inputDate) {
@@ -289,4 +291,15 @@ function formatDate(inputDate) {
   const formattedDate = `${formattedDay}.${formattedMonth}.${year}, ${hours}:${minutes}`;
 
   return formattedDate;
+}
+
+function deleteFirstOccurrence(mainString, subString) {
+  if (!subString)
+    return mainString.trim();
+  if (!mainString)
+    return '';
+  const index = mainString.indexOf(subString);
+  if (index === -1)
+    return mainString.trim();
+  return (mainString.slice(0, index) + mainString.slice(index + subString.length)).trim();
 }

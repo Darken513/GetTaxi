@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import { Error404Component } from './error404/error404.component';
+import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { Error404Component } from './error404/error404.component';
     AdminHomeScreenComponent,
     DashboardComponent,
     Error404Component,
+    AddressAutocompleteComponent,
   ],
   imports: [
     BrowserModule,

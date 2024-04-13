@@ -7,59 +7,13 @@
     <div class="col-lg-6 col-md-6 col-sm-10 col-12 midContainer">
       <form [formGroup]="customForm" (ngSubmit)="onSubmit()" class="text-white">
         <div class="row">
-          <div class="col-md-6 mb-3 locationWrapper">
+          <div class="col-md-6 mb-3">
             <label class="form-label alignLeft-5">Current location:</label>
-            <div class="row">
-              <div class="halfFiled col-md-4">
-                <input type="number" min="0" id="current_roadNbr" formControlName="current_roadNbr" class="form-control"
-                placeholder="N° Rue"
-                [class.is-invalid]="!customForm.get('current_roadNbr')?.valid && customForm.get('current_roadNbr')?.touched" />
-              </div>
-              <div class="halfFiled col-md-8">
-                <input type="text" id="current_roadName" formControlName="current_roadName" class="form-control"
-                placeholder="Nom du Rue"
-                [class.is-invalid]="!customForm.get('current_roadName')?.valid && customForm.get('current_roadName')?.touched" />
-              </div>
-            </div>
-            <div class="row">
-              <div class="halfFiled col-md-5">
-                <input type="number" min="0" id="current_postalCode" formControlName="current_postalCode" class="form-control"
-                placeholder="Code postal"
-                [class.is-invalid]="!customForm.get('current_postalCode')?.valid && customForm.get('current_postalCode')?.touched" />
-              </div>
-              <div class="halfFiled col-md-7">
-                <input type="text" id="current_city" formControlName="current_city" class="form-control"
-                placeholder="Ville"
-                [class.is-invalid]="!customForm.get('current_city')?.valid && customForm.get('current_city')?.touched" />
-              </div>
-            </div>
+            <app-address-autocomplete [customForm]="customForm" [isCurrent]="true"></app-address-autocomplete>
           </div>
-          <div class="col-md-6 mb-3 locationWrapper">
+          <div class="col-md-6 mb-3">
             <label class="form-label alignLeft-5">Destination</label>
-            <div class="row">
-              <div class="halfFiled col-md-4">
-                <input type="number" min="0" id="destination_roadNbr" formControlName="destination_roadNbr" class="form-control"
-                placeholder="N° Rue"
-                [class.is-invalid]="!customForm.get('destination_roadNbr')?.valid && customForm.get('destination_roadNbr')?.touched" />
-              </div>
-              <div class="halfFiled col-md-8">
-                <input type="text" id="destination_roadName" formControlName="destination_roadName" class="form-control"
-                placeholder="Nom du Rue"
-                [class.is-invalid]="!customForm.get('destination_roadName')?.valid && customForm.get('destination_roadName')?.touched" />
-              </div>
-            </div>
-            <div class="row">
-              <div class="halfFiled col-md-5">
-                <input type="number" min="0" id="destination_postalCode" formControlName="destination_postalCode" class="form-control"
-                placeholder="Code postal"
-                [class.is-invalid]="!customForm.get('destination_postalCode')?.valid && customForm.get('destination_postalCode')?.touched" />
-              </div>
-              <div class="halfFiled col-md-7">
-                <input type="text" id="destination_city" formControlName="destination_city" class="form-control"
-                placeholder="Ville"
-                [class.is-invalid]="!customForm.get('destination_city')?.valid && customForm.get('destination_city')?.touched" />
-              </div>
-            </div>
+            <app-address-autocomplete [customForm]="customForm" [isCurrent]="false"></app-address-autocomplete>
           </div>
         </div>
         <div class="row">

@@ -52,24 +52,15 @@ export class AdminHomeScreenComponent {
         this.notificationService.showNotification({ title: 'error', body: 'Error fetching Zones' })
       }
     })
-    //todo-P2 : shold estimated distance & price & calculated credits to consume
-    //variable names used in backend : 
-    // - estimatedDistance:number
-    // - estimatedPrice:number
-    // - creditsCost:number
     this.customForm = this.fb.group({
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
       //todo-p3 : maybe add email/sms for defered case, to remind user
       isDeferred: [false],
       deferredDateTime: [''],
-      current_roadName: ['', [Validators.required]],
-      current_roadNbr: ['', [Validators.required]],
-      current_postalCode: ['', [Validators.required]],
-      current_city: ['', [Validators.required]],
-      destination_roadName: ['', [Validators.required]],
-      destination_roadNbr: ['', [Validators.required]],
-      destination_postalCode: ['', [Validators.required]],
-      destination_city: ['', [Validators.required]],
+      current_roadNbr: [''],
+      current_Addressformatted: ['', [Validators.required]],
+      destination_roadNbr: [''],
+      destination_Addressformatted: ['', [Validators.required]],
       zone: ['', [Validators.required]],
       carType: ['', [Validators.required]]
     });

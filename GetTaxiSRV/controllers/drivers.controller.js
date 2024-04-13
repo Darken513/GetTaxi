@@ -1,5 +1,7 @@
 const driversService = require("../services/drivers.service");
 
+//todo-P1: start driver profile creation & consultation
+
 exports.getAllDrivers = async (req, res) => {
   const result = await driversService.getAllDrivers();
   if (result != -1) {
