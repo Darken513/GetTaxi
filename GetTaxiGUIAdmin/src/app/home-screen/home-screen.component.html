@@ -57,7 +57,7 @@
               [class.is-invalid]="!customForm.get('deferredDateTime')?.valid && customForm.get('deferredDateTime')?.touched" />
           </div>
         </div>
-        <button type="submit" class="btn btn-warning w-100">Submit</button>
+        <button type="submit" class="btn btn-warning w-100" [disabled]="disabledSubmitBtn">Submit</button>
       </form>
     </div>
     <div class="col-lg-3 col-md-3 col-sm-1 col-12"></div>

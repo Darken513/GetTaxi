@@ -28,7 +28,8 @@
                         pour assurer le transport.</p>
                     <hr>
                     <p>Voici les détails de la course :</p>
-                    <p><strong>Date de la course :</strong> {{ data.isDeferred ? formatDate(data.deferredDateTime) :
+                    <p><strong>Date de la course :</strong> {{ data.isDeferred ? 'différé - ' +
+                        formatDate(data.deferredDateTime) :
                         "Immédiatement - "+(data.created_at) }}</p>
                     <p><strong>De :</strong> {{ getDestination() }}</p>
                 </div>

@@ -111,10 +111,7 @@ export class RideStatusDataFetcher {
         this.data.deferredDateTime = val.deferredDateTime;
 
         this.data.currentLocation = val.currentLocation;
-        //todo-P1 : sometimes it doesnt have the _seconds prop instead it passes a date as a string
-        this.data.created_at = this.formatDate(
-            val.created_at._seconds * 1000
-        );
+        this.data.created_at = this.formatDate(val.created_at);
         this.data.current_roadNbr = val.current_roadNbr;
         this.data.current_Addressformatted = val.current_Addressformatted;
         this.data.destination_roadNbr = val.destination_roadNbr;
@@ -134,22 +131,29 @@ export class RideStatusDataFetcher {
     }
 
     formatDate(inputDate: any) {
-        // Parse the input date string
+        if (typeof inputDate == "string") {
+            const timestamp = new Date(inputDate).getTime();
+            const unixEpoch = new Date('1970-01-01T00:00:00.000Z').getTime();
+            const secondsSinceUnixEpoch = Math.floor((timestamp - unixEpoch));
+            inputDate = secondsSinceUnixEpoch;
+        } else {
+            if (typeof inputDate != 'number')
+                inputDate = inputDate._seconds * 1000;
+        }
         const date = new Date(inputDate);
 
-        // Extract date components
         const day = date.getDate();
         const month = date.getMonth() + 1; // Months are zero-indexed
         const year = date.getFullYear();
         const hours = date.getHours();
         const minutes = date.getMinutes();
 
-        // Add leading zeros if necessary
         const formattedDay = day < 10 ? '0' + day : day;
         const formattedMonth = month < 10 ? '0' + month : month;
+        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+        const formattedHours = hours < 10 ? '0' + hours : hours;
 
-        // Construct the formatted date string
-        const formattedDate = `${formattedDay}.${formattedMonth}.${year}, ${hours}:${minutes}`;
+        const formattedDate = `${formattedDay}.${formattedMonth}.${year}, ${formattedHours}:${formattedMinutes}`;
 
         return formattedDate;
     }

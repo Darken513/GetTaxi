@@ -15,6 +15,7 @@ import { numberValidator } from '../validator';
 export class AdminHomeScreenComponent {
   customForm!: FormGroup;
   minDateTime: string;
+  disabledSubmitBtn: boolean = false;
   zones: Array<Zone> = []
   carTypes: Array<CarType> = []
 
@@ -85,12 +86,19 @@ export class AdminHomeScreenComponent {
     // Mark all controls as touched to display error messages
     this.markAllAsTouched();
     if (this.customForm.valid) {
+      this.disabledSubmitBtn = true;
       this.adminService.initRideStatus(this.customForm.value).subscribe({
         next: (val) => {
-          this.notificationService.showNotification(val)
+          this.notificationService.showNotification(val);
+          setTimeout(() => {
+            this.disabledSubmitBtn = false;
+          }, 1500);
         },
         error: (error) => {
-          this.notificationService.showNotification({ title: 'error', body: 'Error initating Ride status' })
+          this.notificationService.showNotification({ title: 'error', body: 'Error initating Ride status' });
+          setTimeout(() => {
+            this.disabledSubmitBtn = false;
+          }, 1500);
         }
       })
     }

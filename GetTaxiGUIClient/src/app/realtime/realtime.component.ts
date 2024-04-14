@@ -114,7 +114,7 @@ export class RealtimeComponent
   }
 
   protected setUserLocation(position: any, isDriver?: boolean) {
-    const randomNumber = 0.02 // Math.random() * (0.02 - 0.01) + 0.01;
+    const randomNumber = 0.01 // Math.random() * (0.02 - 0.01) + 0.01;
     const userLocation: L.LatLngTuple = [
       position.latitude + (!isDriver ? randomNumber : 0),
       position.longitude + (!isDriver ? randomNumber : 0),

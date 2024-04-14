@@ -35,3 +35,53 @@ input[type="number"] {
   border-radius: 15px;
   border-top-left-radius: 0;
 }
+.btn.btn-warning:disabled {
+  position: relative;
+  color: #ffc107 !important;
+  overflow: hidden;
+}
+
+.btn.btn-warning:disabled::after {
+  content: "Loading";
+  position: absolute;
+  color: black !important;
+  right: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.btn.btn-warning:disabled::before {
+  z-index: 99;
+  content: " ";
+  position: absolute;
+  color: black !important;
+  right: 55px;
+  bottom: 0;
+  width: 20%;
+  height: 3px;
+  border-radius: 6px;
+  background-color: #242e45;
+  text-align: center;
+  animation-name: left-to-right;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes left-to-right {
+  0% {
+    right: -30%;
+  }
+
+  30% {
+    right: 0;
+  }
+
+  60% {
+    right: 50%;
+  }
+
+  100% {
+    right: 100%;
+  }
+}

@@ -147,6 +147,7 @@ exports.acceptRide = async (rideId, driverId) => {
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     updateDriverCredits(rideS_snapshot, rideId, driverId);
+    //todo-P1 : should send sms to client
     return toSaveCache;
   } catch (error) {
     return -1;
