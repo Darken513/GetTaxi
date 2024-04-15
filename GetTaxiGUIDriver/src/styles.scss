@@ -82,6 +82,57 @@ body {
 .modal-header .btnClose:hover {
   color: #007bff; /* Bootstrap's primary color */
 }
+.secondaryColor {
+  color: #f25cb0;
+}
+.subContainer-center {
+  margin: auto;
+  max-width: 330px;
+}
+.info-wrapperBG {
+  background: linear-gradient(#f75eaf, #8530c7);
+  width: 330px;
+  color: #dcdaff;
+  height: 100%;
+  position: relative;
+  left: -7.5px;
+  margin-bottom: 45px;
+  border-bottom-left-radius: 30px;
+  border-top-right-radius: 30px;
+}
+.info-wrapper {
+  position: relative;
+  left: 15px;
+  top: 25px;
+  border: 2px solid white;
+  padding: 1.2rem 2rem;
+  background: #121927;
+  border-bottom-right-radius: 30px;
+  p {
+    margin: 5px;
+    strong {
+      color: #00bb99;
+    }
+  }
+  .info-title {
+    position: absolute;
+    padding: 0.5ch;
+    width: 300px;
+    top: -1.5ch;
+    background-color: #121927;
+    border: 2px solid #00bb99;
+    border-radius: 6px;
+    left: calc(50% - 150px);
+  }
+  .additional {
+    padding: 0.5ch;
+    width: 300px;
+    color: #fb9e26;
+    margin: auto;
+    margin-top: 1.5rem;
+    font-size: 1rem;
+  }
+}
 
 #loading-container,
 .loading-container-visible {
@@ -301,8 +352,7 @@ body {
   display: none !important;
 }
 
-.leaflet-control-container 
-.leaflet-zoom-animated.leaflet-marker-shadow,
+.leaflet-control-container .leaflet-zoom-animated.leaflet-marker-shadow,
 .leaflet-routing-container-hide,
 .leaflet-pane.leaflet-shadow-pane,
 .leaflet-marker-draggable {

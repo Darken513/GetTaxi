@@ -1,0 +1,62 @@
+<div class="login-container">
+    <div class="subContainer-center">
+        <div class="info-wrapperBG">
+            <form *ngIf="!signUpScreenOn" [formGroup]="loginForm" (ngSubmit)="login()" class="info-wrapper mt-2">
+                <div class="innerBG">
+                    <img class="routesImg" src="../../assets/routesBG.jpg" alt="">
+                    <div class="innerFormWrapper">
+                        <div class="logoWrapper">
+                            <img src="https://gettaxi.ch/wp-content/uploads/2021/05/gettaxi-logo-new-120x108.png.webp">
+                        </div>
+                        <input type="email" formControlName="email" placeholder="Adresse e-mail" class="form-control"
+                            [class.is-invalid]="!loginForm.get('email')?.valid && loginForm.get('email')?.touched">
+                        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                            class="invalid-feedback">Adresse e-mail invalide</div>
+
+                        <input type="password" formControlName="password" placeholder="Mot de passe"
+                            class="form-control"
+                            [class.is-invalid]="!loginForm.get('password')?.valid && loginForm.get('password')?.touched">
+                        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                            class="invalid-feedback">Mot de passe invalide</div>
+
+                        <button type="submit" class="btn btn-success">Se connecter</button>
+                        <p style="font-size: 0.8rem; text-align: center;">Pas encore inscrit en tant que conducteur ?
+                            <br><a (click)="signUpScreenOn = true" style="color: #f45db0;">Rejoignez-nous</a>
+                        </p>
+                    </div>
+                </div>
+            </form>
+
+            <form *ngIf="signUpScreenOn" [formGroup]="signUpForm" (ngSubmit)="signUp()" class="info-wrapper mt-2">
+                <div class="innerBG">
+                    <img class="routesImg" src="../../assets/routesBG.jpg" alt="">
+                    <div class="innerFormWrapper">
+                        <div class="logoWrapper">
+                            <img src="https://gettaxi.ch/wp-content/uploads/2021/05/gettaxi-logo-new-120x108.png.webp">
+                        </div>
+                        <input type="email" formControlName="email" placeholder="Adresse e-mail" class="form-control"
+                            [class.is-invalid]="!signUpForm.get('email')?.valid && signUpForm.get('email')?.touched">
+                        <div *ngIf="signUpForm.get('email')?.invalid && signUpForm.get('email')?.touched"
+                            class="invalid-feedback">Adresse e-mail invalide</div>
+
+                        <input type="password" formControlName="password" placeholder="Mot de passe"
+                            class="form-control"
+                            [class.is-invalid]="!signUpForm.get('password')?.valid && signUpForm.get('password')?.touched">
+                        <div *ngIf="signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched"
+                            class="invalid-feedback">Mot de passe invalide (doit contenir au moins 5 caractères)</div>
+
+                        <input type="password" formControlName="retypedPassword" placeholder="Retapez le mot de passe"
+                            class="form-control"
+                            [class.is-invalid]="!signUpForm.get('retypedPassword')?.valid && signUpForm.get('retypedPassword')?.touched">
+                        <div *ngIf="signUpForm.get('retypedPassword')?.invalid && signUpForm.get('retypedPassword')?.touched"
+                            class="invalid-feedback">Les mots de passe ne correspondent pas</div>
+
+                        <button type="submit" class="btn btn-success">Inscrivez-vous</button>
+                        <p style="font-size: 0.8rem; text-align: center;">Déjà inscrit ? <a
+                                (click)="signUpScreenOn = true" style="color: #f45db0;">Connectez-vous</a></p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

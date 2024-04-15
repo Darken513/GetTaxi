@@ -13,6 +13,13 @@ export class DriverService {
     private http: HttpClient
   ) { }
 
+  public login(body: any): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/login`, body);
+  }
+  public signUp(body: any): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/signUp`, body);
+  }
+
   public getDriverById(driverId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverById/${driverId}`);
   }
@@ -28,7 +35,7 @@ export class DriverService {
   public acceptRide(rideId: string, driverId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/acceptRide/${rideId}/${driverId}`);
   }
-  public cancelRide(rideId: string, driverId: string, reason:any): Observable<any> {
-    return this.http.post<{ response: any }>(`${this.apiUrl}/cancelRide/${rideId}`, {reason, driverId});
+  public cancelRide(rideId: string, driverId: string, reason: any): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/cancelRide/${rideId}`, { reason, driverId });
   }
 }

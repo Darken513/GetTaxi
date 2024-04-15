@@ -17,7 +17,7 @@
 <div *ngIf="!rideDoesntExist && !isCanceledRide">
     <div class="mt-5">
         <div class="subContainer-center">
-            <h2 class="welcome-msg">Cher <span class="username">{{data.driverName}}</span> !</h2>
+            <h2 class="welcome-msg">Cher <span class="secondaryColor">{{data.driverName}}</span> !</h2>
             <div class="info-wrapperBG">
                 <div class="info-wrapper mt-2"
                     *ngIf="!data.takenByDriver || (data.takenByDriver && data.takenByDriver == driverId)">

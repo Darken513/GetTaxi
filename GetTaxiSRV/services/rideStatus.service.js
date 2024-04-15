@@ -128,6 +128,7 @@ exports.getRideById = async (rideId) => {
  */
 exports.acceptRide = async (rideId, driverId) => {
   try {
+    //todo-P1: check credits first, should have enough credits to accept
     const rideS_docRef = rideStatusRef.doc(rideId);
     const rideS_snapshot = await rideS_docRef.get();
     if (!rideS_snapshot.exists) {
@@ -146,7 +147,7 @@ exports.acceptRide = async (rideId, driverId) => {
       takenByDriver: !isOwner ? driverId : "",
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
-    updateDriverCredits(rideS_snapshot, rideId, driverId);
+    const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, driverId);
     //todo-P1 : should send sms to client
     return toSaveCache;
   } catch (error) {
@@ -199,7 +200,7 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
     reasonObj = { byClient: true, ...reasonObj }
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     if (rideS_snapshot.data().takenByDriver) {
-      updateDriverCredits(rideS_snapshot, rideId, rideS_snapshot.data().takenByDriver, reasonObj);
+      const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, rideS_snapshot.data().takenByDriver, reasonObj);
     }
     return { error: false, body: "successfully cancelled ride" };
   } catch (error) {
@@ -224,7 +225,7 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     //preparing driverBehavior record
     //on cancel refund 90% of the commission.
-    updateDriverCredits(rideS_snapshot, rideId, reasonObj.driverId, reasonObj);
+    const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, reasonObj.driverId, reasonObj);
     return { error: false, body: 'successfully cancelled ride' };
   }
 }
@@ -245,7 +246,7 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   }
   //update driver (refund some credits) & saving changes to cache
   let driverData = await driverService.getDriverByID(driverId);
-  //todo-P1: avoid NaN cases !
+  //todo-P3: avoid NaN cases !
   driverData.credits += driverBH.creditsChange;
   driverService.updateDriversCredit(driverId, { credits: driverData.credits });
   //saving driverBehavior record & saving changes to cache

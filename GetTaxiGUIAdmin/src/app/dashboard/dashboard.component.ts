@@ -7,6 +7,7 @@ import { AdminService } from '../admin.service';
 import { NotificationService } from '../notification.service';
 import { Router } from '@angular/router';
 
+//todo-P2 : change style - use same colors as client & driver
 interface DriverFileForm {
   drivingPermit: File | null,
   transportPermit: File | null,

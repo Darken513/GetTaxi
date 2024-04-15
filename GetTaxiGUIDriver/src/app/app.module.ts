@@ -11,6 +11,9 @@ import { SocketService } from './socket.service';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule, HttpHandler } from '@angular/common/http';
 import { LoadingInterceptor } from './loading.interceptor';
 import { CancelRideComponent } from './cancel-ride/cancel-ride.component';
+import { DriverLoginComponent } from './driver-login/driver-login.component';
+import { DriverProfileComponent } from './driver-profile/driver-profile.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -19,11 +22,15 @@ import { CancelRideComponent } from './cancel-ride/cancel-ride.component';
     RealtimeShareComponent,
     Error404Component,
     CancelRideComponent,
+    DriverLoginComponent,
+    DriverProfileComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },

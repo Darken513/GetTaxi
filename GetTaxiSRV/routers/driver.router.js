@@ -6,6 +6,10 @@ const rideStatus_controller = require('../controllers/rideStatus.controller');
 
 const router = express.Router();
 
+//authentification
+router.post('/login', driver_controller.login);
+router.post('/signUp', driver_controller.signUp);
+
 //Car Type section
 router.get('/getCarByID/:carId', carType_controller.getCarByID);
 

@@ -1,8 +1,73 @@
+const bcrypt = require('bcrypt');
+const secretKey = 'GetTaxiSecretCH!';
+const jwt = require('jsonwebtoken');
+
 const { db, storage } = require("../server");
 const driversRef = db.collection("Drivers");
 
 const cacheService = require("./cache.service");
 const cachePath = ["drivers", "values"];
+
+function createToken(data) {
+  const token = jwt.sign(data, secretKey, {
+    algorithm: 'HS256'
+  });
+  return token;
+}
+
+exports.login = async (userCredentials) => {
+  try {
+    const combinedPassword = userCredentials.password + secretKey;
+    const querySnapshot = await driversRef
+      .where('email', '==', userCredentials.email)
+      .limit(1)
+      .get();
+
+    if (!querySnapshot.empty) {
+      const driverRecord = querySnapshot.docs[0].data();
+
+      let samePassword = await bcrypt.compare(combinedPassword, driverRecord.password);
+      if (!samePassword) {
+        return -1 //todo-p1 : change error msg returned bad password
+      }
+
+      const driverId = querySnapshot.docs[0].id;
+      const tokenPayload = {
+        driverId,
+        ...driverRecord
+      };
+      delete tokenPayload.password;
+      const token = createToken(tokenPayload);
+      return token;
+    }
+    return -2 //todo-p1 : change error msg returned user doesnt exist
+  } catch (error) {
+    return -2 //todo-p1 : change error msg returned user doesnt exist
+  }
+}
+exports.signUp = async (userData) => {
+  try {
+    const combinedPassword = userData.password + secretKey;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(combinedPassword, salt);
+
+    const existingUserSnapshot = await driversRef.where('email', '==', userData.email).limit(1).get();
+
+    if (!existingUserSnapshot.empty) {
+      throw -1; //todo-p1 : change error msg email already used
+    }
+
+    await driversRef.add({
+      email: userData.email,
+      password: hashedPassword,
+      //todo-p1 : Add other user data here if needed
+    });
+    return 0;
+  } catch (error) {
+     //todo-p1 : change error msg unkown error
+    return -2;
+  }
+};
 
 exports.getAllDrivers = async () => {
   const cachedResult = cacheService.getArrayOfDefs(cachePath[0])
@@ -29,7 +94,7 @@ exports.getDriverByID = async (driverId) => {
   try {
     const docRef = driversRef.doc(driverId);
     const snapshot = await docRef.get();
-    if(!snapshot.exists){
+    if (!snapshot.exists) {
       throw Error('Driver with id : ' + driverId + ' Doesnt exist')
     }
     //todo-P2 : should store def in cache

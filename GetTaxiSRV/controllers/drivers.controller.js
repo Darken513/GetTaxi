@@ -2,6 +2,23 @@ const driversService = require("../services/drivers.service");
 
 //todo-P1: start driver profile creation & consultation
 
+exports.login = async (req, res) => {
+  const result = await driversService.login(req.body);
+  if (result != -1) {
+    res.json({ token: result });
+  } else {
+    res.json({ title: "error", body: "Failed to login, please check your credentials" });
+  }
+}
+exports.signUp = async (req, res) => {
+  const result = await driversService.signUp(req.body);
+  if (result != -1) {
+    res.json({ title: "success", body: "Account created successfully" });
+  } else {
+    res.json({ title: "error", body: "Failed to signup, please check the typed address email" });
+  }
+}
+
 exports.getAllDrivers = async (req, res) => {
   const result = await driversService.getAllDrivers();
   if (result != -1) {
@@ -87,7 +104,7 @@ exports.readFileURL = async (req, res) => {
   const filePath = req.params.filePath;
   const result = await driversService.readFileURL(driverId, filePath);
   if (result != -1) {
-    res.json({filePath: result});
+    res.json({ filePath: result });
   } else {
     res.json({ title: "error", body: "No file found." });
   }

@@ -167,9 +167,9 @@ export class RealtimeComponent
           const route = event.routes[0];
           this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
           this.distanceLeft = this.formatDistance(route.summary.totalDistance);
-          if(this.driverMarker)
+          if (this.driverMarker)
             this.driverMarker!.setLatLng(this.driverPosition);
-          if(this.clientMarker)
+          if (this.clientMarker)
             this.clientMarker!.setLatLng(this.clientPosition);
           let toFit: any = [];
           if (this.driverMarker) {
