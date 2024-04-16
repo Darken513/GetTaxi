@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
     HttpInterceptor,
     HttpRequest,
@@ -13,7 +13,7 @@ import { NotificationService } from './notification.service';
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
     timer:number = 0;
-    constructor(@Inject(NotificationService) private notificationService: NotificationService) {}
+    constructor(private notificationService: NotificationService) {}
 
     intercept(
         req: HttpRequest<any>,

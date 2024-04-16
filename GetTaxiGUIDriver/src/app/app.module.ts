@@ -6,8 +6,6 @@ import { AppComponent } from './app.component';
 import { RideStatusComponent } from './ride-status/ride-status.component';
 import { RealtimeShareComponent } from './realtime-share/realtime-share.component';
 import { Error404Component } from './error404/error404.component';
-import { DriverService } from './driver.service';
-import { SocketService } from './socket.service';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule, HttpHandler } from '@angular/common/http';
 import { LoadingInterceptor } from './loading.interceptor';
 import { CancelRideComponent } from './cancel-ride/cancel-ride.component';

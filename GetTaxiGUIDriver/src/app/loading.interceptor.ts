@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
     HttpInterceptor,
     HttpRequest,
@@ -8,10 +8,13 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
     timer:number = 0;
+    constructor(@Inject(NotificationService) private notificationService: NotificationService) {}
+
     intercept(
         req: HttpRequest<any>,
         next: HttpHandler
@@ -23,6 +26,12 @@ export class LoadingInterceptor implements HttpInterceptor {
         return next.handle(req).pipe(
             tap((event) => {
                 if (event instanceof HttpResponse) {
+                    if(event && event.body && event.body.isNotification){
+                        try {
+                            this.notificationService.showNotification(event.body)
+                        } catch (error) {
+                        }
+                    }
                     this.close()
                 }
             })
@@ -30,6 +39,7 @@ export class LoadingInterceptor implements HttpInterceptor {
     }
 
     close(){
+        
         setTimeout(() => {
             if(this.timer + 500 > (new Date().getTime())){
                 this.close()

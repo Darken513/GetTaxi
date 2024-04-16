@@ -8,13 +8,13 @@ exports.initRideStatus = async (req, res) => {
   const result = await rideStatusService.initRideStatus(data);
   switch (result) {
     case 0:
-      res.json({ title: "success", body: "Ride status initiated successfully" });
+      res.json({ isNotification: true, type: 'success', title: "succès", body: "le suivi de la course a été initié avec succès." });
       break;
     case -2:
-      res.json({ title: "warning", body: "No drivers available with the selected options." });
+      res.json({ isNotification: true, type: 'warning', title: "alerte", body: "Aucun conducteur n'est disponible avec les options sélectionnées." });
       break;
     default:
-      res.json({ title: "error", body: "Couldnt initiate Ride status." });
+      res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible d'initier le suivi de la course." });
       break;
   }
 };
@@ -26,7 +26,7 @@ exports.getRideById = async (req, res) => {
     res.json(result);
   } else {
     //todo-P3 : log the errors
-    res.json({ title: "error", body: "Ride not available." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "La course n'est pas disponible." });
   }
 }
 
@@ -38,7 +38,7 @@ exports.acceptRide = async (req, res) => {
     res.json(result);
   } else {
     //todo-P3 : log the errors
-    res.json({ title: "error", body: "Ride no longer available.", error: true });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "La course n'est plus disponible.", error: true });
   }
 }
 

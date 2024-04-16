@@ -46,8 +46,10 @@ export class DriverLoginComponent {
     this.driverService.login(this.loginForm.value)
       .subscribe({
         next: (response) => {
-          localStorage.setItem('token', response.token);
-          this.router.navigate(['/profile']);
+          if(response.token){
+            localStorage.setItem('token', response.token);
+            this.router.navigate(['/profile']);
+          }
         },
         error: (error) => {
           console.log(error);
@@ -62,8 +64,9 @@ export class DriverLoginComponent {
     this.driverService.signUp(this.signUpForm.value)
       .subscribe({
         next: (response) => {
-          //todo-p1 : display notification saying succesfuly signed in
-          this.signUpScreenOn = false
+          if(response.type == 'success'){
+            this.signUpScreenOn = false;
+          }
         },
         error: (error) => {
           console.log(error);

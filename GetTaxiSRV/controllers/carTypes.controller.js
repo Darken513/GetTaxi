@@ -5,7 +5,7 @@ exports.getAllCarTypes = async (req, res) => {
   if (result != -1) {
     res.json({ carTypes: result });
   } else {
-    res.json({ title: "error", body: "No Data (for car types) available." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Pas de données disponibles (pour les types de voitures)." });
   }
 };
 
@@ -15,7 +15,7 @@ exports.getCarByID = async (req, res) => {
   if (result != -1) {
     res.json(result);
   } else {
-    res.json({ title: "error", body: "Car type not available." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Le type de voiture n'est pas disponible." });
   }
 }
 
@@ -26,9 +26,9 @@ exports.createCarType = async (req, res) => {
   };
   const result = await carTypesService.createCarType(data);
   if (result != -1) {
-    res.json({ title: "success", body: "Car type added successfully", new: result });
+    res.json({ isNotification: true, type: 'success', title: "succès", body: "La création du type de voiture est terminée avec succès", new: result });
   } else {
-    res.json({ title: "error", body: "Couldnt create Car type." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de créer ce type de voiture." });
   }
 };
 
@@ -36,8 +36,8 @@ exports.deleteCarTypeById = async (req, res) => {
   const carTypeId = req.params.carTypeId;
   const result = await carTypesService.deleteCarTypeById(carTypeId);
   if (result != -1) {
-    res.json({ title: "success", body: "Car type deleted successfully" });
+    res.json({ isNotification: true, type: 'success', title: "succès", body: "Type de voiture supprimé avec succès" });
   } else {
-    res.json({ title: "error", body: "Couldnt delete Car type." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de supprimer le type de voiture sélectionné." });
   }
 };

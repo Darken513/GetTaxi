@@ -6,9 +6,10 @@ import { AppComponent } from './app.component';
 import { AdminHomeScreenComponent } from './home-screen/home-screen.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { Error404Component } from './error404/error404.component';
 import { AddressAutocompleteComponent } from './address-autocomplete/address-autocomplete.component';
+import { LoadingInterceptor } from './loading.interceptor';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,9 @@ import { AddressAutocompleteComponent } from './address-autocomplete/address-aut
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

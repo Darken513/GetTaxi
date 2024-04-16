@@ -4,18 +4,22 @@ const driversService = require("../services/drivers.service");
 
 exports.login = async (req, res) => {
   const result = await driversService.login(req.body);
-  if (result != -1) {
-    res.json({ token: result });
+  if (result == -1) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de se connecter, veuillez vérifier vos informations d'identification." });
+  } else if (result == -2) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de se connecter, email non inscrit." });
   } else {
-    res.json({ title: "error", body: "Failed to login, please check your credentials" });
+    res.json({ token: result });
   }
 }
 exports.signUp = async (req, res) => {
   const result = await driversService.signUp(req.body);
-  if (result != -1) {
-    res.json({ title: "success", body: "Account created successfully" });
+  if (result == -1) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de s'inscrire, l'email est déjà enregistré." });
+  } else if (result == -2) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de s'inscrire, erreur inconnue." });
   } else {
-    res.json({ title: "error", body: "Failed to signup, please check the typed address email" });
+    res.json({ isNotification: true, type: 'success', title: "succès", body: "Création de compte terminée avec succès." });
   }
 }
 
@@ -24,7 +28,7 @@ exports.getAllDrivers = async (req, res) => {
   if (result != -1) {
     res.json({ drivers: result });
   } else {
-    res.json({ title: "error", body: "No Data (for drivers) available." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Aucune donnée (pour les conducteurs) n'est disponible." });
   }
 };
 
@@ -34,7 +38,7 @@ exports.getDriverByID = async (req, res) => {
   if (result != -1) {
     res.json(result);
   } else {
-    res.json({ title: "error", body: "Driver type not available." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Le conducteur n'est pas disponible." });
   }
 }
 
@@ -45,9 +49,9 @@ exports.createDriver = async (req, res) => {
   };
   const result = await driversService.createDriver(data);
   if (result != -1) {
-    res.json({ title: "success", body: "Driver added successfully", new: result });
+    res.json({ isNotification: true, type: 'success', title: "succès", body: "Le conducteur a été ajouté avec succès", new: result });
   } else {
-    res.json({ title: "error", body: "Couldnt create Driver." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de créer ce conducteur." });
   }
 };
 
@@ -58,9 +62,9 @@ exports.updateDriver = async (req, res) => {
   const driverId = req.params.driverId;
   const result = await driversService.updateDriver(driverId, updatedData)
   if (result != -1) {
-    res.status(201).json({ title: "success", body: "Driver updated successfully." });
+    res.status(201).json({ isNotification: true, type: 'success', title: "succès", body: "les données du conducteur ont été mises à jour avec succès." });
   } else {
-    res.status(201).json({ title: "error", body: "Driver update failed." });
+    res.status(201).json({ isNotification: true, type: 'error', title: "erreur", body: "La mise à jour du conducteur a échoué." });
   }
 };
 
@@ -71,9 +75,9 @@ exports.changeDriverStatus = async (req, res) => {
   const driverId = req.params.driverId;
   const result = await driversService.changeDriverStatus(driverId, updatedData);
   if (result != -1) {
-    res.status(201).json({ title: "success", body: "Driver status updated successfully." });
+    res.status(201).json({ isNotification: true, type: 'success', title: "succès", body: "L'état du conducteur a été mis à jour avec succès." });
   } else {
-    res.status(201).json({ title: "error", body: "Driver status update failed." });
+    res.status(201).json({ isNotification: true, type: 'error', title: "erreur", body: "La mise à jour de l'état du conducteur a échoué." });
   }
 };
 
@@ -81,9 +85,9 @@ exports.deleteDriverById = async (req, res) => {
   const driverId = req.params.driverId;
   const result = await driversService.deleteDriverById(driverId);
   if (result != -1) {
-    res.json({ title: "success", body: "Driver deleted successfully" });
+    res.json({ isNotification: true, type: 'success', title: "succès", body: "Conducteur supprimé avec succès." });
   } else {
-    res.json({ title: "error", body: "Couldnt delete Driver." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de supprimer ce conducteur." });
   }
 };
 
@@ -106,6 +110,6 @@ exports.readFileURL = async (req, res) => {
   if (result != -1) {
     res.json({ filePath: result });
   } else {
-    res.json({ title: "error", body: "No file found." });
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Aucun fichier n'a été trouvé." });
   }
 }

@@ -93,13 +93,12 @@ export class DashboardComponent {
       next: (val) => {
         if (val.title != "error") {
           this.carTypes = val.carTypes;
-        } else {
-          this.notificationService.showNotification(val)
         }
         this.initZonesList();
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error fetching Car Types' })
+        //todo-p3 : treat all manual notifications - make it in french, and propose a better way to do it
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Car Types' })
         this.initZonesList();
       }
     })
@@ -110,13 +109,11 @@ export class DashboardComponent {
       next: (val) => {
         if (val.title != "error") {
           this.zones = val.zones;
-        } else {
-          this.notificationService.showNotification(val)
         }
         this.initDriversList();
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error fetching Zones' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Zones' })
         this.initDriversList();
       }
     })
@@ -132,12 +129,10 @@ export class DashboardComponent {
             }
             return driver;
           });
-        } else {
-          this.notificationService.showNotification(val)
         }
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error fetching Drivers' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Drivers' })
       }
     })
   }
@@ -205,10 +200,9 @@ export class DashboardComponent {
           if (val.title != "error") {
             this.carTypes.push(val.new);
           }
-          this.notificationService.showNotification(val);
         },
         error: (error) => {
-          this.notificationService.showNotification({ title: 'error', body: 'Error creating new "Car Type"' })
+          this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error creating new "Car Type"' })
         }
       })
       this.closeModal();
@@ -226,10 +220,9 @@ export class DashboardComponent {
           if (val.title != "error") {
             this.zones.push(val.new);
           }
-          this.notificationService.showNotification(val);
         },
         error: (error) => {
-          this.notificationService.showNotification({ title: 'error', body: 'Error creating new "Zone"' })
+          this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error creating new "Zone"' })
         }
       })
       this.closeModal();
@@ -248,7 +241,6 @@ export class DashboardComponent {
           if (val.title != "error") {
             this.drivers.push(val.new);
           }
-          this.notificationService.showNotification(val);
           const editedDriverIndex = this.drivers.findIndex(driver => driver.id === val.new.id);
           ["drivingPermit", "transportPermit", "taxiPermit", "GrayCard"].forEach((fileKey: string) => {
             if ((this.filesForm as any)[fileKey]) {
@@ -257,10 +249,10 @@ export class DashboardComponent {
               this.adminService.uploadDriversFiles(formData, fileKey, val.new.id).subscribe({
                 next: (response) => {
                   (this.drivers[editedDriverIndex] as any)[fileKey] = response.fileName;
-                  this.notificationService.showNotification({ title: 'success', body: 'File uploaded successfully' });
+                  this.notificationService.showNotification({ type: 'success', title: 'success', body: 'File uploaded successfully' });
                 },
                 error: (error) => {
-                  this.notificationService.showNotification({ title: 'error', body: 'Error uploading file' })
+                  this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error uploading file' })
                 }
               })
             }
@@ -268,7 +260,7 @@ export class DashboardComponent {
           this.closeModal();
         },
         error: (error) => {
-          this.notificationService.showNotification({ title: 'error', body: 'Error creating new "Driver"' })
+          this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error creating new "Driver"' })
         }
       })
     }
@@ -312,10 +304,10 @@ export class DashboardComponent {
             this.adminService.uploadDriversFiles(formData, fileKey, editedDriverId).subscribe({
               next: (response) => {
                 updatedDriver[fileKey] = response.fileName;
-                this.notificationService.showNotification({ title: 'success', body: 'File uploaded successfully' });
+                this.notificationService.showNotification({ type: 'success', title: 'success', body: 'File uploaded successfully' });
               },
               error: (error) => {
-                this.notificationService.showNotification({ title: 'error', body: 'Error uploading file' })
+                this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error uploading file' })
               }
             })
           }
@@ -326,10 +318,9 @@ export class DashboardComponent {
               updatedDriver.id = editedDriverId;
               this.drivers[editedDriverIndex] = updatedDriver;
             }
-            this.notificationService.showNotification(val);
           },
           error: (error) => {
-            this.notificationService.showNotification({ title: 'error', body: 'Error Updating "Driver"' })
+            this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error Updating "Driver"' })
           }
         })
       }
@@ -343,10 +334,9 @@ export class DashboardComponent {
         if (val.title != "error") {
           this.zones = this.zones.filter(zone => zone.id !== zoneId);
         }
-        this.notificationService.showNotification(val);
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error deleting "Zone"' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error deleting "Zone"' })
       }
     })
   }
@@ -357,10 +347,9 @@ export class DashboardComponent {
         if (val.title != "error") {
           this.carTypes = this.carTypes.filter(carType => carType.id !== carTypeID);
         }
-        this.notificationService.showNotification(val);
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error deleting "Car Type"' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error deleting "Car Type"' })
       }
     })
   }
@@ -371,10 +360,9 @@ export class DashboardComponent {
         if (val.title != "error") {
           this.drivers = this.drivers.filter(driver => driver.id !== driverId);
         }
-        this.notificationService.showNotification(val);
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error deleting "Driver"' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error deleting "Driver"' })
       }
     })
   }
@@ -392,10 +380,9 @@ export class DashboardComponent {
         if (val.title != "error") {
           driver.isActive = !driver.isActive;
         }
-        this.notificationService.showNotification(val);
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error Switching status for "Driver"' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error Switching status for "Driver"' })
       }
     })
   }

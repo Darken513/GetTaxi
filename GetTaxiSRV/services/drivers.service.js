@@ -28,7 +28,7 @@ exports.login = async (userCredentials) => {
 
       let samePassword = await bcrypt.compare(combinedPassword, driverRecord.password);
       if (!samePassword) {
-        return -1 //todo-p1 : change error msg returned bad password
+        return -1;
       }
 
       const driverId = querySnapshot.docs[0].id;
@@ -40,9 +40,9 @@ exports.login = async (userCredentials) => {
       const token = createToken(tokenPayload);
       return token;
     }
-    return -2 //todo-p1 : change error msg returned user doesnt exist
+    return -2;
   } catch (error) {
-    return -2 //todo-p1 : change error msg returned user doesnt exist
+    return -2;
   }
 }
 exports.signUp = async (userData) => {
@@ -54,7 +54,7 @@ exports.signUp = async (userData) => {
     const existingUserSnapshot = await driversRef.where('email', '==', userData.email).limit(1).get();
 
     if (!existingUserSnapshot.empty) {
-      throw -1; //todo-p1 : change error msg email already used
+      return -1;
     }
 
     await driversRef.add({
@@ -64,7 +64,6 @@ exports.signUp = async (userData) => {
     });
     return 0;
   } catch (error) {
-     //todo-p1 : change error msg unkown error
     return -2;
   }
 };

@@ -33,24 +33,20 @@ export class AdminHomeScreenComponent {
       next: (val) => {
         if (val.title != "error") {
           this.carTypes = val.carTypes;
-        } else {
-          this.notificationService.showNotification(val)
         }
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error fetching Car Types' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Car Types' })
       }
     })
     this.adminService.getAllZones().subscribe({
       next: (val) => {
         if (val.title != "error") {
           this.zones = val.zones;
-        } else {
-          this.notificationService.showNotification(val)
         }
       },
       error: (error) => {
-        this.notificationService.showNotification({ title: 'error', body: 'Error fetching Zones' })
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Zones' })
       }
     })
     this.customForm = this.fb.group({
@@ -89,13 +85,12 @@ export class AdminHomeScreenComponent {
       this.disabledSubmitBtn = true;
       this.adminService.initRideStatus(this.customForm.value).subscribe({
         next: (val) => {
-          this.notificationService.showNotification(val);
           setTimeout(() => {
             this.disabledSubmitBtn = false;
           }, 1500);
         },
         error: (error) => {
-          this.notificationService.showNotification({ title: 'error', body: 'Error initating Ride status' });
+          this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error initating Ride status' });
           setTimeout(() => {
             this.disabledSubmitBtn = false;
           }, 1500);
