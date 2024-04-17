@@ -46,7 +46,7 @@ export class DriverLoginComponent {
     this.driverService.login(this.loginForm.value)
       .subscribe({
         next: (response) => {
-          if(response.token){
+          if (response.token) {
             localStorage.setItem('token', response.token);
             this.router.navigate(['/profile']);
           }
@@ -64,13 +64,35 @@ export class DriverLoginComponent {
     this.driverService.signUp(this.signUpForm.value)
       .subscribe({
         next: (response) => {
-          if(response.type == 'success'){
+          if (response.type == 'success') {
             this.signUpScreenOn = false;
+            this.resetForms();
           }
         },
         error: (error) => {
           console.log(error);
         }
       });
+  }
+
+  resetForms() {
+    this.loginForm.reset({
+      email: '',
+      password: ''
+    });
+    this.markFormGroupAsUntouched(this.loginForm);
+
+    this.signUpForm.reset({
+      email: '',
+      password: '',
+      retypedPassword: ''
+    });
+    this.markFormGroupAsUntouched(this.signUpForm);
+  }
+
+  markFormGroupAsUntouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsUntouched();
+    });
   }
 }

@@ -8,6 +8,8 @@ const driversRef = db.collection("Drivers");
 const cacheService = require("./cache.service");
 const cachePath = ["drivers", "values"];
 
+const DEAFULT_CREDITS = 10; //todo-p2 make the const values in an env file
+
 function createToken(data) {
   const token = jwt.sign(data, secretKey, {
     algorithm: 'HS256'
@@ -56,11 +58,15 @@ exports.signUp = async (userData) => {
     if (!existingUserSnapshot.empty) {
       return -1;
     }
-
+    //todo-p1 : ask for other user data once logged for first time - we can used same formBuilder from Admin edition screen
+    //todo-p1 : once driver fills in with all details, he should have access to two options, validate email & validate phone nbr
+    //todo-p1 : once both or at least (phone nbr) is validated & all files are uploaded the driver is immediatly activated
     await driversRef.add({
       email: userData.email,
       password: hashedPassword,
-      //todo-p1 : Add other user data here if needed
+      isActive: false,
+      credits: DEAFULT_CREDITS,
+      created_at: new Date()
     });
     return 0;
   } catch (error) {

@@ -21,7 +21,7 @@
 
                         <button type="submit" class="btn btn-success">Se connecter</button>
                         <p style="font-size: 0.8rem; text-align: center;">Pas encore inscrit en tant que conducteur ?
-                            <br><a (click)="signUpScreenOn = true" style="color: #f45db0;">Rejoignez-nous</a>
+                            <br><a (click)="signUpScreenOn = true; resetForms();" style="color: #f45db0;">Rejoignez-nous</a>
                         </p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
 
                         <button type="submit" class="btn btn-success">Inscrivez-vous</button>
                         <p style="font-size: 0.8rem; text-align: center;">Déjà inscrit ? <a
-                                (click)="signUpScreenOn = false" style="color: #f45db0;">Connectez-vous</a></p>
+                                (click)="signUpScreenOn = false; resetForms();" style="color: #f45db0;">Connectez-vous</a></p>
                     </div>
                 </div>
             </form>
