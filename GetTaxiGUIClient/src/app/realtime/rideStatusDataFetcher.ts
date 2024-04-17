@@ -54,7 +54,7 @@ export class RideStatusDataFetcher {
             this.rideId = params['rideId'];
             let toPush = this.driverService.getRideById(this.rideId).subscribe({
                 next: (val) => {
-                    if (val.title == "error") {
+                    if (val.type == "error") {
                         this.rideDoesntExist = true;
                         return;
                     }
@@ -65,21 +65,21 @@ export class RideStatusDataFetcher {
                     }
                     let toPush = this.driverService.getDriverById(this.data.takenByDriver).subscribe({
                         next: (val) => {
-                            if (val.title == "error") {
+                            if (val.type == "error") {
                                 this.rideDoesntExist = true;
                             }
                             this.driver = val;
                             this.data.driverName = val.name + ' ' + val.familyName;
                             const toPush = this.driverService.getZoneById(this.driver.zone).subscribe({
                                 next: (val) => {
-                                    if (val.title == "error") {
+                                    if (val.type == "error") {
                                         this.rideDoesntExist = true;
                                     }
                                     this.data.zone = val.name;
                                     this.zone = val;
                                     const toPush = this.driverService.getCarByID(this.driver.carType).subscribe({
                                         next: (val) => {
-                                            if (val.title == "error") {
+                                            if (val.type == "error") {
                                                 this.rideDoesntExist = true;
                                             }
                                             this.data.carType = val.name;
@@ -137,6 +137,8 @@ export class RideStatusDataFetcher {
             const secondsSinceUnixEpoch = Math.floor((timestamp - unixEpoch));
             inputDate = secondsSinceUnixEpoch;
         } else {
+            if (!inputDate)
+                return;
             if (typeof inputDate != 'number')
                 inputDate = inputDate._seconds * 1000;
         }
