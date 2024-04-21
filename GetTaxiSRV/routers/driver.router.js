@@ -26,10 +26,10 @@ router.get('/acceptRide/:rideId/:driverId', rideStatus_controller.acceptRide);
 router.post('/cancelRide/:rideId', rideStatus_controller.cancelRide);
 
 //Driver profile edition section
-router.get('/getAllCarTypes', carType_controller.getAllCarTypes);
-router.get('/getAllZones', zone_controller.getAllZones);
-router.post('/updateDriver/:driverId', driver_controller.updateDriver); //todo-P1 : make sure that the sender is the owner !!!
-router.post('/uploadFile/:driverId/:fileId', upload.single('file'), driver_controller.uploadFile);
-router.get('/readFileURL/:driverId/:filePath', driver_controller.readFileURL);
+router.get('/getAllCarTypes', carType_controller.getAllCarTypes); //todo-P1 : make sure that the sender is the owner !!!
+router.get('/getAllZones', zone_controller.getAllZones); //same make sure that the sender is the owner !!!
+router.post('/updateDriver/:driverId', driver_controller.updateDriver); //same make sure that the sender is the owner !!!
+router.post('/uploadFile/:driverId/:fileId', upload.single('file'), driver_controller.uploadFile); //same make sure that the sender is the owner !!!
+router.get('/readFileURL/:driverId/:filePath', driver_controller.readFileURL); //same make sure that the sender is the owner !!!
 
 module.exports = router;

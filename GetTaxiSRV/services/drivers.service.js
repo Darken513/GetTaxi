@@ -63,9 +63,6 @@ exports.signUp = async (userData) => {
     if (!existingUserSnapshot.empty) {
       return -1;
     }
-    //todo-p1 : ask for other user data once logged for first time - we can used same formBuilder from Admin edition screen
-    //todo-p1 : once driver fills in with all details, he should have access to two options, validate email & validate phone nbr
-    //todo-p1 : once both or at least (phone nbr) is validated & all files are uploaded the driver is immediatly activated
     await driversRef.add({
       email: userData.email,
       password: hashedPassword,

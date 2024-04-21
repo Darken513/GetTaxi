@@ -1,10 +1,6 @@
 const driversService = require("../services/drivers.service");
 
-//todo-P1: start driver profile creation & consultation
-//todo-P1: display all details, a button to change data, could provide infos about nbr of accepted rides, nbr of canceled rides, nbr of finished rides
-//credits leftm current ride
-
-//todo-p0: find a solution to avoid allowing drivers to accept two rides at the same time
+//todo-p2: find a solution to avoid allowing drivers to accept two rides at the same time
 exports.login = async (req, res) => {
   const result = await driversService.login(req);
   if (result == -1) {

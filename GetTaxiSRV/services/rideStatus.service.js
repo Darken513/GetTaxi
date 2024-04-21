@@ -128,7 +128,7 @@ exports.getRideById = async (rideId) => {
  */
 exports.acceptRide = async (rideId, driverId) => {
   try {
-    //todo-P1: check credits first, should have enough credits to accept
+    //todo-P2: check credits first, should have enough credits to accept
     const rideS_docRef = rideStatusRef.doc(rideId);
     const rideS_snapshot = await rideS_docRef.get();
     if (!rideS_snapshot.exists) {
@@ -148,7 +148,7 @@ exports.acceptRide = async (rideId, driverId) => {
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, driverId);
-    //todo-P1 : should send sms to client
+    //todo-P2 : should send sms to client
     return toSaveCache;
   } catch (error) {
     return -1;
