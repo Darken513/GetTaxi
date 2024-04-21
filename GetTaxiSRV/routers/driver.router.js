@@ -3,6 +3,7 @@ const carType_controller = require('../controllers/carTypes.controller');
 const driver_controller = require('../controllers/drivers.controller');
 const zone_controller = require('../controllers/zones.controller');
 const rideStatus_controller = require('../controllers/rideStatus.controller');
+const { upload } = require('../server');
 
 const router = express.Router();
 
@@ -23,5 +24,12 @@ router.get('/getZoneById/:zoneId', zone_controller.getZoneById);
 router.get('/getRideById/:rideId', rideStatus_controller.getRideById);
 router.get('/acceptRide/:rideId/:driverId', rideStatus_controller.acceptRide);
 router.post('/cancelRide/:rideId', rideStatus_controller.cancelRide);
+
+//Driver profile edition section
+router.get('/getAllCarTypes', carType_controller.getAllCarTypes);
+router.get('/getAllZones', zone_controller.getAllZones);
+router.post('/updateDriver/:driverId', driver_controller.updateDriver); //todo-P1 : make sure that the sender is the owner !!!
+router.post('/uploadFile/:driverId/:fileId', upload.single('file'), driver_controller.uploadFile);
+router.get('/readFileURL/:driverId/:filePath', driver_controller.readFileURL);
 
 module.exports = router;

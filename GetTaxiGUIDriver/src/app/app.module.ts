@@ -12,6 +12,7 @@ import { CancelRideComponent } from './cancel-ride/cancel-ride.component';
 import { DriverLoginComponent } from './driver-login/driver-login.component';
 import { DriverProfileComponent } from './driver-profile/driver-profile.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TokenInterceptor } from './tokenIterceptor';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

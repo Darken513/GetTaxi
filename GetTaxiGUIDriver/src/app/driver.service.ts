@@ -13,13 +13,6 @@ export class DriverService {
     private http: HttpClient
   ) { }
 
-  public login(body: any): Observable<any> {
-    return this.http.post<{ response: any }>(`${this.apiUrl}/login`, body);
-  }
-  public signUp(body: any): Observable<any> {
-    return this.http.post<{ response: any }>(`${this.apiUrl}/signUp`, body);
-  }
-
   public getDriverById(driverId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverById/${driverId}`);
   }
@@ -37,5 +30,20 @@ export class DriverService {
   }
   public cancelRide(rideId: string, driverId: string, reason: any): Observable<any> {
     return this.http.post<{ response: any }>(`${this.apiUrl}/cancelRide/${rideId}`, { reason, driverId });
+  }
+  public updateDriver(def: any, id: string): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/updateDriver/${id}`, def);
+  }
+  public uploadDriversFiles(formData: FormData, fileKey: any, driverId: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/uploadFile/${driverId}/${fileKey}`, formData);
+  }
+  public readDriverFilesURLS(filePath: any, driverId: any): Observable<any> {
+    return this.http.get(`${this.apiUrl}/readFileURL/${driverId}/${filePath}`);
+  }
+  public getAllZones(): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getAllZones`);
+  }
+  public getAllCarTypes(): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getAllCarTypes`);
   }
 }

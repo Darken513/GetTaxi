@@ -17,8 +17,12 @@ function createToken(data) {
   return token;
 }
 
-exports.login = async (userCredentials) => {
+exports.login = async (req) => {
   try {
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip;
+
+    let userCredentials = req.body;
     const combinedPassword = userCredentials.password + secretKey;
     const querySnapshot = await driversRef
       .where('email', '==', userCredentials.email)
@@ -36,7 +40,8 @@ exports.login = async (userCredentials) => {
       const driverId = querySnapshot.docs[0].id;
       const tokenPayload = {
         driverId,
-        ...driverRecord
+        userAgent,
+        ipAddress
       };
       delete tokenPayload.password;
       const token = createToken(tokenPayload);

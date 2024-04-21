@@ -184,11 +184,13 @@ export class DashboardComponent {
     this.driverStatusModal = false;
     this.resetForm();
   }
+  
   private markAllAsTouched(form: FormGroup) {
     Object.values(form.controls).forEach((control: any) => {
       control.markAsTouched();
     });
   }
+  
   addCarType(): void {
     this.markAllAsTouched(this.carTypeForm);
     if (this.carTypeForm.valid) {

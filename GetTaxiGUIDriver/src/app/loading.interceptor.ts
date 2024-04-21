@@ -9,11 +9,15 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
     timer: number = 0;
-    constructor(@Inject(NotificationService) private notificationService: NotificationService) { }
+    constructor(
+        @Inject(NotificationService) private notificationService: NotificationService,
+        private router: Router
+    ) { }
 
     intercept(
         req: HttpRequest<any>,
@@ -29,6 +33,13 @@ export class LoadingInterceptor implements HttpInterceptor {
                     if (event && event.body && event.body.isNotification) {
                         try {
                             this.notificationService.showNotification(event.body)
+                        } catch (error) {
+                        }
+                    } else if (event && event.body && event.body.tokenError) {
+                        try {
+                            const currentPageUrl = window.location.href;
+                            sessionStorage.setItem('currentPageUrl', currentPageUrl);
+                            this.router.navigate(['/']);
                         } catch (error) {
                         }
                     }

@@ -6,7 +6,7 @@ const driversService = require("../services/drivers.service");
 
 //todo-p0: find a solution to avoid allowing drivers to accept two rides at the same time
 exports.login = async (req, res) => {
-  const result = await driversService.login(req.body);
+  const result = await driversService.login(req);
   if (result == -1) {
     res.json({ isNotification: true, type: 'error', title: "erreur", body: "Impossible de se connecter, veuillez vérifier vos informations d'identification." });
   } else if (result == -2) {
