@@ -1,90 +1,9 @@
 <div *ngIf="ready">
     <div *ngIf="missingData">
-        <div class="modal-body">
-            <form [formGroup]="driverForm" (ngSubmit)="updateDriver()">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label">Name:</label>
-                        <input type="text" placeholder="Name" id="name" class="form-control" formControlName="name"
-                            [class.is-invalid]="!driverForm.get('name')?.valid && driverForm.get('name')?.touched" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="familyName" class="form-label">Family Name:</label>
-                        <input type="text" placeholder="Family Name" id="familyName" class="form-control"
-                            formControlName="familyName"
-                            [class.is-invalid]="!driverForm.get('familyName')?.valid && driverForm.get('familyName')?.touched" />
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="phoneNbr" class="form-label">Phone Number:</label>
-                        <input type="text" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
-                            formControlName="phoneNbr"
-                            [class.is-invalid]="!driverForm.get('phoneNbr')?.valid && driverForm.get('phoneNbr')?.touched" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="carType" class="form-label">Car Type:</label>
-                        <select id="carType" class="form-control form-select" formControlName="carType"
-                            [class.is-invalid]="!driverForm.get('carType')?.valid && driverForm.get('carType')?.touched">
-                            <option value="" selected disabled hidden>Select a car type</option>
-                            <option *ngFor="let carType of carTypes" [value]="carType.id">
-                                {{carType.name}}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="carDescription" class="form-label">Car Description:</label>
-                        <input type="text" placeholder="Car Description" id="carDescription" class="form-control"
-                            formControlName="carDescription"
-                            [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="zone" class="form-label">Zone:</label>
-                        <select id="zone" class="form-control form-select" formControlName="zone"
-                            [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
-                            <option value="" selected disabled hidden>Select a zone</option>
-                            <option *ngFor="let zone of zones" [value]="zone.id">
-                                {{zone.name}}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="drivingPermit" class="form-label">Driver's license:</label>
-                        <i *ngIf="filesForm.drivingPermitURL" class="fa fa-eye" aria-hidden="true"
-                            (click)="fetchFileAndRedirect(filesForm.drivingPermitURL)"></i>
-                        <input type="file" class="form-control" (change)="onFileSelected($event, 'drivingPermit')" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="transportPermit" class="form-label">Transport authorization:</label>
-                        <i *ngIf="filesForm.transportPermitURL" class="fa fa-eye" aria-hidden="true"
-                            (click)="fetchFileAndRedirect(filesForm.transportPermitURL)"></i>
-                        <input type="file" class="form-control" (change)="onFileSelected($event, 'transportPermit')" />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="taxiPermit" class="form-label">Taxi License:</label>
-                        <i *ngIf="filesForm.taxiPermitURL" class="fa fa-eye" aria-hidden="true"
-                            (click)="fetchFileAndRedirect(filesForm.taxiPermitURL)"></i>
-                        <input type="file" class="form-control" (change)="onFileSelected($event, 'taxiPermit')" />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="GrayCard" class="form-label">Vehicle registration document:</label>
-                        <i *ngIf="filesForm.GrayCardURL" class="fa fa-eye" aria-hidden="true"
-                            (click)="fetchFileAndRedirect(filesForm.GrayCardURL)"></i>
-                        <input type="file" class="form-control" (change)="onFileSelected($event, 'GrayCard')" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-warning w-100">Update Data</button>
-                </div>
-            </form>
+        <div class="container">
+            <h2 style="margin: 35px 5px;">Veuillez compléter les données manquantes afin d'activer votre compte.</h2>
         </div>
+        <app-edit-profile [carTypes]="carTypes" [driver]="driver" [driverId]="driverId"
+            [zones]="zones"></app-edit-profile>
     </div>
 </div>

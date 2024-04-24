@@ -13,6 +13,7 @@ import { DriverLoginComponent } from './driver-login/driver-login.component';
 import { DriverProfileComponent } from './driver-profile/driver-profile.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TokenInterceptor } from './tokenIterceptor';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { TokenInterceptor } from './tokenIterceptor';
     CancelRideComponent,
     DriverLoginComponent,
     DriverProfileComponent,
+    EditProfileComponent,
   ],
   imports: [
     BrowserModule,

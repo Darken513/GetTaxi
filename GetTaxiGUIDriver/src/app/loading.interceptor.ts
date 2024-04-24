@@ -39,6 +39,7 @@ export class LoadingInterceptor implements HttpInterceptor {
                         try {
                             const currentPageUrl = window.location.href;
                             sessionStorage.setItem('currentPageUrl', currentPageUrl);
+                            localStorage.removeItem('token');
                             this.router.navigate(['/']);
                         } catch (error) {
                         }
