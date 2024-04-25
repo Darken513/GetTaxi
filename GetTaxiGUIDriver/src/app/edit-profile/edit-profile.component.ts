@@ -1,8 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../auth.service';
 import { DriverService } from '../driver.service';
 import { NotificationService } from '../notification.service';
 
@@ -29,8 +28,10 @@ export class EditProfileComponent {
   @Input() carTypes: any[] = []; //todo-P3 : use modals
   @Input() zones: any[] = []; //todo-P3 : use modals
 
+  @Output() update: EventEmitter<any> = new EventEmitter();
+
   public prevSubmitted: boolean = false;
-  public subs: Array<Subscription> = []; //todo-P3 : make sure to unsbscribe !
+  public subs: Array<Subscription> = [];
 
   driverForm!: FormGroup;
   filesForm: DriverFileForm = {
@@ -48,7 +49,6 @@ export class EditProfileComponent {
     public driverService: DriverService,
     public notificationService: NotificationService,
     private fb: FormBuilder,
-    public activatedRoute: ActivatedRoute,
     public router: Router
   ) {
     this.driverForm = this.fb.group({
@@ -78,7 +78,7 @@ export class EditProfileComponent {
 
   updateDriver(): void {
     this.markAllAsTouched(this.driverForm);
-    if (this.driverForm.valid && this.isFilesFormValid() && this.driverId !== null) {
+    if (this.isFilesFormValid() && this.driverForm.valid && this.driverId !== null) {
       const updatedDriver: any = {
         ...this.driverForm.value,
         isActive: this.driver.isActive
@@ -89,7 +89,11 @@ export class EditProfileComponent {
           formData.append('file', (this.filesForm as any)[fileKey]);
           const toPush = this.driverService.uploadDriversFiles(formData, fileKey, this.driverId).subscribe({
             next: (response) => {
-              updatedDriver[fileKey] = response.fileName;
+              this.driver[fileKey] = response.fileName;
+              (this.filesForm as any)[fileKey + 'URL'] = response.fileName;
+              if (!this.hasMissingData()) {
+                this.update.emit({ noMissingDataLeft: true })
+              }
               this.notificationService.showNotification({ type: 'success', title: 'success', body: 'File uploaded successfully' });
             },
             error: (error) => {
@@ -103,7 +107,12 @@ export class EditProfileComponent {
         next: (val) => {
           if (val.title != "error") {
             updatedDriver.id = this.driverId;
-            this.driver = updatedDriver;
+            Object.keys(updatedDriver).forEach(key => {
+              this.driver[key] = updatedDriver[key];
+            })
+            if (!this.hasMissingData()) {
+              this.update.emit({ noMissingDataLeft: true })
+            }
           }
         },
         error: (error) => {
@@ -112,6 +121,17 @@ export class EditProfileComponent {
       })
       this.subs.push(toPush);
     }
+  }
+
+  private hasMissingData() {
+    return !this.driver.name
+      || !this.driver.familyName
+      || !this.driver.phoneNbr
+      || !this.driver.carDescription
+      || !this.driver.drivingPermit
+      || !this.driver.transportPermit
+      || !this.driver.taxiPermit
+      || !this.driver.GrayCard;
   }
 
   private markAllAsTouched(form: FormGroup) {

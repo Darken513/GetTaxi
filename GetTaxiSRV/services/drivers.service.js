@@ -45,6 +45,12 @@ exports.login = async (req) => {
       };
       delete tokenPayload.password;
       const token = createToken(tokenPayload);
+
+      const toSaveCache = { id: driverId, ...driverRecord };
+      Object.keys(toSaveCache).forEach(key => {
+        cacheService.updateDefSpecificProp([...cachePath, driverId, key], toSaveCache[key]);
+      })
+
       return token;
     }
     return -2;
@@ -127,7 +133,9 @@ exports.updateDriver = async (driverId, updatedData) => {
     const docRef = driversRef.doc(driverId);
     await docRef.update(updatedData);
     const toSaveCache = { id: driverId, ...updatedData }
-    cacheService.storeOrUpdateDef([...cachePath, driverId], toSaveCache);
+    Object.keys(toSaveCache).forEach(key => {
+      cacheService.updateDefSpecificProp([...cachePath, driverId, key], toSaveCache[key]);
+    })
     return 0;
   } catch (error) {
     return -1;
@@ -179,7 +187,7 @@ exports.uploadFile = (file, driverId, fileId) => {
   blobStream.on('finish', async () => {
     const updatedData = {};
     updatedData[fileId] = fileName;
-    await exports.updateDriver(driverId, updatedData);
+    await exports.updateDriver(driverId, updatedData, true);
   });
 
   blobStream.end(file.buffer);

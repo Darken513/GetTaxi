@@ -1,0 +1,35 @@
+p span {
+  color: greenyellow;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+.form-control::placeholder {
+  color: #74738b !important;
+}
+.code-input-wrapper {
+  margin: auto;
+  width: 320px;
+  .form-control {
+    display: inline-block;
+    width: 75px;
+    margin: 2.5px;
+    background: rgba(255, 255, 255, 0.062745098);
+    color: #dcdaff;
+    margin-bottom: 8px;
+    font-size: 50px;
+    text-align: center;
+  }
+}
+.submitBtn{
+  background: yellowgreen;
+  height: 50px;
+  width: 150px !important;
+  margin: auto;
+  display: block;
+  margin-top: 10px;
+}

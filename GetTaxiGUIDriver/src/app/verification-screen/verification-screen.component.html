@@ -1,0 +1,20 @@
+<div class="container">
+    <div style="padding: 0 5px;">
+        <p>Un message contenant le code de vérification a été envoyé à <span>{{driver.phoneNbr}}</span></p>
+        <p>Le code expire dans <span>110</span> secondes </p>
+        <div class="code-input-wrapper">
+            <input type="number" placeholder="-" id="{{defaultFieldName}}0" class="form-control"
+                [class.is-invalid]="false" (input)="onFieldChange(0, $event)" />
+            <input type="number" placeholder="-" id="{{defaultFieldName}}1" class="form-control"
+                [class.is-invalid]="false" (input)="onFieldChange(1, $event)" />
+            <input type="number" placeholder="-" id="{{defaultFieldName}}2" class="form-control"
+                [class.is-invalid]="false" (input)="onFieldChange(2, $event)" />
+            <input type="number" placeholder="-" id="{{defaultFieldName}}3" class="form-control"
+                [class.is-invalid]="false" (input)="onFieldChange(3, $event)" />
+            <div class="footer">
+                <button class="btn submitBtn">Vérifier</button>
+            </div>
+        </div>
+        <!-- !driverForm.get('verificationCode')?.valid && driverForm.get('verificationCode')?.touched -->
+    </div>
+</div>

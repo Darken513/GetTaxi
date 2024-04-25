@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { RideStatusComponent } from './ride-status/ride-status.component';
 import { RealtimeShareComponent } from './realtime-share/realtime-share.component';
 import { Error404Component } from './error404/error404.component';
-import { DriverProfileComponent } from './driver-profile/driver-profile.component';
+import { DriverComponent } from './driver-profile/driver.component';
 import { DriverLoginComponent } from './driver-login/driver-login.component';
 
 const routes: Routes = [
@@ -11,7 +11,7 @@ const routes: Routes = [
     path: '',
     children: [
       { path: '', component: DriverLoginComponent },
-      { path: 'profile', component: DriverProfileComponent },
+      { path: 'profile', component: DriverComponent },
     ]
   },
   {

@@ -1,0 +1,22 @@
+<div *ngIf="ready">
+    <div *ngIf="editingProfile">
+        <div class="container">
+            <h2 *ngIf="!driver.isActive">Veuillez compléter les données <span class="secondaryColor">manquantes</span>
+                afin d'activer votre compte.</h2>
+            <h2 *ngIf="driver.isActive"><span class="secondaryColor">Modifier</span> mon profil</h2>
+        </div>
+        <app-edit-profile [carTypes]="carTypes" [driver]="driver" [driverId]="driverId" [zones]="zones"
+            (update)="onProfileEditAction($event)"></app-edit-profile>
+    </div>
+    <div *ngIf="!editingProfile && !driver.verifiedPhoneNbr">
+        <div class="container">
+            <h2 style="margin-top: 50px;">Veuillez <span class="secondaryColor">vérifier</span> votre numéro de téléphone afin d'activer votre
+                compte.</h2>
+        </div>
+        <app-verification-screen [driver]="driver" [driverId]="driverId" (update)="'todo'"></app-verification-screen>
+    </div>
+    <div *ngIf="!editingProfile && driver.verifiedPhoneNbr">
+        <app-driver-profile [carTypes]="carTypes" [driver]="driver" [driverId]="driverId" [zones]="zones"
+            (update)="'todo'"></app-driver-profile>
+    </div>
+</div>

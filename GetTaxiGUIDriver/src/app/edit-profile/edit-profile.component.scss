@@ -1,17 +1,51 @@
 p {
   margin: 0;
 }
+.form-label {
+  margin-bottom: 0.25rem;
+}
 .fa-eye {
   color: greenyellow;
   margin: 0px 10px;
   cursor: pointer;
 }
-.row .col-md-6 {
-    padding: 5px;
-    padding-bottom: 0;
-    margin-bottom: 0.5rem !important;
+i.fa.fa-eye::after {
+  content: "visualiser";
+  font-size: 10px;
+  position: relative;
+  top: -3px;
+  left: 5px;
+  background: #b1ee53;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: #212735;
+  font-family: "Rubik", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
 }
-.footer{
-    margin: 5px;
-    margin-top: 15px;
+.row .col-md-6 {
+  padding: 5px;
+  padding-bottom: 0;
+  margin-bottom: 0 !important;
+}
+.footer {
+  margin: 5px;
+  margin-top: 15px;
+  padding-bottom: 25px;
+}
+
+.form-control::placeholder {
+  color: #74738b !important;
+}
+.form-control {
+  background: #ffffff10;
+  color: #dcdaff;
+  margin-bottom: 8px;
+}
+input::file-selector-button {
+  background: #ffffff20;
+  color: #dcdaff;
+  padding: 0.5em;
+  border: thin solid grey;
+  border-radius: 3px;
 }

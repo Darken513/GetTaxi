@@ -2,30 +2,29 @@
     <form [formGroup]="driverForm" (ngSubmit)="updateDriver()">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <input type="text" placeholder="Name" id="name" class="form-control" formControlName="name"
-                    [class.is-invalid]="!driverForm.get('name')?.valid && driverForm.get('name')?.touched" />
+                <label for="familyName" class="form-label">Nom:</label>
+                <input type="text" placeholder="Nom" id="familyName" class="form-control" formControlName="familyName"
+                    [class.is-invalid]="!driverForm.get('familyName')?.valid && driverForm.get('familyName')?.touched" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="familyName" class="form-label">Family Name:</label>
-                <input type="text" placeholder="Family Name" id="familyName" class="form-control"
-                    formControlName="familyName"
-                    [class.is-invalid]="!driverForm.get('familyName')?.valid && driverForm.get('familyName')?.touched" />
+                <label for="name" class="form-label">Prénom:</label>
+                <input type="text" placeholder="Prénom" id="name" class="form-control" formControlName="name"
+                    [class.is-invalid]="!driverForm.get('name')?.valid && driverForm.get('name')?.touched" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="phoneNbr" class="form-label">Phone Number:</label>
+                <label for="phoneNbr" class="form-label">N° de téléphone:</label>
                 <input type="text" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
                     formControlName="phoneNbr"
                     [class.is-invalid]="!driverForm.get('phoneNbr')?.valid && driverForm.get('phoneNbr')?.touched" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="carType" class="form-label">Car Type:</label>
+                <label for="carType" class="form-label">Type de voiture:</label>
                 <select id="carType" class="form-control form-select" formControlName="carType"
                     [class.is-invalid]="!driverForm.get('carType')?.valid && driverForm.get('carType')?.touched">
-                    <option value="" selected disabled hidden>Select a car type</option>
+                    <option value="" selected disabled hidden>Sélectionnez un type de voiture</option>
                     <option *ngFor="let carType of carTypes" [value]="carType.id">
                         {{carType.name}}
                     </option>
@@ -35,8 +34,8 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="carDescription" class="form-label">Car Description:</label>
-                <input type="text" placeholder="Car Description" id="carDescription" class="form-control"
+                <label for="carDescription" class="form-label">Description de la voiture:</label>
+                <input type="text" placeholder="Description de la voiture" id="carDescription" class="form-control"
                     formControlName="carDescription"
                     [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
             </div>
@@ -44,7 +43,7 @@
                 <label for="zone" class="form-label">Zone:</label>
                 <select id="zone" class="form-control form-select" formControlName="zone"
                     [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
-                    <option value="" selected disabled hidden>Select a zone</option>
+                    <option value="" selected disabled hidden>Sélectionnez une zone</option>
                     <option *ngFor="let zone of zones" [value]="zone.id">
                         {{zone.name}}
                     </option>
@@ -53,7 +52,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="drivingPermit" class="form-label">Driver's license:</label>
+                <label for="drivingPermit" class="form-label">Permis de conduire:</label>
                 <i *ngIf="filesForm.drivingPermitURL" class="fa fa-eye" aria-hidden="true"
                     (click)="fetchFileAndRedirect(filesForm.drivingPermitURL)"></i>
                 <input type="file" class="form-control"
@@ -61,7 +60,7 @@
                     (change)="onFileSelected($event, 'drivingPermit')" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="transportPermit" class="form-label">Transport authorization:</label>
+                <label for="transportPermit" class="form-label">Autorisation de transport:</label>
                 <i *ngIf="filesForm.transportPermitURL" class="fa fa-eye" aria-hidden="true"
                     (click)="fetchFileAndRedirect(filesForm.transportPermitURL)"></i>
                 <input type="file" class="form-control"
@@ -71,7 +70,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="taxiPermit" class="form-label">Taxi License:</label>
+                <label for="taxiPermit" class="form-label">Licence de taxi:</label>
                 <i *ngIf="filesForm.taxiPermitURL" class="fa fa-eye" aria-hidden="true"
                     (click)="fetchFileAndRedirect(filesForm.taxiPermitURL)"></i>
                 <input type="file" class="form-control"
@@ -79,7 +78,7 @@
                     (change)="onFileSelected($event, 'taxiPermit')" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="GrayCard" class="form-label">Vehicle registration document:</label>
+                <label for="GrayCard" class="form-label">Carte grise du véhicule:</label>
                 <i *ngIf="filesForm.GrayCardURL" class="fa fa-eye" aria-hidden="true"
                     (click)="fetchFileAndRedirect(filesForm.GrayCardURL)"></i>
                 <input type="file" class="form-control"
@@ -88,7 +87,7 @@
             </div>
         </div>
         <div class="footer">
-            <button type="submit" class="btn btn-warning w-100">Update Data</button>
+            <button type="submit" class="btn btn-warning w-100">Terminer</button>
         </div>
     </form>
 </div>

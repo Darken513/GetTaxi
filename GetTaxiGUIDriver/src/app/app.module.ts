@@ -10,10 +10,12 @@ import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule, HttpHandler } from '@a
 import { LoadingInterceptor } from './loading.interceptor';
 import { CancelRideComponent } from './cancel-ride/cancel-ride.component';
 import { DriverLoginComponent } from './driver-login/driver-login.component';
-import { DriverProfileComponent } from './driver-profile/driver-profile.component';
+import { DriverComponent } from './driver-profile/driver.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TokenInterceptor } from './tokenIterceptor';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { DriverProfileComponent } from './driver-profile/driver-profile.component';
+import { VerificationScreenComponent } from './verification-screen/verification-screen.component';
 
 @NgModule({
   declarations: [
@@ -23,8 +25,10 @@ import { EditProfileComponent } from './edit-profile/edit-profile.component';
     Error404Component,
     CancelRideComponent,
     DriverLoginComponent,
-    DriverProfileComponent,
+    DriverComponent,
     EditProfileComponent,
+    DriverProfileComponent,
+    VerificationScreenComponent,
   ],
   imports: [
     BrowserModule,
