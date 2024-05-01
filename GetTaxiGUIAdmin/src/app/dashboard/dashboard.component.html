@@ -123,6 +123,28 @@
                     </form>
                 </div>
             </div>
+            <div class="modal-content" *ngIf="carBrandModal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Car Brand</h5>
+                    <button type="button" class="btnClose" (click)="closeModal()" aria-label="Close">
+                        <i class="fa fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="carBrandForm" (ngSubmit)="addCarBrand()">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" placeholder="Name" id="name" class="form-control"
+                                    formControlName="name"
+                                    [class.is-invalid]="!carBrandForm.get('name')?.valid && carBrandForm.get('name')?.touched" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning w-100">Add Car Brand</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <div class="modal-content" *ngIf="zoneModal">
                 <div class="modal-header">
                     <h5 class="modal-title">Add Zone</h5>
@@ -202,6 +224,44 @@
     <div>
         <div class="custom-accordian">
             <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 accordianTitle"><span>Cars Brands</span> List</h4>
+                <div>
+                    <button *ngIf="carBrandsAccordianOn" class="btn btn-warning addBtn" (click)="openModal('carBrands')">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="arrowIcon" (click)="openAccordian('carBrands')"
+                        [ngStyle]="{'transform':carBrandsAccordianOn?'rotate(90deg)':'rotate(0deg)'}">
+                        <i class="fa-solid fa-circle-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4 accordian-content"
+            [ngClass]="{'accordianOn':carBrandsAccordianOn, 'accordianOff':!carBrandsAccordianOn}">
+            <!-- Card System for Low Resolution -->
+            <div class="accordian-innerContent">
+                <div class="row" *ngIf="carBrands.length">
+                    <div *ngFor="let carBrand of carBrands"
+                        class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
+                        <div class="custom-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5>{{ carBrand.name }}</h5><button class="btn btn-danger"
+                                    (click)="deleteCarBrand(carBrand.id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="!carBrands.length">
+                    <h3 class="emptyList">No Car brand defined</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="custom-accordian">
+            <div class="d-flex justify-content-between align-items-center">
                 <h4 class="mb-0 accordianTitle"><span>Zones</span> List</h4>
                 <div>
                     <button *ngIf="zonesAccordianOn" class="btn btn-warning addBtn" (click)="openModal('zones')">
@@ -256,6 +316,7 @@
             <div class="accordian-innerContent">
                 <div class="row" *ngIf="drivers.length">
                     <div *ngFor="let driver of drivers" class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
+                        <!-- //todo-P1: add the new fields-->
                         <div class="custom-card {{driver.confNok?'confNok':''}}">
                             <div>
                                 <h5>{{ driver.familyName }} - <span style="color:#dc415b">{{ driver.name }}</span></h5>

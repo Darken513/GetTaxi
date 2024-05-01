@@ -14,6 +14,7 @@ export class DriverProfileComponent {
   @Input() driver: any; //todo-P3 : use modals
 
   @Input() carTypes: any[] = []; //todo-P3 : use modals
+  @Input() carBrands: any[] = []; //todo-P3 : use modals
   @Input() zones: any[] = []; //todo-P3 : use modals
 
   @Output() update: EventEmitter<any> = new EventEmitter();

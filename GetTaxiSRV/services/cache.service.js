@@ -13,6 +13,7 @@ cache structure is the following :
         fetchedAllOnce: this is to keep track if at least one getAll was executed to figure out how much elements DB has
         totalCount : totalInDB ( +1 if added / -1 if deleted )
     },
+    'carBrands':{...},
     'zones':{...},
     'drivers':{...},
     'rideStatus':{...},
@@ -20,6 +21,11 @@ cache structure is the following :
 */
 const cache = {
     'carTypes': {
+        values: {},
+        totalCount: 0,
+        fetchedAllOnce: false
+    },
+    'carBrands': {
         values: {},
         totalCount: 0,
         fetchedAllOnce: false

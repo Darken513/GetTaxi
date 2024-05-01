@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Zone } from 'src/app/models/Zone';
 import { CarType } from 'src/app/models/carType';
+import { CarBrand } from 'src/app/models/carBrand';
 import { Driver } from 'src/app/models/driver';
 import { AdminService } from '../admin.service';
 import { NotificationService } from '../notification.service';
@@ -27,10 +28,12 @@ interface DriverFileForm {
 export class DashboardComponent {
   drivers: Driver[] = [];
   carTypes: CarType[] = [];
+  carBrands: CarBrand[] = [];
   zones: Zone[] = [];
 
   driverForm: FormGroup;
   carTypeForm: FormGroup;
+  carBrandForm: FormGroup;
   zoneForm: FormGroup;
 
   editedDriverId: string | null = null;
@@ -51,11 +54,13 @@ export class DashboardComponent {
 
   driverModal: boolean = false;
   carTypeModal: boolean = false;
+  carBrandModal: boolean = false;
   zoneModal: boolean = false;
   driverStatusModal: boolean = false;
 
   driversAccordianOn: boolean = false;
   carTypesAccordianOn: boolean = false;
+  carBrandsAccordianOn: boolean = false;
   zonesAccordianOn: boolean = false;
 
   constructor(
@@ -70,10 +75,14 @@ export class DashboardComponent {
       familyName: ['', Validators.required],
       phoneNbr: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
       carType: ['', Validators.required],
+      carBrand: ['', Validators.required],
       carDescription: ['', Validators.required],
       zone: ['', Validators.required]
     });
     this.carTypeForm = this.fb.group({
+      name: ['', Validators.required],
+    });
+    this.carBrandForm = this.fb.group({
       name: ['', Validators.required],
     });
     this.zoneForm = this.fb.group({
@@ -110,10 +119,26 @@ export class DashboardComponent {
         if (val.title != "error") {
           this.zones = val.zones;
         }
-        this.initDriversList();
+        this.initCarBrandsList();
       },
       error: (error) => {
         this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Zones' })
+        this.initCarBrandsList();
+      }
+    })
+  }
+
+  initCarBrandsList() {
+    this.adminService.getAllCarBrands().subscribe({
+      next: (val: any) => {
+        if (val.title != "error") {
+          this.carBrands = val.carBrands;
+        }
+        this.initDriversList();
+      },
+      error: (error: any) => {
+        //todo-p3 : treat all manual notifications - make it in french, and propose a better way to do it
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Car Brands' })
         this.initDriversList();
       }
     })
@@ -124,7 +149,7 @@ export class DashboardComponent {
       next: (val) => {
         if (val.title != "error") {
           this.drivers = val.drivers.map((driver: any) => {
-            if (this.getZoneNameById(driver.zone) == 'NOK' || this.getCarTypeNameById(driver.carType) == 'NOK') {
+            if (this.getZoneNameById(driver.zone) == 'NOK' || this.getCarTypeNameById(driver.carType) == 'NOK' || this.getCarTypeNameById(driver.carBrand) == 'NOK') {
               driver.confNok = true;
             }
             return driver;
@@ -145,6 +170,9 @@ export class DashboardComponent {
       case 'carTypes':
         this.carTypesAccordianOn = !this.carTypesAccordianOn;
         break;
+      case 'carBrands':
+        this.carBrandsAccordianOn = !this.carBrandsAccordianOn;
+        break;
       case 'zones':
         this.zonesAccordianOn = !this.zonesAccordianOn;
         break;
@@ -159,16 +187,25 @@ export class DashboardComponent {
       case 'carTypes':
         this.carTypeModal = true;
         this.zoneModal = false;
+        this.carBrandModal = false;
+        this.driverModal = false;
+        break;
+      case 'carBrands':
+        this.carTypeModal = false;
+        this.zoneModal = false;
+        this.carBrandModal = true;
         this.driverModal = false;
         break;
       case 'drivers':
         this.carTypeModal = false;
         this.zoneModal = false;
+        this.carBrandModal = false;
         this.driverModal = true;
         break;
       case 'zones':
         this.carTypeModal = false;
         this.zoneModal = true;
+        this.carBrandModal = false;
         this.driverModal = false;
         break;
       default:
@@ -181,16 +218,17 @@ export class DashboardComponent {
     this.driverModal = false;
     this.zoneModal = false;
     this.carTypeModal = false;
+    this.carBrandModal = false;
     this.driverStatusModal = false;
     this.resetForm();
   }
-  
+
   private markAllAsTouched(form: FormGroup) {
     Object.values(form.controls).forEach((control: any) => {
       control.markAsTouched();
     });
   }
-  
+
   addCarType(): void {
     this.markAllAsTouched(this.carTypeForm);
     if (this.carTypeForm.valid) {
@@ -201,6 +239,26 @@ export class DashboardComponent {
         next: (val) => {
           if (val.title != "error") {
             this.carTypes.push(val.new);
+          }
+        },
+        error: (error) => {
+          this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error creating new "Car Type"' })
+        }
+      })
+      this.closeModal();
+    }
+  }
+
+  addCarBrand(): void {
+    this.markAllAsTouched(this.carBrandForm);
+    if (this.carBrandForm.valid) {
+      const newCarBrand: CarBrand = {
+        ...this.carBrandForm.value
+      };
+      this.adminService.createCarBrand(newCarBrand).subscribe({
+        next: (val) => {
+          if (val.title != "error") {
+            this.carBrands.push(val.new);
           }
         },
         error: (error) => {
@@ -277,6 +335,7 @@ export class DashboardComponent {
       familyName: driver.familyName,
       phoneNbr: driver.phoneNbr,
       carType: driver.carType ?? '',
+      carBrand: driver.carBrand ?? '',
       carDescription: driver.carDescription,
       zone: driver.zone ?? ''
     });
@@ -356,6 +415,19 @@ export class DashboardComponent {
     })
   }
 
+  deleteCarBrand(carBrandID: string): void {
+    this.adminService.deleteCarBrandById(carBrandID).subscribe({
+      next: (val) => {
+        if (val.title != "error") {
+          this.carBrands = this.carBrands.filter(carBrand => carBrand.id !== carBrandID);
+        }
+      },
+      error: (error) => {
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error deleting "Car Type"' })
+      }
+    })
+  }
+
   deleteDriver(driverId: string): void {
     this.adminService.deleteDriverById(driverId).subscribe({
       next: (val) => {
@@ -392,6 +464,7 @@ export class DashboardComponent {
   private resetForm(): void {
     this.driverForm.reset();
     this.carTypeForm.reset();
+    this.carBrandForm.reset();
     this.zoneForm.reset();
     this.isEditing = false;
     this.editedDriverId = null;
@@ -417,6 +490,13 @@ export class DashboardComponent {
   }
   public getCarTypeNameById(id: string) {
     let found: any = this.carTypes.find((carType: CarType) => carType.id == id);
+    if (found) {
+      return found.name
+    }
+    return 'NOK';
+  }
+  public getCarBrandNameById(id: string) {
+    let found: any = this.carBrands.find((carBrand: CarBrand) => carBrand.id == id);
     if (found) {
       return found.name
     }

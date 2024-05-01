@@ -313,6 +313,7 @@ export class RealtimeShareComponent
       destination_Addressformatted: '...',
       zone: '...',
       carType: '...',
+      carBrand: '...',
       driverName: '...',
       takenByDriver: '...',
     };

@@ -26,6 +26,7 @@ export class EditProfileComponent {
   @Input() driver: any; //todo-P3 : use modals
 
   @Input() carTypes: any[] = []; //todo-P3 : use modals
+  @Input() carBrands: any[] = []; //todo-P3 : use modals
   @Input() zones: any[] = []; //todo-P3 : use modals
 
   @Output() update: EventEmitter<any> = new EventEmitter();
@@ -55,9 +56,14 @@ export class EditProfileComponent {
       name: ['', Validators.required],
       familyName: ['', Validators.required],
       phoneNbr: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
+      carBrand: ['', Validators.required],
       carType: ['', Validators.required],
+      carYear: ['', [Validators.required, Validators.pattern(/^(19|20)\d{2}$/)]],
+      carColor: ['', Validators.required],
       carDescription: ['', Validators.required],
-      zone: ['', Validators.required]
+      expertiseVDate: ['', [Validators.required]],
+      authorizationVDate: ['', [Validators.required]],
+      //zone: ['', Validators.required] //todo-P1 : admin should fill in with the missing data
     });
   }
 
@@ -67,8 +73,13 @@ export class EditProfileComponent {
       familyName: this.driver.familyName ?? '',
       phoneNbr: this.driver.phoneNbr ?? '',
       carType: this.driver.carType ?? '',
+      carBrand: this.driver.carBrand ?? '',
+      carYear: this.driver.carYear ?? '',
+      carColor: this.driver.carColor ?? '',
       carDescription: this.driver.carDescription ?? '',
-      zone: this.driver.zone ?? ''
+      expertiseVDate: this.driver.expertiseVDate ?? '',
+      authorizationVDate: this.driver.authorizationVDate ?? '',
+      //zone: this.driver.zone ?? ''
     });
     this.filesForm.GrayCardURL = this.driver.GrayCard;
     this.filesForm.taxiPermitURL = this.driver.taxiPermit;
@@ -127,7 +138,13 @@ export class EditProfileComponent {
     return !this.driver.name
       || !this.driver.familyName
       || !this.driver.phoneNbr
+      || !this.driver.carBrand
+      || !this.driver.carType
       || !this.driver.carDescription
+      || !this.driver.carYear
+      || !this.driver.carColor
+      || !this.driver.authorizationVDate
+      || !this.driver.expertiseVDate
       || !this.driver.drivingPermit
       || !this.driver.transportPermit
       || !this.driver.taxiPermit

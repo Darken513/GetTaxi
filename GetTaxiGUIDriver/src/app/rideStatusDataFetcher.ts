@@ -24,7 +24,8 @@ export class RideStatusDataFetcher {
         destination_roadNbr: '...',
         destination_Addressformatted: '...',
         zone: '...', //'zone_id',
-        carType: '...', //'car_id',
+        carType: '...', //'cartype_id',
+        carBrand: '...', //'carbrand_id',
         driverName: '...',
         takenByDriver: '...',
     };
@@ -80,6 +81,16 @@ export class RideStatusDataFetcher {
                                             }
                                             this.data.carType = val.name;
                                             this.car = val;
+                                            const toPush = this.driverService.getCarBrandByID(this.driver.carBrand).subscribe({
+                                                next: (val) => {
+                                                    if (val.type == "error") {
+                                                        this.rideDoesntExist = true;
+                                                    }
+                                                    this.data.carBrand = val.name;
+                                                    this.car = val;
+                                                },
+                                            });
+                                            this.subs.push(toPush);
                                         },
                                     });
                                     this.subs.push(toPush);

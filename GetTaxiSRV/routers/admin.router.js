@@ -1,5 +1,6 @@
 const express = require('express');
 const carType_controller = require('../controllers/carTypes.controller');
+const carBrand_controller = require('../controllers/carBrands.controller');
 const driver_controller = require('../controllers/drivers.controller');
 const zone_controller = require('../controllers/zones.controller');
 const rideStatus_controller = require('../controllers/rideStatus.controller');
@@ -11,6 +12,11 @@ const router = express.Router();
 router.get('/getAllCarTypes', carType_controller.getAllCarTypes);
 router.post('/createCarType', carType_controller.createCarType);
 router.get('/deleteCarTypeById/:carTypeId', carType_controller.deleteCarTypeById);
+
+//Car Brand section
+router.get('/getAllCarBrands', carBrand_controller.getAllCarBrands);
+router.post('/createCarBrand', carBrand_controller.createCarBrand);
+router.get('/deleteCarBrandById/:carBrandId', carBrand_controller.deleteCarBrandById);
 
 //Driver section
 router.get('/getAllDrivers', driver_controller.getAllDrivers);

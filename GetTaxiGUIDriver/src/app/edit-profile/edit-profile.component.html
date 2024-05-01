@@ -16,9 +16,38 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="phoneNbr" class="form-label">N° de téléphone:</label>
-                <input type="text" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
+                <input type="tel" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
                     formControlName="phoneNbr"
                     [class.is-invalid]="!driverForm.get('phoneNbr')?.valid && driverForm.get('phoneNbr')?.touched" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="carYear" class="form-label">L'année du véhicule:</label>
+                <input type="number" placeholder="AAAA" id="carYear" class="form-control" formControlName="carYear"
+                    [class.is-invalid]="!driverForm.get('carYear')?.valid && driverForm.get('carYear')?.touched" />
+            </div>
+        </div>
+        <!-- <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="zone" class="form-label">Zone:</label>
+                <select id="zone" class="form-control form-select" formControlName="zone"
+                    [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
+                    <option value="" selected disabled hidden>Sélectionnez une zone</option>
+                    <option *ngFor="let zone of zones" [value]="zone.id">
+                        {{zone.name}}
+                    </option>
+                </select>
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="carBrand" class="form-label">Marque du véhicule:</label>
+                <select id="carBrand" class="form-control form-select" formControlName="carBrand"
+                    [class.is-invalid]="!driverForm.get('carBrand')?.valid && driverForm.get('carBrand')?.touched">
+                    <option value="" selected disabled hidden>Sélectionnez une marque</option>
+                    <option *ngFor="let carBrand of carBrands" [value]="carBrand.id">
+                        {{carBrand.name}}
+                    </option>
+                </select>
             </div>
             <div class="col-md-6 mb-3">
                 <label for="carType" class="form-label">Type de voiture:</label>
@@ -31,7 +60,6 @@
                 </select>
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="carDescription" class="form-label">Description de la voiture:</label>
@@ -40,14 +68,24 @@
                     [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="zone" class="form-label">Zone:</label>
-                <select id="zone" class="form-control form-select" formControlName="zone"
-                    [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
-                    <option value="" selected disabled hidden>Sélectionnez une zone</option>
-                    <option *ngFor="let zone of zones" [value]="zone.id">
-                        {{zone.name}}
-                    </option>
-                </select>
+                <label for="carColor" class="form-label">Couleur du véhicule</label>
+                <input type="text" placeholder="Couleur du véhicule" id="carColor" class="form-control"
+                    formControlName="carColor"
+                    [class.is-invalid]="!driverForm.get('carColor')?.valid && driverForm.get('carColor')?.touched" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="expertiseVDate" class="form-label">Date de validité de l'expertise:</label>
+                <input type="date" placeholder="dd/mm/yyyy	" id="expertiseVDate" class="form-control"
+                    formControlName="expertiseVDate"
+                    [class.is-invalid]="!driverForm.get('expertiseVDate')?.valid && driverForm.get('expertiseVDate')?.touched" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="authorizationVDate" class="form-label">date de validité de l'autorisation</label>
+                <input type="date" placeholder="dd/mm/yyyy	" id="authorizationVDate" class="form-control"
+                    formControlName="authorizationVDate"
+                    [class.is-invalid]="!driverForm.get('authorizationVDate')?.valid && driverForm.get('authorizationVDate')?.touched" />
             </div>
         </div>
         <div class="row">

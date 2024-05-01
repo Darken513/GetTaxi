@@ -311,6 +311,7 @@ export class RealtimeComponent
       destination_Addressformatted: '...',
       zone: '...',
       carType: '...',
+      carBrand: '...',
       driverName: '...',
       takenByDriver: '...',
     };

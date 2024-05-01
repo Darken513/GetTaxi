@@ -31,7 +31,16 @@ exports.db = admin.firestore();
 //-----------------------------------------------
 // Middleware to verify JWT token and check user agent and IP address
 function verifyToken(req, res, next) {
-  if (req.path === '/login' || req.path === '/signUp') {
+  console.log(req.path);
+  if (
+    req.path === '/login' ||
+    req.path === '/signUp' ||
+    req.path.startsWith('/getRideById') ||
+    req.path.startsWith('/getDriverById') ||
+    req.path.startsWith('/getZoneById') ||
+    req.path.startsWith('/getCarByID') ||
+    req.path.startsWith('/getCarBrandByID')
+  ) {
     next();
     return;
   }

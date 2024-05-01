@@ -22,6 +22,16 @@ export class AdminService {
     return this.http.get<{ response: any }>(`${this.apiUrl}/deleteCarTypeById/${id}`);
   }
 
+  public getAllCarBrands(): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getAllCarBrands`);
+  }
+  public createCarBrand(def: any): Observable<any> {
+    return this.http.post<{ response: any }>(`${this.apiUrl}/createCarBrand`, def);
+  }
+  public deleteCarBrandById(id: any): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/deleteCarBrandById/${id}`);
+  }
+
   public getAllDrivers(): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getAllDrivers`);
   }

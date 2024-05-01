@@ -19,6 +19,9 @@ export class DriverService {
   public getCarByID(carId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getCarByID/${carId}`);
   }
+  public getCarBrandByID(carId: string): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getCarBrandByID/${carId}`);
+  }
   public getZoneById(zoneId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getZoneById/${zoneId}`);
   }
@@ -45,5 +48,8 @@ export class DriverService {
   }
   public getAllCarTypes(): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getAllCarTypes`);
+  }
+  public getAllCarBrands(): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getAllCarBrands`);
   }
 }

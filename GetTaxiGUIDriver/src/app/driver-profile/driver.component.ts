@@ -16,8 +16,10 @@ export class DriverComponent implements OnInit, OnDestroy {
   public driver: any; //todo-P3 : use modals
   public zone: any; //todo-P3 : use modals
   public carType: any; //todo-P3 : use modals
+  public carBrand: any; //todo-P3 : use modals
 
   carTypes: any[] = []; //todo-P3 : use modals
+  carBrands: any[] = []; //todo-P3 : use modals
   zones: any[] = []; //todo-P3 : use modals
 
   public subs: Array<Subscription> = [];
@@ -60,12 +62,29 @@ export class DriverComponent implements OnInit, OnDestroy {
         if (val.title != "error") {
           this.carTypes = val.carTypes;
           this.carType = this.carTypes.find(val => val.id == this.driver.carType);
-          this.initZonesList();
+          this.initCarBrandsList();
         }
       },
       error: (error: any) => {
         //todo-p3 : treat all manual notifications - make it in french, and propose a better way to do it
         this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Car Types' })
+      }
+    });
+    this.subs.push(toPush);
+  }
+
+  initCarBrandsList() {
+    const toPush = this.driverService.getAllCarBrands().subscribe({
+      next: (val: any) => {
+        if (val.title != "error") {
+          this.carBrands = val.carBrands;
+          this.carBrand = this.carBrands.find(val => val.id == this.driver.CarBrand);
+          this.initZonesList();
+        }
+      },
+      error: (error: any) => {
+        //todo-p3 : treat all manual notifications - make it in french, and propose a better way to do it
+        this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error fetching Car Brands' })
       }
     });
     this.subs.push(toPush);
@@ -92,7 +111,13 @@ export class DriverComponent implements OnInit, OnDestroy {
     this.editingProfile = !this.driver.name
       || !this.driver.familyName
       || !this.driver.phoneNbr
+      || !this.driver.carBrand
+      || !this.driver.carType
       || !this.driver.carDescription
+      || !this.driver.carYear
+      || !this.driver.carColor
+      || !this.driver.authorizationVDate
+      || !this.driver.expertiseVDate
       || !this.driver.drivingPermit
       || !this.driver.transportPermit
       || !this.driver.taxiPermit

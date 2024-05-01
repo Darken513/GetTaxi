@@ -19,6 +19,9 @@ export class DriverService {
   public getCarByID(carId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getCarByID/${carId}`);
   }
+  public getCarBrandByID(carBrandId: string): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getCarBrandByID/${carBrandId}`);
+  }
   public getZoneById(zoneId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getZoneById/${zoneId}`);
   }
