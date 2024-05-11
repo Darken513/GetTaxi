@@ -16,6 +16,9 @@ export class DriverService {
   public getDriverById(driverId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverById/${driverId}`);
   }
+  public sendSMSVerificationCode(): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/sendSMSVerificationCode`);
+  }
   public getCarByID(carId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getCarByID/${carId}`);
   }

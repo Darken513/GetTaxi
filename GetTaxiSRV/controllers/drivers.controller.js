@@ -112,3 +112,9 @@ exports.readFileURL = async (req, res) => {
     res.json({ isNotification: true, type: 'error', title: "erreur", body: "Aucun fichier n'a été trouvé." });
   }
 }
+
+exports.sendSMSVerificationCode = async (req, res) => {
+  const driverId = req.decoded.driverId;
+  driversService.sendSMSVerificationCode(driverId);
+}
+

@@ -1,17 +1,15 @@
 const bcrypt = require('bcrypt');
-const secretKey = 'GetTaxiSecretCH!';
 const jwt = require('jsonwebtoken');
 
-const { db, storage } = require("../server");
+const { db, storage, twilioClient } = require("../server");
 const driversRef = db.collection("Drivers");
 
 const cacheService = require("./cache.service");
 const cachePath = ["drivers", "values"];
-
-const DEAFULT_CREDITS = 10; //todo-p2 make the const values in an env file
+const verificationCodes = {} //driverId : generated code
 
 function createToken(data) {
-  const token = jwt.sign(data, secretKey, {
+  const token = jwt.sign(data, process.env.SECRET_KEY, {
     algorithm: 'HS256'
   });
   return token;
@@ -23,7 +21,7 @@ exports.login = async (req) => {
     const ipAddress = req.ip;
 
     let userCredentials = req.body;
-    const combinedPassword = userCredentials.password + secretKey;
+    const combinedPassword = userCredentials.password + process.env.SECRET_KEY;
     const querySnapshot = await driversRef
       .where('email', '==', userCredentials.email)
       .limit(1)
@@ -48,7 +46,7 @@ exports.login = async (req) => {
 
       const toSaveCache = { id: driverId, ...driverRecord };
       Object.keys(toSaveCache).forEach(key => {
-        cacheService.updateDefSpecificProp([...cachePath, driverId, key], toSaveCache[key]);
+        cacheService.updateDefSpecificProp([...cachePath, driverId, 'value', key], toSaveCache[key]);
       })
 
       return token;
@@ -60,7 +58,7 @@ exports.login = async (req) => {
 }
 exports.signUp = async (userData) => {
   try {
-    const combinedPassword = userData.password + secretKey;
+    const combinedPassword = userData.password + process.env.SECRET_KEY;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(combinedPassword, salt);
 
@@ -73,7 +71,7 @@ exports.signUp = async (userData) => {
       email: userData.email,
       password: hashedPassword,
       isActive: false,
-      credits: DEAFULT_CREDITS,
+      credits: process.env.DRIVER_DEAFULT_CREDITS,
       created_at: new Date()
     });
     return 0;
@@ -134,7 +132,7 @@ exports.updateDriver = async (driverId, updatedData) => {
     await docRef.update(updatedData);
     const toSaveCache = { id: driverId, ...updatedData }
     Object.keys(toSaveCache).forEach(key => {
-      cacheService.updateDefSpecificProp([...cachePath, driverId, key], toSaveCache[key]);
+      cacheService.updateDefSpecificProp([...cachePath, driverId, 'value', key], toSaveCache[key]);
     })
     return 0;
   } catch (error) {
@@ -210,4 +208,31 @@ exports.readFileURL = async (driverId, fileId) => {
   } catch (error) {
     return -1;
   }
+}
+
+exports.sendSMSVerificationCode = async (driverId) => {
+  const driver = exports.getDriverByID(driverId);
+  if (driver == -1) {
+    return -1;
+  }
+  const verifCode = generateVerifCode();
+  let body = `${verifCode} est votre code de vérification pour GetTaxi`;
+  try {
+    const message = await twilioClient.messages.create({
+      body: body,
+      messagingServiceSid: "MG14f760a0ef76b408a639e0e83ab0e9f4",
+      from: "GetTaxi",
+      to: driver.phoneNbr,
+    });
+    console.log("Verification code sent to " + driver.phoneNbr);
+    return 0;
+  } catch (error) {
+    return -1;
+  }
+}
+
+function generateVerifCode() {
+  const max = 9999;
+  const randomNum = Math.floor(Math.random() * max);
+  return String(randomNum).padStart(4, '0');
 }

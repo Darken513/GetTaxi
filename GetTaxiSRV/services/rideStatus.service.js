@@ -7,18 +7,12 @@ const driverBehaviorRef = db.collection("DriverBehavior");
 
 const cacheService = require("./cache.service");
 const driverService = require("./drivers.service");
-const socketService = require("./socket.service");
 
 const RS_cachepath = ["rideStatus", "values"];
 const DBH_cachepath = ["driverBehavior", "values"];
 
-const REFUND_ON_CANCEL_PERCENTAGE = 0.9;
-const PRICE_PER_METER = 0.01;
-const COMMISION_ON_RIDE_PERCENTAGE = 0.05;
-
 const { Client } = require('@googlemaps/google-maps-services-js');
 const client = new Client({});
-
 
 /**
  * Initializes the status of a new ride. (saves information to cache)
@@ -52,7 +46,7 @@ exports.initRideStatus = async (data) => {
     }
     data.estimatedDistance = distDura.distance.text;
     data.estimatedDuration = distDura.duration.text;
-    data.estimatedPrice = (Math.round(distDura.distance.value * PRICE_PER_METER * 100) / 100).toFixed(2);
+    data.estimatedPrice = (Math.round(distDura.distance.value * process.env.PRICE_PER_METER * 100) / 100).toFixed(2);
 
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
@@ -234,8 +228,8 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   const canceledByDriver = reasonObj && !reasonObj.byClient;
   const canceledByClient = reasonObj && reasonObj.byClient;
   const behaviorType = canceledByClient ? 'RideCanceled_Client' : canceledByDriver ? 'RideCanceled_Driver' : 'rideAccepted'
-  const creditsCost = (Math.round(rideS_snapshot.data().estimatedPrice * COMMISION_ON_RIDE_PERCENTAGE * 100) / 100).toFixed(2);
-  const creditsChange = creditsCost * (canceledByClient ? 1 : canceledByDriver ? REFUND_ON_CANCEL_PERCENTAGE : -1)
+  const creditsCost = (Math.round(rideS_snapshot.data().estimatedPrice * process.env.COMMISION_ON_RIDE_PERCENTAGE * 100) / 100).toFixed(2);
+  const creditsChange = creditsCost * (canceledByClient ? 1 : canceledByDriver ? process.env.REFUND_ON_CANCEL_PERCENTAGE : -1)
   let driverBH = {
     behaviorType: behaviorType,
     created_at: new Date(),

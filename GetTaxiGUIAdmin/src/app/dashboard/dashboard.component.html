@@ -17,14 +17,14 @@
                     <form [formGroup]="driverForm" (ngSubmit)="isEditing ? updateDriver() : addDriver()">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Name:</label>
-                                <input type="text" placeholder="Name" id="name" class="form-control"
+                                <label for="name" class="form-label">Nom:</label>
+                                <input type="text" placeholder="Nom" id="name" class="form-control"
                                     formControlName="name"
                                     [class.is-invalid]="!driverForm.get('name')?.valid && driverForm.get('name')?.touched" />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="familyName" class="form-label">Family Name:</label>
-                                <input type="text" placeholder="Family Name" id="familyName" class="form-control"
+                                <label for="familyName" class="form-label">Prénom:</label>
+                                <input type="text" placeholder="Prénom" id="familyName" class="form-control"
                                     formControlName="familyName"
                                     [class.is-invalid]="!driverForm.get('familyName')?.valid && driverForm.get('familyName')?.touched" />
                             </div>
@@ -32,31 +32,43 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="phoneNbr" class="form-label">Phone Number:</label>
+                                <label for="phoneNbr" class="form-label">N° de téléphone:</label>
                                 <input type="text" placeholder="+--- --- --- ---" id="phoneNbr" class="form-control"
                                     formControlName="phoneNbr"
                                     [class.is-invalid]="!driverForm.get('phoneNbr')?.valid && driverForm.get('phoneNbr')?.touched" />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="carType" class="form-label">Car Type:</label>
+                                <label for="carYear" class="form-label">L'année du véhicule:</label>
+                                <input type="text" placeholder="AAAA" id="carYear" class="form-control"
+                                    formControlName="carYear"
+                                    [class.is-invalid]="!driverForm.get('carYear')?.valid && driverForm.get('carYear')?.touched" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="carBrand" class="form-label">Marque du véhicule:</label>
+                                <select id="carBrand" class="form-control form-select" formControlName="carBrand"
+                                    [class.is-invalid]="!driverForm.get('carBrand')?.valid && driverForm.get('carBrand')?.touched">
+                                    <option value="" selected disabled hidden>Sélectionnez une marque</option>
+                                    <option *ngFor="let carBrand of carBrands" [value]="carBrand.id">
+                                        {{carBrand.name}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="carType" class="form-label">Type de voiture:</label>
                                 <select id="carType" class="form-control form-select" formControlName="carType"
                                     [class.is-invalid]="!driverForm.get('carType')?.valid && driverForm.get('carType')?.touched">
-                                    <option value="" selected disabled hidden>Select a car type</option>
+                                    <option value="" selected disabled hidden>Sélectionnez un type de voiture</option>
                                     <option *ngFor="let carType of carTypes" [value]="carType.id">
                                         {{carType.name}}
                                     </option>
                                 </select>
                             </div>
                         </div>
-
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="carDescription" class="form-label">Car Description:</label>
-                                <input type="text" placeholder="Car Description" id="carDescription"
-                                    class="form-control" formControlName="carDescription"
-                                    [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
-                            </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label for="zone" class="form-label">Zone:</label>
                                 <select id="zone" class="form-control form-select" formControlName="zone"
                                     [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
@@ -69,30 +81,67 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="drivingPermit" class="form-label">Driver's license:</label>
-                                <i *ngIf="filesForm.drivingPermitURL" class="fa fa-eye" aria-hidden="true" 
-                                    (click)="fetchFileAndRedirect(filesForm.drivingPermitURL)"></i>
-                                <input type="file" class="form-control" (change)="onFileSelected($event, 'drivingPermit')"/>
+                                <label for="carDescription" class="form-label">Description de la voiture:</label>
+                                <input type="text" placeholder="Description de la voiture" id="carDescription"
+                                    class="form-control" formControlName="carDescription"
+                                    [class.is-invalid]="!driverForm.get('carDescription')?.valid && driverForm.get('carDescription')?.touched" />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="transportPermit" class="form-label">Transport authorization:</label>
-                                <i *ngIf="filesForm.transportPermitURL" class="fa fa-eye" aria-hidden="true" 
-                                    (click)="fetchFileAndRedirect(filesForm.transportPermitURL)"></i>
-                                <input type="file" class="form-control" (change)="onFileSelected($event, 'transportPermit')"/>
+                                <label for="carColor" class="form-label">Couleur du véhicule:</label>
+                                <input type="text" placeholder="Couleur du véhicule" id="carColor" class="form-control"
+                                    formControlName="carColor"
+                                    [class.is-invalid]="!driverForm.get('carColor')?.valid && driverForm.get('carColor')?.touched" />
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="taxiPermit" class="form-label">Taxi License:</label>
-                                <i *ngIf="filesForm.taxiPermitURL" class="fa fa-eye" aria-hidden="true" 
-                                    (click)="fetchFileAndRedirect(filesForm.taxiPermitURL)"></i>
-                                <input type="file" class="form-control" (change)="onFileSelected($event, 'taxiPermit')"/>
+                                <label for="expertiseVDate" class="form-label">Date de validité de l'expertise:</label>
+                                <input type="date" placeholder="dd/mm/yyyy	" id="expertiseVDate" class="form-control"
+                                    formControlName="expertiseVDate"
+                                    [class.is-invalid]="!driverForm.get('expertiseVDate')?.valid && driverForm.get('expertiseVDate')?.touched" />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="GrayCard" class="form-label">Vehicle registration document:</label>
-                                <i *ngIf="filesForm.GrayCardURL" class="fa fa-eye" aria-hidden="true" 
+                                <label for="authorizationVDate" class="form-label">date de validité de
+                                    l'autorisation</label>
+                                <input type="date" placeholder="dd/mm/yyyy	" id="authorizationVDate"
+                                    class="form-control" formControlName="authorizationVDate"
+                                    [class.is-invalid]="!driverForm.get('authorizationVDate')?.valid && driverForm.get('authorizationVDate')?.touched" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="drivingPermit" class="form-label">Permis de conduire:</label>
+                                <i *ngIf="filesForm.drivingPermitURL" class="fa fa-eye" aria-hidden="true"
+                                    (click)="fetchFileAndRedirect(filesForm.drivingPermitURL)"></i>
+                                <input type="file" class="form-control"
+                                    [class.is-invalid]="!filesForm.drivingPermitURL && !filesForm.drivingPermit"
+                                    (change)="onFileSelected($event, 'drivingPermit')" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="transportPermit" class="form-label">Autorisation de transport:</label>
+                                <i *ngIf="filesForm.transportPermitURL" class="fa fa-eye" aria-hidden="true"
+                                    (click)="fetchFileAndRedirect(filesForm.transportPermitURL)"></i>
+                                <input type="file" class="form-control"
+                                    [class.is-invalid]="!filesForm.transportPermitURL && !filesForm.transportPermit"
+                                    (change)="onFileSelected($event, 'transportPermit')" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="taxiPermit" class="form-label">Licence de taxi:</label>
+                                <i *ngIf="filesForm.taxiPermitURL" class="fa fa-eye" aria-hidden="true"
+                                    (click)="fetchFileAndRedirect(filesForm.taxiPermitURL)"></i>
+                                <input type="file" class="form-control"
+                                    [class.is-invalid]="!filesForm.taxiPermitURL && !filesForm.taxiPermit"
+                                    (change)="onFileSelected($event, 'taxiPermit')" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="GrayCard" class="form-label">Carte grise du véhicule:</label>
+                                <i *ngIf="filesForm.GrayCardURL" class="fa fa-eye" aria-hidden="true"
                                     (click)="fetchFileAndRedirect(filesForm.GrayCardURL)"></i>
-                                <input type="file" class="form-control" (change)="onFileSelected($event, 'GrayCard')"/>
+                                <input type="file" class="form-control"
+                                    [class.is-invalid]="!filesForm.GrayCardURL && !filesForm.GrayCard"
+                                    (change)="onFileSelected($event, 'GrayCard')" />
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -174,10 +223,13 @@
                             class="fa fa-times"></i></button>
                 </div>
                 <div class="modal-body">
-                    <h5><span [ngStyle]="{'color': driverToSwitchStatus!.isActive ? '#dc415b': '#4bda4b'}">{{driverToSwitchStatus!.isActive ? 'Disable' : 'Enable'}}</span> driver ?</h5>
+                    <h5><span
+                            [ngStyle]="{'color': driverToSwitchStatus!.isActive ? '#dc415b': '#4bda4b'}">{{driverToSwitchStatus!.isActive
+                            ? 'Disable' : 'Enable'}}</span> driver ?</h5>
                     <p class="mb-4">A disabled driver can't recieve SMS, but will remain in the data base</p>
                     <div class="modal-footer">
-                        <button (click)="toggleDriverStatus(driverToSwitchStatus!)" class="btn btn-warning w-100">Switch</button>
+                        <button (click)="toggleDriverStatus(driverToSwitchStatus!)"
+                            class="btn btn-warning w-100">Switch</button>
                     </div>
                 </div>
             </div>
@@ -226,7 +278,8 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h4 class="mb-0 accordianTitle"><span>Cars Brands</span> List</h4>
                 <div>
-                    <button *ngIf="carBrandsAccordianOn" class="btn btn-warning addBtn" (click)="openModal('carBrands')">
+                    <button *ngIf="carBrandsAccordianOn" class="btn btn-warning addBtn"
+                        (click)="openModal('carBrands')">
                         <i class="fas fa-plus"></i>
                     </button>
                     <button class="arrowIcon" (click)="openAccordian('carBrands')"
@@ -316,15 +369,21 @@
             <div class="accordian-innerContent">
                 <div class="row" *ngIf="drivers.length">
                     <div *ngFor="let driver of drivers" class="col-lg-4 col-sm-6 col-12 text-light custom-card-wrapper">
-                        <!-- //todo-P1: add the new fields-->
                         <div class="custom-card {{driver.confNok?'confNok':''}}">
                             <div>
                                 <h5>{{ driver.familyName }} - <span style="color:#dc415b">{{ driver.name }}</span></h5>
-                                <p>Zone : <span [ngStyle]="{'color':getZoneNameById(driver.zone)=='NOK'?'red':'white'}">{{ getZoneNameById(driver.zone) }}</span></p>
-                                <p>Car : <span [ngStyle]="{'color':getCarTypeNameById(driver.carType)=='NOK'?'red':'white'}"> 
-                                    {{ getCarTypeNameById(driver.carType) }}</span> {{' - ' + driver.carDescription }}
+                                <p>Zone : <span
+                                        [ngStyle]="{'color':getZoneNameById(driver.zone)=='NOK'?'red':'white'}">{{
+                                        getZoneNameById(driver.zone) }}</span></p>
+                                <p>Car : <span
+                                        [ngStyle]="{'color':getCarTypeNameById(driver.carType)=='NOK'?'red':'white'}">
+                                        {{ getCarTypeNameById(driver.carType) }}</span> {{' - ' + driver.carDescription
+                                    }}
                                 </p>
                                 <p>Phone: {{ driver.phoneNbr }}</p>
+                                <p>Account status: <span
+                                    [ngStyle]="{'color': !driver.verifiedPhoneNbr?'red':'yellowgreen'}">
+                                    {{ driver.verifiedPhoneNbr ? 'Verified' : 'Unverified' }}</span></p>
                             </div>
                             <div class="mt-4 row buttons-wrapper">
                                 <div class="col-3 cancel-padding">
@@ -356,3 +415,4 @@
         </div>
     </div>
 </div>
+<!--todo-P2 : add "are you sure you want to delete the selected def", maybe use an external component, and give it a callback & an event emitter as an input-->

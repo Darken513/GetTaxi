@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class DriverService {
+export class ClientService {
 
   private apiUrl = 'http://localhost:8080/driver'; //todo-P2 : use env files
 

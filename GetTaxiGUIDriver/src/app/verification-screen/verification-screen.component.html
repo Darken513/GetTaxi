@@ -1,7 +1,9 @@
 <div class="container">
     <div style="padding: 0 5px;">
         <p>Un message contenant le code de vérification a été envoyé à <span>{{driver.phoneNbr}}</span></p>
-        <p>Le code expire dans <span>110</span> secondes </p>
+        <p>Le code expire dans <span>110</span> secondes <button class="btn submitBtn resendBtn"
+                [disabled]="resendTxt!='Resend'">{{resendTxt}} <i class="fa-solid fa-rotate-right ml-4"></i></button>
+        </p>
         <div class="code-input-wrapper">
             <input type="number" placeholder="-" id="{{defaultFieldName}}0" class="form-control"
                 [class.is-invalid]="false" (input)="onFieldChange(0, $event)" />

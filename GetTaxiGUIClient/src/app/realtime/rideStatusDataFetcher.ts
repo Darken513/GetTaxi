@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router } from "@angular/router";
-import { DriverService } from "../driver.service";
+import { ClientService } from "../client.service";
 import { SocketService } from "../socket.service";
 import { Component, Inject } from "@angular/core";
 import { Subscription, take } from "rxjs";
@@ -43,7 +43,7 @@ export class RideStatusDataFetcher {
     constructor(
         @Inject(String) public type: string,
         public socketService: SocketService,
-        public driverService: DriverService,
+        public driverService: ClientService,
         public activatedRoute: ActivatedRoute,
         public router: Router
     ) {

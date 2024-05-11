@@ -1,4 +1,3 @@
-const fs = require('fs');
 /**
 cache structure is the following : 
 {
@@ -49,6 +48,7 @@ const cache = {
 const ttlInSeconds = 45;
 const cleanTimerInSeconds = 25;
 
+exports.cache = cache;
 exports.storeOrUpdateDef = function (pathArray, value) {
     if (!Array.isArray(pathArray)) {
         return -1;
@@ -158,7 +158,6 @@ exports.getArrayOfDefs = function (nodeName) {
 
 exports.startCacheCleaner = function () {
     setInterval(() => {
-        //fs.writeFileSync('cacheBeforeClean_' + Date.now() + ".json", JSON.stringify(cache))
         cleanExpiredEntries(cache);
     }, cleanTimerInSeconds * 1000)
 }

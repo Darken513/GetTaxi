@@ -8,9 +8,14 @@ export interface Driver {
     carBrand: string;
     carDescription: string;
     zone: string;
-    isActive:boolean;
+    isActive: boolean;
+    verifiedPhoneNbr: boolean;
     drivingPermit: string;
     transportPermit: string;
     taxiPermit: string;
     GrayCard: string;
+    carYear: string;
+    carColor: string;
+    expertiseVDate: string;
+    authorizationVDate: string;
 }

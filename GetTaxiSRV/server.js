@@ -2,7 +2,6 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const jwt = require('jsonwebtoken');
-const secretKey = 'GetTaxiSecretCH!'; //todo-P3 : keep it all in one file
 
 const cors = require('cors');
 const path = require('path');
@@ -31,15 +30,9 @@ exports.db = admin.firestore();
 //-----------------------------------------------
 // Middleware to verify JWT token and check user agent and IP address
 function verifyToken(req, res, next) {
-  console.log(req.path);
   if (
     req.path === '/login' ||
-    req.path === '/signUp' ||
-    req.path.startsWith('/getRideById') ||
-    req.path.startsWith('/getDriverById') ||
-    req.path.startsWith('/getZoneById') ||
-    req.path.startsWith('/getCarByID') ||
-    req.path.startsWith('/getCarBrandByID')
+    req.path === '/signUp'
   ) {
     next();
     return;
@@ -49,7 +42,7 @@ function verifyToken(req, res, next) {
     return res.json({ tokenError: 'Unauthorized - No token provided' });
   }
   const token = authorizationHeader.split(' ')[1];
-  jwt.verify(token, secretKey, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
     if (err) {
       return res.json({ tokenError: 'Unauthorized - Invalid token' });
     }
@@ -58,6 +51,7 @@ function verifyToken(req, res, next) {
     if (decoded.userAgent !== userAgent || decoded.ipAddress !== ipAddress) {
       return res.json({ tokenError: 'Forbidden - User agent or IP address mismatch' });
     }
+    req.decoded = decoded;
     next();
   });
 }
@@ -106,6 +100,12 @@ app.get('/driver/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/driverGUI/index.html'));
 });
 
+const clientRoute = require('./routers/client.router');
+app.use('/client', clientRoute);
+
+app.get('/cached', (req, res) => {
+  res.json(cacheService.cache);
+});
 
 server.listen(port, () => { console.log(`Server started on port ${port}`); });
 

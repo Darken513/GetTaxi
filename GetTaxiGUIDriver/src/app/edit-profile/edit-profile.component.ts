@@ -63,7 +63,6 @@ export class EditProfileComponent {
       carDescription: ['', Validators.required],
       expertiseVDate: ['', [Validators.required]],
       authorizationVDate: ['', [Validators.required]],
-      //zone: ['', Validators.required] //todo-P1 : admin should fill in with the missing data
     });
   }
 

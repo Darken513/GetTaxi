@@ -25,8 +25,10 @@ export class DriverComponent implements OnInit, OnDestroy {
   public subs: Array<Subscription> = [];
 
   public ready: boolean = false;
-  //todo-p1 : once driver fills in with all details, he should have access to two options, validate email & validate phone nbr
-  //todo-p1 : once both or at least (phone nbr) is validated & all files are uploaded the driver is immediatly activated
+  //todo-p1 : once driver fills in with all details, he should have access to a validate phone nbr feature
+  
+  //todo-p1 : once validated & all files are uploaded the driver is added in a list of drivers to activate -> add a proprety previouslyActivated
+  //if this value is set to true, then the user is desactivated by the admin, then we dont display it with the new drivers
   public editingProfile: boolean = false;
 
   constructor(

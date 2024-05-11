@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RideStatusDataFetcher } from './rideStatusDataFetcher';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DriverService } from '../driver.service';
+import { ClientService } from '../client.service';
 import { SocketService } from '../socket.service';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
@@ -52,7 +52,7 @@ export class RealtimeComponent
 
   constructor(
     public override socketService: SocketService,
-    public override driverService: DriverService,
+    public override driverService: ClientService,
     public override activatedRoute: ActivatedRoute,
     public override router: Router
   ) {

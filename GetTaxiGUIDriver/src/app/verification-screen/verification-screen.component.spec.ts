@@ -15,7 +15,25 @@ describe('VerificationScreenComponent', () => {
     fixture.detectChanges();
   });
 
+  describe('setCharAt', () => {
+    it('should replace the character at the given index with the given character when the index is within the string length', () => {
+      const str = "Hello";
+      const index = 2;
+      const chr = "x";
+      const result = component.setCharAt(str, index, chr);
+      expect(result).toBe("Hexlo");
+    });
+
+    it('should return the original string if the given string is empty', () => {
+      const str = "";
+      const index = 2;
+      const chr = "x";
+      const result = component.setCharAt(str, index, chr);
+      expect(result).toBe("");
+    });
+  });
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
 });

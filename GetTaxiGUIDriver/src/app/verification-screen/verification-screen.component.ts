@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DriverService } from '../driver.service';
@@ -9,9 +9,11 @@ import { NotificationService } from '../notification.service';
   templateUrl: './verification-screen.component.html',
   styleUrls: ['./verification-screen.component.scss']
 })
-export class VerificationScreenComponent {
+export class VerificationScreenComponent implements OnInit {
   public defaultFieldName = "verificationCodeField";
   public finalText: string = 'XXXX';
+  public resendTxt: string = '60';
+  protected resendTxtTimer: ReturnType<typeof setInterval> | null = null;
   @Input() driverId: string = "";
   @Input() driver: any; //todo-P3 : use modals
 
@@ -24,9 +26,27 @@ export class VerificationScreenComponent {
     public notificationService: NotificationService,
     public router: Router
   ) {
+  }
+  ngOnInit(): void {
     //todo-P1: a good idea could be saving a temporary code in the server, the code lasts say 5 minutes
-    //then it gets cleared unless the used clicks on resend, the code wont be sent automatically
+    //then it gets cleared unless the user clicks on resend, the code wont be sent automatically
     //when the user submits the code we check with this code(server) if valid update driver "verifiedPhoneNbr"
+    this.driverService.sendSMSVerificationCode().subscribe({
+      next: (value) => {
+        this.resendTxtTimer = setInterval(() => {
+          if (this.isNumeric(this.resendTxt)) {
+            const currentTime = parseInt(this.resendTxt);
+            this.resendTxt = currentTime > 0 ? (currentTime - 1) + '' : "Resend";
+          } else {
+            clearInterval(this.resendTxtTimer!)
+          }
+        }, 1000)
+      },
+    })
+  }
+  isNumeric(str: any) {
+    if (typeof str != "string") return false;
+    return !isNaN((str as any)) && !isNaN(parseFloat(str))
   }
 
   onFieldChange(id: number, event: any) {

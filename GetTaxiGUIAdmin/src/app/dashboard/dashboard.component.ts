@@ -71,22 +71,26 @@ export class DashboardComponent {
   ) {
     // Initialize the form with default values
     this.driverForm = this.fb.group({
-      name: ['', Validators.required],
-      familyName: ['', Validators.required],
+      name: ['', [Validators.required]],
+      familyName: ['', [Validators.required]],
       phoneNbr: ['', [Validators.required, Validators.pattern(/^\+(?:[0-9] ?){6,14}[0-9]$/)]],
-      carType: ['', Validators.required],
-      carBrand: ['', Validators.required],
-      carDescription: ['', Validators.required],
-      zone: ['', Validators.required]
+      carBrand: ['', [Validators.required]],
+      carType: ['', [Validators.required]],
+      carYear: ['', [Validators.required, Validators.pattern(/^(19|20)\d{2}$/)]],
+      carColor: ['', Validators.required],
+      carDescription: ['', [Validators.required]],
+      expertiseVDate: ['', [Validators.required]],
+      authorizationVDate: ['', [Validators.required]],
+      zone: ['', [Validators.required]]
     });
     this.carTypeForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required]],
     });
     this.carBrandForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required]],
     });
     this.zoneForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required]],
     });
   }
 
@@ -149,7 +153,7 @@ export class DashboardComponent {
       next: (val) => {
         if (val.title != "error") {
           this.drivers = val.drivers.map((driver: any) => {
-            if (this.getZoneNameById(driver.zone) == 'NOK' || this.getCarTypeNameById(driver.carType) == 'NOK' || this.getCarTypeNameById(driver.carBrand) == 'NOK') {
+            if (this.getZoneNameById(driver.zone) == 'NOK' || this.getCarTypeNameById(driver.carType) == 'NOK' || this.getCarBrandNameById(driver.carBrand) == 'NOK') {
               driver.confNok = true;
             }
             return driver;
@@ -331,12 +335,16 @@ export class DashboardComponent {
     this.editedDriverId = driver.id;
     // Set the form values to the selected driver
     this.driverForm.setValue({
-      name: driver.name,
-      familyName: driver.familyName,
-      phoneNbr: driver.phoneNbr,
+      name: driver.name ?? '',
+      familyName: driver.familyName ?? '',
+      phoneNbr: driver.phoneNbr ?? '',
       carType: driver.carType ?? '',
       carBrand: driver.carBrand ?? '',
-      carDescription: driver.carDescription,
+      carYear: driver.carYear ?? '',
+      carColor: driver.carColor ?? '',
+      carDescription: driver.carDescription ?? '',
+      expertiseVDate: driver.expertiseVDate ?? '',
+      authorizationVDate: driver.authorizationVDate ?? '',
       zone: driver.zone ?? ''
     });
 
@@ -385,8 +393,8 @@ export class DashboardComponent {
           }
         })
       }
+      this.closeModal();
     }
-    this.closeModal();
   }
 
   deleteZone(zoneId: string): void {
@@ -447,8 +455,30 @@ export class DashboardComponent {
     this.showModal = true;
   }
 
+  private canActivateDriver(driver:Driver) {
+    return !(!driver.name
+      || !driver.familyName
+      || !driver.phoneNbr
+      || !driver.verifiedPhoneNbr
+      || !driver.carBrand
+      || !driver.carType
+      || !driver.carDescription
+      || !driver.carYear
+      || !driver.carColor
+      || !driver.authorizationVDate
+      || !driver.expertiseVDate
+      || !driver.drivingPermit
+      || !driver.transportPermit
+      || !driver.taxiPermit
+      || !driver.GrayCard);
+  }
+
   toggleDriverStatus(driver: Driver): void {
     this.closeModal()
+    if(!driver.isActive && !this.canActivateDriver(driver)){
+      this.notificationService.showNotification({ type: 'error', title: 'error', body: 'Error Switching status for Driver - missing data or unverified phoneNbr' })
+      return;
+    }
     this.adminService.changeDriverStatus(driver.id, !driver.isActive).subscribe({
       next: (val) => {
         if (val.title != "error") {
