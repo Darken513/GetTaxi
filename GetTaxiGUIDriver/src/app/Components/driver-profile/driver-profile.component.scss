@@ -1,0 +1,72 @@
+.wrapper {
+  overflow: hidden;
+  height: 100vh;
+  background-color: #12292d;
+
+  .profile-header {
+    position: relative;
+    background-color: #a5cb56/* #01a587 */;
+    padding: 20px 20px 70px 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    height: 160px;
+    h1 {
+      color: #101725;
+      font-size: 1.7rem;
+      text-transform: capitalize;
+    }
+    h2 {
+      color: #101725;
+      font-size: 1rem;
+      font-weight: 400;
+      text-transform: capitalize;
+    }
+    .adminSwitchHolder {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      color: #101725;
+      font-size: 1.8rem;
+    }
+  }
+  .profile-dashboard {
+    position: relative;
+    top: -75px;
+    background: #101725;
+    padding: 15px;
+    border-radius: 15px;
+    margin: 15px;
+    height: calc(100vh - 120px);
+    .dashboard-balance {
+      .balance-wrapper {
+        margin-bottom: 25px;
+        h1 {
+          margin: 0;
+        }
+        h2 {
+          font-weight: 100;
+          font-size: 1rem;
+        }
+      }
+      .summary-item {
+        margin-bottom: 5px;
+        h1 {
+          margin-left: 15px;
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-weight: 100;
+          margin: 0;
+          font-size: 1rem;
+          .fa-solid.fa-circle {
+            font-size: 0.7rem;
+            color: yellowgreen;
+            margin-right: 5px;
+            position: relative;
+            top: -1px;
+          }
+        }
+      }
+    }
+  }
+}

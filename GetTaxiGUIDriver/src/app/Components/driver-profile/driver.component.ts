@@ -25,7 +25,7 @@ export class DriverComponent implements OnInit, OnDestroy {
   public subs: Array<Subscription> = [];
 
   public ready: boolean = false;
-  //todo-p1 : once validated the driver is added in a list of drivers to activate -> add a proprety previouslyActivated
+  //todo-p2 : once validated the driver is added in a list of drivers to activate -> add a proprety previouslyActivated
   //if this value is set to true, then the user is desactivated by the admin, then we dont display it with the new drivers
   public editingProfile: boolean = false;
 

@@ -16,6 +16,7 @@ import { TokenInterceptor } from './Inerceptors/tokenIterceptor';
 import { EditProfileComponent } from './Components/edit-profile/edit-profile.component';
 import { DriverProfileComponent } from './Components/driver-profile/driver-profile.component';
 import { VerificationScreenComponent } from './Components/verification-screen/verification-screen.component';
+import { BaseChartDirective } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { VerificationScreenComponent } from './Components/verification-screen/ve
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BaseChartDirective
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
