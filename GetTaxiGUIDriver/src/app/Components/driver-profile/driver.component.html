@@ -6,13 +6,16 @@
             <h2 *ngIf="driver.isActive"><span class="secondaryColor">Modifier</span> mon profil</h2>
         </div>
         <app-edit-profile [carTypes]="carTypes" [carBrands]="carBrands" [driver]="driver" [driverId]="driverId" [zones]="zones"
-            (update)="onProfileEditAction($event)"></app-edit-profile>
+            (update)="onProfileEditEvent($event)"></app-edit-profile>
     </div>
     <div *ngIf="!editingProfile && !driver.verifiedPhoneNbr">
-        <div class="container">
-            <h2 style="margin-top: 50px;">Veuillez <span class="secondaryColor">vérifier</span> votre numéro de téléphone pour demander l'activation de votre compte</h2>
+        <div class="adminSwitchHolder">
+            <i class="fa-solid fa-user-pen" (click)="editingProfile = true"></i> <span (click)="editingProfile = true">Modifier les détails du profil</span>
         </div>
-        <app-verification-screen [driver]="driver" [driverId]="driverId" (update)="'todo'"></app-verification-screen>
+        <div class="container">
+            <h2 style="margin-top: 25px;">Veuillez <span class="secondaryColor">vérifier</span> votre numéro de téléphone pour demander l'activation de votre compte</h2>
+        </div>
+        <app-verification-screen [driver]="driver" [driverId]="driverId" (update)="onVerificationEvent($event)"></app-verification-screen>
     </div>
     <div *ngIf="!editingProfile && driver.verifiedPhoneNbr">
         <app-driver-profile [carTypes]="carTypes" [carBrands]="carBrands" [driver]="driver" [driverId]="driverId" [zones]="zones"

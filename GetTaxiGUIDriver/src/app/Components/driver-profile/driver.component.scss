@@ -1,0 +1,38 @@
+h2 {
+  margin: 15px 5px;
+}
+div.container h2::after {
+  content: " ";
+  background: #ef2094;
+  height: 10px;
+  width: 35%;
+  display: block;
+  margin-top: 15px;
+  border-radius: 15px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.adminSwitchHolder{
+  padding: 1rem 0 0 1rem;
+  span{
+    padding: 5px 15px;
+    background: #ffd454;
+    color: black;
+    font-size: 0.8rem;
+    position: relative;
+    left: -5px;
+    top: -2px;
+    border-radius: 15px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  i.fa-solid.fa-user-pen {
+    background: #ffd454;
+    color: #121927;
+    padding: 0.7rem 0.4rem 0.6rem 0.6rem;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+}

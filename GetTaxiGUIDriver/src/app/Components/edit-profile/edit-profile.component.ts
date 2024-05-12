@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { DriverService } from '../driver.service';
-import { NotificationService } from '../notification.service';
+import { DriverService } from '../../Services/driver.service';
+import { NotificationService } from '../../Services/notification.service';
 
 interface DriverFileForm {
   drivingPermit: File | null,

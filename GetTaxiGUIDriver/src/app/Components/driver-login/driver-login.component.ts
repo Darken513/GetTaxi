@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DriverService } from '../driver.service';
-import { AuthService } from '../auth.service';
+import { DriverService } from '../../Services/driver.service';
+import { AuthService } from '../../Services/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({

@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../Services/auth.service';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DriverService } from '../driver.service';
+import { DriverService } from '../../Services/driver.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NotificationService } from '../notification.service';
+import { NotificationService } from '../../Services/notification.service';
 
 @Component({
   selector: 'app-driver',
@@ -25,9 +25,7 @@ export class DriverComponent implements OnInit, OnDestroy {
   public subs: Array<Subscription> = [];
 
   public ready: boolean = false;
-  //todo-p1 : once driver fills in with all details, he should have access to a validate phone nbr feature
-  
-  //todo-p1 : once validated & all files are uploaded the driver is added in a list of drivers to activate -> add a proprety previouslyActivated
+  //todo-p1 : once validated the driver is added in a list of drivers to activate -> add a proprety previouslyActivated
   //if this value is set to true, then the user is desactivated by the admin, then we dont display it with the new drivers
   public editingProfile: boolean = false;
 
@@ -132,9 +130,16 @@ export class DriverComponent implements OnInit, OnDestroy {
     })
   }
 
-  onProfileEditAction(event: any) {
+  onProfileEditEvent(event: any) {
     if (event.noMissingDataLeft) {
       this.editingProfile = false;
+    }
+  }
+  onVerificationEvent(event: any) {
+    if (event.verified) {
+      this.driver.verifiedPhoneNbr = true;
+    }else if(event.editProfile){
+      this.editingProfile = true;
     }
   }
 

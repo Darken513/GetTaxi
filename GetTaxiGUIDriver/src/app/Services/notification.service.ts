@@ -4,7 +4,16 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class NotificationService {
+
+  /**
+   * Displays a notification with the given type, title, and body.
+   * @param type - The type of the notification. It can be one of the following: error, success, warning.
+   * @param title - The title of the notification.
+   * @param body - The body of the notification.
+   * @returns void
+   */
   showNotification({ type, title, body }: { type: string, title: string, body: string }) {
+    //type could be : error, success, warning
     let notifContainer = document.getElementById('notification-container');
     let notifDiv = this.createNotifDiv(type);
     let [notifTitle, notifBody] = this.createNotifInner(title, body);

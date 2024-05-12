@@ -1,6 +1,6 @@
 import { ActivatedRoute, Router } from "@angular/router";
-import { DriverService } from "./driver.service";
-import { SocketService } from "./socket.service";
+import { DriverService } from "../Services/driver.service";
+import { SocketService } from "../Services/socket.service";
 import { Component, Inject } from "@angular/core";
 import { Subscription, take } from "rxjs";
 

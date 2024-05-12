@@ -242,7 +242,7 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   let driverData = await driverService.getDriverByID(driverId);
   //todo-P3: avoid NaN cases !
   driverData.credits += driverBH.creditsChange;
-  driverService.updateDriversCredit(driverId, { credits: driverData.credits });
+  driverService.updateDriversSpecificProp(driverId, 'credits', { credits: driverData.credits });
   //saving driverBehavior record & saving changes to cache
   const driverBH_docRef = await driverBehaviorRef.add(driverBH);
   driverBH = { id: driverBH_docRef.id, ...driverBH };

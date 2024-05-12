@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { RideStatusComponent } from './ride-status/ride-status.component';
-import { RealtimeShareComponent } from './realtime-share/realtime-share.component';
-import { Error404Component } from './error404/error404.component';
-import { DriverComponent } from './driver-profile/driver.component';
-import { DriverLoginComponent } from './driver-login/driver-login.component';
+import { RideStatusComponent } from './Components/ride-status/ride-status.component';
+import { RealtimeShareComponent } from './Components/realtime-share/realtime-share.component';
+import { Error404Component } from './Components/error404/error404.component';
+import { DriverComponent } from './Components/driver-profile/driver.component';
+import { DriverLoginComponent } from './Components/driver-login/driver-login.component';
 
 const routes: Routes = [
   {

@@ -19,6 +19,9 @@ export class DriverService {
   public sendSMSVerificationCode(): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/sendSMSVerificationCode`);
   }
+  public verifySMSCode(code: string): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/verifySMSCode/${code}`);
+  }
   public getCarByID(carId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getCarByID/${carId}`);
   }

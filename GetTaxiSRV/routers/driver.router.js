@@ -48,5 +48,6 @@ router.post('/updateDriver/:driverId', isValidRequester, driver_controller.updat
 router.post('/uploadFile/:driverId/:fileId', isValidRequester, upload.single('file'), driver_controller.uploadFile);
 router.get('/readFileURL/:driverId/:filePath', isValidRequester, driver_controller.readFileURL);
 router.get('/sendSMSVerificationCode', driver_controller.sendSMSVerificationCode);
+router.get('/verifySMSCode/:verifCode', driver_controller.verifySMSCode);
 
 module.exports = router;

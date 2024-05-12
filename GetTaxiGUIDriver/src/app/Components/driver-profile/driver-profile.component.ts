@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { DriverService } from '../driver.service';
-import { NotificationService } from '../notification.service';
+import { DriverService } from '../../Services/driver.service';
+import { NotificationService } from '../../Services/notification.service';
 
 @Component({
   selector: 'app-driver-profile',

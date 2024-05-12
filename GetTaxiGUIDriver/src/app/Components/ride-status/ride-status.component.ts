@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RideStatusDataFetcher } from '../rideStatusDataFetcher';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DriverService } from '../driver.service';
-import { SocketService } from '../socket.service';
+import { DriverService } from '../../Services/driver.service';
+import { SocketService } from '../../Services/socket.service';
 
 @Component({
   selector: 'app-ride-status',

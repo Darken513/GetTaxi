@@ -115,6 +115,21 @@ exports.readFileURL = async (req, res) => {
 
 exports.sendSMSVerificationCode = async (req, res) => {
   const driverId = req.decoded.driverId;
-  driversService.sendSMSVerificationCode(driverId);
+  const result = await driversService.sendSMSVerificationCode(driverId);
+  if (result != -1) {
+    res.json({ error: false });
+  } else {
+    res.json({ success: true });
+  }
 }
 
+exports.verifySMSCode = async (req, res) => {
+  const driverId = req.decoded.driverId;
+  const verifCode = req.params.verifCode;
+  const result = await driversService.verifySMSCode(driverId, verifCode);
+  if (result == -1) {
+    res.json({ error: true });
+  } else {
+    res.json({ success: true });
+  }
+}

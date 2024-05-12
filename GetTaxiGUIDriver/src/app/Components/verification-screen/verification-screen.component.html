@@ -1,9 +1,17 @@
 <div class="container">
     <div style="padding: 0 5px;">
         <p>Un message contenant le code de vérification a été envoyé à <span>{{driver.phoneNbr}}</span></p>
-        <p>Le code expire dans <span>110</span> secondes <button class="btn submitBtn resendBtn"
-                [disabled]="resendTxt!='Resend'">{{resendTxt}} <i class="fa-solid fa-rotate-right ml-4"></i></button>
-        </p>
+        <div>
+            <p *ngIf="expirationObj.txt!='0'" style="display: inline-block; padding-right:15px">
+                Le code expire dans <span class="expirationTimer">{{expirationObj.txt}}</span> secondes
+            </p>
+            <p *ngIf="expirationObj.txt=='0'" style="display: inline-block; padding-right:15px">
+                Le code est <span style="color: rgb(233, 38, 38);">expiré</span>, veuillez demander un nouveau code.
+            </p>
+            <button class="btn submitBtn resendBtn" (click)="resendCode()"
+                [disabled]="resendObj.txt!='Renvoyer'">{{resendObj.txt}} <i
+                    class="fa-solid fa-rotate-right ml-4"></i></button>
+        </div>
         <div class="code-input-wrapper">
             <input type="number" placeholder="-" id="{{defaultFieldName}}0" class="form-control"
                 [class.is-invalid]="false" (input)="onFieldChange(0, $event)" />
@@ -14,7 +22,7 @@
             <input type="number" placeholder="-" id="{{defaultFieldName}}3" class="form-control"
                 [class.is-invalid]="false" (input)="onFieldChange(3, $event)" />
             <div class="footer">
-                <button class="btn submitBtn">Vérifier</button>
+                <button class="btn submitBtn" (click)="verifyCode()">Vérifier</button>
             </div>
         </div>
         <!-- !driverForm.get('verificationCode')?.valid && driverForm.get('verificationCode')?.touched -->

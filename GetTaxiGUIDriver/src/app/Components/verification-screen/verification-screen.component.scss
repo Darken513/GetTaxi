@@ -14,6 +14,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .code-input-wrapper {
   margin: auto;
   width: 320px;
+  margin-top: 25px;
   .form-control {
     display: inline-block;
     width: 75px;
@@ -46,4 +47,10 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .resendBtn:disabled{
   border: none;
+}
+
+.expirationTimer {
+  width: 3ch;
+  display: inline-block;
+  text-align: center;
 }
