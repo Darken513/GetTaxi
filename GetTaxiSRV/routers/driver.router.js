@@ -31,7 +31,7 @@ router.get('/getCarBrandByID/:carBrandId', carBrand_controller.getCarBrandByID);
 
 //Driver section
 router.get('/getDriverByID/:driverId', driver_controller.getDriverByID);
-
+router.get('/getDriverBehaviorsById/:driverId/:nbr', driver_controller.getDriverBehaviorsById);
 //Zone section
 router.get('/getZoneById/:zoneId', zone_controller.getZoneById);
 

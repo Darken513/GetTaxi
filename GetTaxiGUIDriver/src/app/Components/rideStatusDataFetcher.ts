@@ -3,6 +3,7 @@ import { DriverService } from "../Services/driver.service";
 import { SocketService } from "../Services/socket.service";
 import { Component, Inject } from "@angular/core";
 import { Subscription, take } from "rxjs";
+import { formatDate } from "../utilities";
 
 @Component({
     selector: 'app-BasicDataFetcher',
@@ -119,7 +120,7 @@ export class RideStatusDataFetcher {
         this.data.deferredDateTime = val.deferredDateTime;
 
         this.data.currentLocation = val.currentLocation;
-        this.data.created_at = this.formatDate(val.created_at);
+        this.data.created_at = formatDate(val.created_at);
         this.data.current_roadNbr = val.current_roadNbr;
         this.data.current_Addressformatted = val.current_Addressformatted;
         this.data.destination_roadNbr = val.destination_roadNbr;
@@ -159,42 +160,14 @@ export class RideStatusDataFetcher {
 
     public ignoreRide() { }
 
-    formatDate(inputDate: any) {
-        if (typeof inputDate == "string") {
-            const timestamp = new Date(inputDate).getTime();
-            const unixEpoch = new Date('1970-01-01T00:00:00.000Z').getTime();
-            const secondsSinceUnixEpoch = Math.floor((timestamp - unixEpoch));
-            inputDate = secondsSinceUnixEpoch;
-        } else {
-            if (!inputDate)
-                return;
-            if (typeof inputDate != 'number')
-                inputDate = inputDate._seconds * 1000;
-        }
-        const date = new Date(inputDate);
-
-        const day = date.getDate();
-        const month = date.getMonth() + 1; // Months are zero-indexed
-        const year = date.getFullYear();
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-
-        const formattedDay = day < 10 ? '0' + day : day;
-        const formattedMonth = month < 10 ? '0' + month : month;
-        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-        const formattedHours = hours < 10 ? '0' + hours : hours;
-
-        const formattedDate = `${formattedDay}.${formattedMonth}.${year}, ${formattedHours}:${formattedMinutes}`;
-
-        return formattedDate;
-    }
-
     getDestination(): string {
         if (this.data.takenByDriver && this.data.takenByDriver == this.driverId) {
             return this.data.current_Addressformatted;
         }
         return this.deleteFirstOccurrence(this.data.current_Addressformatted, this.data.current_roadNbr);
     }
+
+    public formatDate_ = formatDate;
 
     deleteFirstOccurrence(mainString: string, subString: string): string {
         if (!subString)

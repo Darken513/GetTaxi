@@ -3,9 +3,12 @@ const jwt = require("jsonwebtoken");
 
 const { db, storage, twilioClient } = require("../server");
 const driversRef = db.collection("Drivers");
+const driverBehaviorRef = db.collection("DriverBehavior");
 
 const cacheService = require("./cache.service");
-const cachePath = ["drivers", "values"];
+const driver_cachePath = ["drivers", "values"];
+const DBH_cachepath = ["driverBehavior", "values"];
+
 verificationCodes = {}; //driverId : generated code
 
 function createToken(data) {
@@ -55,7 +58,7 @@ exports.login = async (req) => {
       const toSaveCache = { id: driverId, ...driverRecord };
       Object.keys(toSaveCache).forEach((key) => {
         cacheService.updateDefSpecificProp(
-          [...cachePath, driverId, "value", key],
+          [...driver_cachePath, driverId, "value", key],
           toSaveCache[key]
         );
       });
@@ -86,6 +89,8 @@ exports.signUp = async (userData) => {
       password: hashedPassword,
       isActive: false,
       credits: process.env.DRIVER_DEAFULT_CREDITS,
+      totalIncome: 0,
+      totalSpent: 0,
       created_at: new Date(),
     });
     return 0;
@@ -95,7 +100,7 @@ exports.signUp = async (userData) => {
 };
 
 exports.getAllDrivers = async () => {
-  const cachedResult = cacheService.getArrayOfDefs(cachePath[0]);
+  const cachedResult = cacheService.getArrayOfDefs(driver_cachePath[0]);
   if (cachedResult) {
     return cachedResult;
   }
@@ -104,7 +109,7 @@ exports.getAllDrivers = async () => {
     const drivers = snapshot.docs.map((doc) => {
       return { id: doc.id, ...doc.data() };
     });
-    cacheService.storeOrUpdateArrayofDefs(cachePath[0], drivers);
+    cacheService.storeOrUpdateArrayofDefs(driver_cachePath[0], drivers);
     return drivers;
   } catch (error) {
     return -1; //error case "-1"
@@ -112,7 +117,7 @@ exports.getAllDrivers = async () => {
 };
 
 exports.getDriverByID = async (driverId) => {
-  const cachedResult = cacheService.getByPath([...cachePath, driverId]);
+  const cachedResult = cacheService.getByPath([...driver_cachePath, driverId]);
   if (cachedResult) {
     return cachedResult;
   }
@@ -122,9 +127,44 @@ exports.getDriverByID = async (driverId) => {
     if (!snapshot.exists) {
       throw Error("Driver with id : " + driverId + " Doesnt exist");
     }
-    //todo-P2 : should store def in cache
+    const toSaveCache = { id: driverId, ...snapshot.data() };
+    Object.keys(toSaveCache).forEach((key) => {
+      cacheService.updateDefSpecificProp(
+        [...driver_cachePath, driverId, "value", key],
+        toSaveCache[key]
+      );
+    });
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
+    return -1; //error case "-1"
+  }
+};
+exports.getDriverBehaviorsById = async (driverId, nbr) => {
+  const cachedResult = cacheService.getByPath([...DBH_cachepath, driverId, 'array']);
+  if (cachedResult && cachedResult.length >= nbr) {
+    //todo-p1 : return only last nbr elements
+    return cachedResult;
+  }
+  try {
+    const querySnapshot = await driverBehaviorRef
+      .where("driverId", "==", driverId)
+      .orderBy("created_at", "desc")
+      .limit(parseInt(nbr))
+      .get();
+    if (!querySnapshot.empty) {
+      //todo-p1 : work on this
+      const behaviors = querySnapshot.docs.map(val => val.data());
+      Object.keys(behaviors).forEach((behaviorIstance, index) => {
+        cacheService.updateDefSpecificProp(
+          [...DBH_cachepath, driverId, "value", index],
+          behaviorIstance
+        );
+      });
+      return { behaviors };
+    }
+    throw Error("Driver with id : " + driverId + " Doesnt exist");
+  } catch (error) {
+    console.log(error);
     return -1; //error case "-1"
   }
 };
@@ -133,7 +173,7 @@ exports.createDriver = async (data) => {
   try {
     const docRef = await driversRef.add(data);
     const toret = { id: docRef.id, ...data };
-    cacheService.storeOrUpdateDef([...cachePath, docRef.id], toret);
+    cacheService.storeOrUpdateDef([...driver_cachePath, docRef.id], toret);
     return toret;
   } catch (error) {
     return -1;
@@ -147,7 +187,7 @@ exports.updateDriver = async (driverId, updatedData) => {
     const toSaveCache = { id: driverId, ...updatedData };
     Object.keys(toSaveCache).forEach((key) => {
       cacheService.updateDefSpecificProp(
-        [...cachePath, driverId, "value", key],
+        [...driver_cachePath, driverId, "value", key],
         toSaveCache[key]
       );
     });
@@ -161,7 +201,7 @@ exports.updateDriversSpecificProp = async (driverId, key, updatedData) => {
     const docRef = driversRef.doc(driverId);
     await docRef.update(updatedData);
     cacheService.updateDefSpecificProp(
-      [...cachePath, driverId, "value", key],
+      [...driver_cachePath, driverId, "value", key],
       updatedData[key]
     );
     return 0;
@@ -175,7 +215,7 @@ exports.changeDriverStatus = async (driverId, updatedData, res) => {
     const docRef = driversRef.doc(driverId);
     await docRef.update(updatedData);
     cacheService.updateDefSpecificProp(
-      [...cachePath, driverId, "value", "isActive"],
+      [...driver_cachePath, driverId, "value", "isActive"],
       updatedData.isActive
     );
     return 0;
@@ -188,7 +228,7 @@ exports.deleteDriverById = async (driverId) => {
   try {
     const docRef = driversRef.doc(driverId);
     await docRef.delete();
-    cacheService.deleteByPath([...cachePath, driverId]);
+    cacheService.deleteByPath([...driver_cachePath, driverId]);
     return 0;
   } catch (error) {
     return -1;

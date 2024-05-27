@@ -21,7 +21,45 @@ function isNumeric(str: any) {
     return !isNaN((str as any)) && !isNaN(parseFloat(str))
 }
 
+/**
+ * Formats a given date value into a string with the format "DD.MM.YYYY, HH:MM".
+ * If the input is a string, it is converted to a timestamp and then formatted.
+ * If the input is not provided or not a number, it is assumed to be a Firestore timestamp and converted to milliseconds before formatting.
+ * @param inputDate - The date value to be formatted. Can be a string, number, or Firestore timestamp.
+ * @returns A string representing the formatted date in the format "DD.MM.YYYY, HH:MM".
+ */
+function formatDate(inputDate: any) {
+    if (typeof inputDate == "string") {
+        const timestamp = new Date(inputDate).getTime();
+        const unixEpoch = new Date('1970-01-01T00:00:00.000Z').getTime();
+        const secondsSinceUnixEpoch = Math.floor((timestamp - unixEpoch));
+        inputDate = secondsSinceUnixEpoch;
+    } else {
+        if (!inputDate)
+            return;
+        if (typeof inputDate != 'number')
+            inputDate = inputDate._seconds * 1000;
+    }
+    const date = new Date(inputDate);
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Months are zero-indexed
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    const formattedDay = day < 10 ? '0' + day : day;
+    const formattedMonth = month < 10 ? '0' + month : month;
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+    const formattedHours = hours < 10 ? '0' + hours : hours;
+
+    const formattedDate = `${formattedDay}.${formattedMonth}.${year}, ${formattedHours}:${formattedMinutes}`;
+
+    return formattedDate;
+}
+
 export {
     setCharAtStringIndex,
-    isNumeric
+    isNumeric,
+    formatDate
 }

@@ -107,7 +107,13 @@ exports.getRideById = async (rideId) => {
     if (!snapshot.exists) {
       throw Error('Ride status with id : ' + rideId + ' Doesnt exist')
     }
-    //todo-P2 : should store def in cache
+    const toSaveCache = { id: snapshot.id, ...snapshot.data() };
+    Object.keys(toSaveCache).forEach((key) => {
+      cacheService.updateDefSpecificProp(
+        [...RS_cachepath, rideId, "value", key],
+        toSaveCache[key]
+      );
+    });
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
     return -1; //error case "-1"
@@ -225,9 +231,14 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
 }
 
 async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) {
+  //todo - ride done
   const canceledByDriver = reasonObj && !reasonObj.byClient;
   const canceledByClient = reasonObj && reasonObj.byClient;
-  const behaviorType = canceledByClient ? 'RideCanceled_Client' : canceledByDriver ? 'RideCanceled_Driver' : 'rideAccepted'
+  const behaviorType = canceledByClient ? 
+    process.env.RIDE_CANCELED_CLIENT : canceledByDriver ? 
+    process.env.RIDE_CANCELED_DRIVER : 
+    process.env.RIDE_ACCEPTED
+
   const creditsCost = (Math.round(rideS_snapshot.data().estimatedPrice * process.env.COMMISION_ON_RIDE_PERCENTAGE * 100) / 100).toFixed(2);
   const creditsChange = creditsCost * (canceledByClient ? 1 : canceledByDriver ? process.env.REFUND_ON_CANCEL_PERCENTAGE : -1)
   let driverBH = {
@@ -242,7 +253,7 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
   let driverData = await driverService.getDriverByID(driverId);
   //todo-P3: avoid NaN cases !
   driverData.credits += driverBH.creditsChange;
-  driverService.updateDriversSpecificProp(driverId, 'credits', { credits: driverData.credits });
+  driverService.updateDriversSpecificProp(driverId, 'credits', { credits: (driverData.credits).toFixed(2) });
   //saving driverBehavior record & saving changes to cache
   const driverBH_docRef = await driverBehaviorRef.add(driverBH);
   driverBH = { id: driverBH_docRef.id, ...driverBH };

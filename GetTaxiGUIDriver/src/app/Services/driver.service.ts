@@ -9,12 +9,22 @@ export class DriverService {
 
   private apiUrl = 'http://localhost:8080/driver'; //todo-P2 : use env files
 
+  public env = {
+    RIDE_CANCELED_CLIENT:'RideCanceled_Client',
+    RIDE_CANCELED_DRIVER:'RideCanceled_Driver',
+    RIDE_ACCEPTED:'RideAccepted',
+    RIDE_DONE:'RideDone'
+  }
+
   constructor(
     private http: HttpClient
   ) { }
 
   public getDriverById(driverId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverById/${driverId}`);
+  }
+  public getDriverBehaviorsById(driverId: string, nbr:number): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverBehaviorsById/${driverId}/${nbr}`);
   }
   public sendSMSVerificationCode(): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/sendSMSVerificationCode`);

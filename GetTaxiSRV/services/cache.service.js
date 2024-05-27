@@ -39,6 +39,11 @@ const cache = {
         totalCount: 0,
         fetchedAllOnce: false
     },
+    'driverBehavior': {
+        values: {},
+        totalCount: 0,
+        fetchedAllOnce: false
+    },
     'rideStatus': {
         values: {},
         totalCount: 0,

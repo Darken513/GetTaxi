@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { DriverService } from '../../Services/driver.service';
 import { NotificationService } from '../../Services/notification.service';
 import Chart from 'chart.js/auto';
+import { formatDate } from '../../utilities';
 
 @Component({
   selector: 'app-driver-profile',
@@ -20,6 +21,7 @@ export class DriverProfileComponent implements OnInit {
 
   @Output() update: EventEmitter<any> = new EventEmitter();
 
+  behaviors: Array<any> = [];
   chart: Chart | null = null;
 
   public subs: Array<Subscription> = []; //todo-P3 : make sure to unsbscribe !
@@ -31,21 +33,35 @@ export class DriverProfileComponent implements OnInit {
   ) {
 
   }
-  ngOnInit() {
-    let donutCtx = (document.getElementById('donut')! as any).getContext('2d');
 
-    var data = {
+  ngOnInit() {
+    this.initChart();
+    this.initBehaviors(5);
+  }
+
+  initBehaviors(nbr: number) {
+    this.driverService.getDriverBehaviorsById(this.driverId, nbr).subscribe({
+      next: (val) => {
+        this.behaviors = val.behaviors;
+      }
+    })
+  }
+  initChart() {
+    let donutCtx = (document.getElementById('donut')! as any).getContext('2d');
+    let isEmpty = this.driver.totalIncome === 0 && this.driver.totalSpent === 0;
+
+    let data = {
       datasets: [
         {
-          "data": [145.92, 6.29],   // Example data
-          "backgroundColor": [
+          "data": isEmpty ? [1] : [this.driver.totalIncome, this.driver.totalSpent],
+          "backgroundColor": isEmpty ? ['#585f6d'] : [
             "yellowgreen",
             "#cf4a95"
           ]
         }]
     };
 
-    var chart = new Chart(
+    let chart = new Chart(
       donutCtx,
       {
         "type": 'doughnut',
@@ -65,5 +81,36 @@ export class DriverProfileComponent implements OnInit {
         }
       }
     );
+  }
+  public formatDate_ = formatDate;
+
+  public getBehaviorColor(behavior: any) {
+    switch (behavior.behaviorType) {
+      case this.driverService.env.RIDE_ACCEPTED:
+        return 'rgb(154, 205, 50)';
+      case this.driverService.env.RIDE_CANCELED_CLIENT:
+        return 'rgb(250, 61, 61)';
+      case this.driverService.env.RIDE_CANCELED_DRIVER:
+        return 'rgb(237 134 60)';
+      case this.driverService.env.RIDE_DONE:
+        return 'rgb(207 74 149)';
+      default:
+        return 'rgb(250, 61, 61)';
+    }
+  }
+
+  public getBehaviorLabel(behavior: any) {
+    switch (behavior.behaviorType) {
+      case this.driverService.env.RIDE_ACCEPTED:
+        return 'Course acceptée';
+      case this.driverService.env.RIDE_CANCELED_CLIENT:
+        return 'Annulée par le client';
+      case this.driverService.env.RIDE_CANCELED_DRIVER:
+        return 'Annulée par vous';
+      case this.driverService.env.RIDE_DONE:
+        return 'Course terminée';
+      default:
+        return 'Unkown';
+    }
   }
 }

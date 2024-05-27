@@ -29,7 +29,7 @@
                     <hr>
                     <p>Voici les détails de la course :</p>
                     <p><strong>Date de la course :</strong> {{ data.isDeferred ? 'différé - ' +
-                        formatDate(data.deferredDateTime) :
+                        formatDate_(data.deferredDateTime) :
                         "Immédiatement - "+(data.created_at) }}</p>
                     <p><strong>De :</strong> {{ getDestination() }}</p>
                 </div>

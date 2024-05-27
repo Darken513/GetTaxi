@@ -1,32 +1,35 @@
 <div class="wrapper">
     <div class="profile-header">
-        <h2>Bonjour !</h2>
-        <h1>foulen fouleni</h1>
+        <h2>Bienvenue !</h2>
+        <h1>{{ driver.familyName }} {{ driver.name }}</h1>
         <div class="adminSwitchHolder">
             <i class="fa-solid fa-user-pen"></i>
         </div>
     </div>
 
-    <div class="profile-dashboard">
+    <div class="profile-dashboard hidden-scrollbar">
         <div class="dashboard-balance">
             <div class="row"
                 style="border-radius: 6px; background-color: #212b3f; padding: 15px 0 10px 0; margin-bottom: 15px;">
-                <h5>Account State <span style="color: rgb(233, 38, 38);">Disabled</span></h5>
+                <h5>État du compte <span
+                        [style]="{color: driver.isActive ? 'rgb(154, 205, 50)' : 'rgb(250, 61, 61)'}">{{driver.isActive
+                        ?
+                        'Activé' : 'Désactivé'}}</span></h5>
             </div>
             <div class="row">
                 <div class="col-6">
                     <div class="balance-wrapper">
-                        <h1>$498.57</h1>
-                        <h2>Available balance</h2>
+                        <h1>{{driver.credits}} $</h1>
+                        <h2>Crédit disponible</h2>
                     </div>
                     <div class="balance-summary">
                         <div class="summary-item">
-                            <h2><i class="fa-solid fa-circle" style="color: #cf4a95;"></i>Spent</h2>
-                            <h1>$5.29</h1>
+                            <h2><i class="fa-solid fa-circle" style="color: #cf4a95;"></i>Dépensés</h2>
+                            <h1>{{driver.totalSpent}} $</h1>
                         </div>
                         <div class="summary-item">
-                            <h2><i class="fa-solid fa-circle"></i>Earned</h2>
-                            <h1>$145.92</h1>
+                            <h2><i class="fa-solid fa-circle"></i>Gagnés</h2>
+                            <h1>{{driver.totalIncome}} $</h1>
                         </div>
                     </div>
                 </div>
@@ -37,7 +40,20 @@
             </div>
         </div>
         <div class="dashboard-recents">
-
+            <h5>Activités récentes</h5>
+            <ng-container *ngIf="behaviors.length!=0;else emptyActivities">
+                <div class="behavior-card" *ngFor="let behavior of behaviors"
+                    [style.borderLeft]="'5px solid '+getBehaviorColor(behavior)">
+                    <p><span [style]="{color:getBehaviorColor(behavior)}">{{getBehaviorLabel(behavior)}}</span></p>
+                    <p>Date : {{formatDate_(behavior.created_at)}}</p>
+                    <p>Variation du crédit : {{behavior.creditsChange>=0 ? '+'+behavior.creditsChange :
+                        behavior.creditsChange}}</p>
+                    <p>ID de la course : {{behavior.rideId}}</p>
+                </div>
+            </ng-container>
+            <ng-template #emptyActivities>
+                <p class="emptyListMsg">Aucune activité récente</p>
+            </ng-template>
         </div>
     </div>
 

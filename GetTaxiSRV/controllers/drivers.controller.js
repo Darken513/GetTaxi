@@ -40,6 +40,16 @@ exports.getDriverByID = async (req, res) => {
     res.json({ isNotification: true, type: 'error', title: "erreur", body: "Le conducteur n'est pas disponible." });
   }
 }
+exports.getDriverBehaviorsById = async (req, res) => {
+  const driverId = req.params.driverId;
+  const nbr = req.params.nbr;
+  const result = await driversService.getDriverBehaviorsById(driverId, nbr);
+  if (result != -1) {
+    res.json(result);
+  } else {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Le conducteur n'est pas disponible." });
+  }
+}
 
 exports.createDriver = async (req, res) => {
   const data = {
