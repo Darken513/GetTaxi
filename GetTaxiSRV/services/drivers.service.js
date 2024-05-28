@@ -56,13 +56,7 @@ exports.login = async (req) => {
       const token = createToken(tokenPayload);
 
       const toSaveCache = { id: driverId, ...driverRecord };
-      Object.keys(toSaveCache).forEach((key) => {
-        cacheService.updateDefSpecificProp(
-          [...driver_cachePath, driverId, "value", key],
-          toSaveCache[key]
-        );
-      });
-
+      cacheService.storeOrUpdateDef([...driver_cachePath, driverId], toSaveCache)
       return token;
     }
     return -2;
@@ -128,22 +122,17 @@ exports.getDriverByID = async (driverId) => {
       throw Error("Driver with id : " + driverId + " Doesnt exist");
     }
     const toSaveCache = { id: driverId, ...snapshot.data() };
-    Object.keys(toSaveCache).forEach((key) => {
-      cacheService.updateDefSpecificProp(
-        [...driver_cachePath, driverId, "value", key],
-        toSaveCache[key]
-      );
-    });
+    cacheService.storeOrUpdateDef([...driver_cachePath, driverId], toSaveCache)
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
     return -1; //error case "-1"
   }
 };
+
 exports.getDriverBehaviorsById = async (driverId, nbr) => {
-  const cachedResult = cacheService.getByPath([...DBH_cachepath, driverId, 'array']);
-  if (cachedResult && cachedResult.length >= nbr) {
-    //todo-p1 : return only last nbr elements
-    return cachedResult;
+  const cachedResult = cacheService.getByPath([...DBH_cachepath, driverId]);
+  if (cachedResult && Object.values(cachedResult).length >= parseInt(nbr)) {
+    return Object.values(cachedResult).map(val => val.value).slice(0, parseInt(nbr));
   }
   try {
     const querySnapshot = await driverBehaviorRef
@@ -152,10 +141,9 @@ exports.getDriverBehaviorsById = async (driverId, nbr) => {
       .limit(parseInt(nbr))
       .get();
     if (!querySnapshot.empty) {
-      //todo-p1 : work on this
       const behaviors = querySnapshot.docs.map(val => val.data());
-      Object.keys(behaviors).forEach((behaviorIstance, index) => {
-        cacheService.updateDefSpecificProp(
+      Object.values(behaviors).forEach((behaviorIstance, index) => {
+        cacheService.storeOrUpdateDef(
           [...DBH_cachepath, driverId, "value", index],
           behaviorIstance
         );

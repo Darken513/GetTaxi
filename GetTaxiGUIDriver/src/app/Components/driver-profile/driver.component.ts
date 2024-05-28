@@ -142,5 +142,10 @@ export class DriverComponent implements OnInit, OnDestroy {
       this.editingProfile = true;
     }
   }
+  onProfileConsultationEvent(event: any) {
+    if(event.editProfile){
+      this.editingProfile = true;
+    }
+  }
 
 }

@@ -113,4 +113,18 @@ export class DriverProfileComponent implements OnInit {
         return 'Unkown';
     }
   }
+
+  public navigateToRideStatus(behavior: any) {
+    this.router.navigate(['/driver/ride-status/', behavior.rideId, behavior.driverId]);
+  }
+
+  logout() {
+    localStorage.clear();
+    sessionStorage.clear();
+    this.router.navigate(['/']);
+  }
+
+  public goToEditProfile() {
+    this.update.emit({ editProfile: true });
+  }
 }

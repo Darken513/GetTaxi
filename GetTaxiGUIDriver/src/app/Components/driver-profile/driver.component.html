@@ -4,6 +4,7 @@
             <h2 *ngIf="!driver.isActive">Veuillez compléter les données <span class="secondaryColor">manquantes</span>
                 pour demander l'activation de votre compte.</h2>
             <h2 *ngIf="driver.isActive"><span class="secondaryColor">Modifier</span> mon profil</h2>
+            <button *ngIf="driver.verifiedPhoneNbr" type="button" class="btnClose" (click)="editingProfile=false"><i class="fa fa-times"></i></button>
         </div>
         <app-edit-profile [carTypes]="carTypes" [carBrands]="carBrands" [driver]="driver" [driverId]="driverId" [zones]="zones"
             (update)="onProfileEditEvent($event)"></app-edit-profile>
@@ -19,6 +20,6 @@
     </div>
     <div *ngIf="!editingProfile && driver.verifiedPhoneNbr">
         <app-driver-profile [carTypes]="carTypes" [carBrands]="carBrands" [driver]="driver" [driverId]="driverId" [zones]="zones"
-            (update)="'todo'"></app-driver-profile>
+            (update)="onProfileConsultationEvent($event)"></app-driver-profile>
     </div>
 </div>

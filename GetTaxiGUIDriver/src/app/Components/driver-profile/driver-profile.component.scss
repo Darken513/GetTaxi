@@ -7,7 +7,7 @@
   box-shadow: #080808 0px 0px 18px 5px;
   .profile-header {
     position: relative;
-    background-color: #399964 /* #01a587 */;
+    background-color: #cb2784 /* #01a587 */;
     padding: 20px 20px 70px 20px;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
@@ -25,8 +25,8 @@
     }
     .adminSwitchHolder {
       position: absolute;
-      top: 25px;
-      right: 25px;
+      top: 15px;
+      right: 5px;
       color: white;
       font-size: 1.8rem;
     }
@@ -89,6 +89,7 @@
         border-radius: 6px;
         margin: 5px 0;
         padding: 0.5rem;
+        font-size: 0.9rem;
         * {
           margin: 0;
         }
@@ -110,4 +111,13 @@
 }
 .hidden-scrollbar::-webkit-scrollbar {
   display: none; /* For Chrome, Safari, and Opera */
+}
+img.routesImg {
+  position: absolute;
+  opacity: 0.06;
+  filter: invert(1);
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  height: 100vh;
 }

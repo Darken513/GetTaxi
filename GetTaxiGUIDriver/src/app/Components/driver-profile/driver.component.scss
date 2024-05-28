@@ -36,3 +36,12 @@ div.container h2::after {
     cursor: pointer;
   }
 }
+.btnClose{
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #f25cb0;
+  position: absolute;
+  top: 0.45rem;
+  right: 0.6rem;
+}

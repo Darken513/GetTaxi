@@ -97,7 +97,8 @@ exports.updateDefSpecificProp = function (pathArray, value) {
     }
     currentObj[pathArray[pathArray.length - 1]] = value;
 }
-exports.storeOrUpdateArrayofDefs = function (nodeName, values, ttlInSeconds = 10) {
+
+exports.storeOrUpdateArrayofDefs = function (nodeName, values) {
     if (!Array.isArray(values)) {
         return -1;
     }

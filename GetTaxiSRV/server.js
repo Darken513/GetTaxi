@@ -106,6 +106,10 @@ app.use('/client', clientRoute);
 app.get('/cached', (req, res) => {
   res.json(cacheService.cache);
 });
+app.get('/cached/:path', (req, res) => {
+  const path = req.params.path;
+  res.json(cacheService.cache[path]);
+});
 
 server.listen(port, () => { console.log(`Server started on port ${port}`); });
 

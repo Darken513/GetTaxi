@@ -1,9 +1,29 @@
 <div class="wrapper">
     <div class="profile-header">
-        <h2>Bienvenue !</h2>
-        <h1>{{ driver.familyName }} {{ driver.name }}</h1>
-        <div class="adminSwitchHolder">
-            <i class="fa-solid fa-user-pen"></i>
+        <img class="routesImg" src="../../assets/routesBG.jpg" alt="">
+        
+        <svg style="position: absolute; z-index: 0; top: 0; left: 0;" viewBox="100 100"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill="#bd237a88"
+                d="M 12 -64 C 29 -61 71 -65 68 -28 C 67 -1 155 -3 154 21 C 152 41 53 46.8 40.6 49.9 C 28.1 53 14.1 48 -2 50.8 C -18 53.5 -30 63 -46.1 60.1 C -206 79 -131 -7 -115 -14 C -92 -25 -64 -49 -40 -54 S 1 -66 12 -64 Z"
+                transform="translate(100 50)" />
+        </svg>
+        <svg _ngcontent-ng-c3664438847="" viewBox="100 100" xmlns="http://www.w3.org/2000/svg"
+            style="position: absolute; z-index: 0; top: 0; right: 0;">
+            <path _ngcontent-ng-c3664438847="" fill="#bd237a88"
+                d="M49.2,-56.8C54.9,-43.6,44.3,-21.8,39.7,-4.7C35,12.5,36.2,25,30.6,32.1C25,39.2,12.5,40.9,-0.8,41.7C-14.1,42.5,-28.1,42.4,-42.5,35.3C-56.9,28.1,-71.5,14.1,-68.3,3.2C-65.1,-7.6,-44,-15.3,-29.6,-28.5C-15.3,-41.7,-7.6,-60.4,7.1,-67.5C21.8,-74.6,43.6,-70,49.2,-56.8Z"
+                transform="translate(250 80)"></path>
+        </svg>
+        <div style="position: relative; z-index: 99;">
+            <h2>Bienvenue !</h2>
+            <h1>
+                <i (click)="goToEditProfile()" class="fa-solid fa-user-pen" style="font-size: 80%; position: relative; top: -1px;">
+                </i>
+                {{ driver.familyName }} {{ driver.name }}
+            </h1>
+            <div class="adminSwitchHolder" (click)="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
         </div>
     </div>
 
@@ -11,10 +31,12 @@
         <div class="dashboard-balance">
             <div class="row"
                 style="border-radius: 6px; background-color: #212b3f; padding: 15px 0 10px 0; margin-bottom: 15px;">
-                <h5>État du compte <span
-                        [style]="{color: driver.isActive ? 'rgb(154, 205, 50)' : 'rgb(250, 61, 61)'}">{{driver.isActive
-                        ?
-                        'Activé' : 'Désactivé'}}</span></h5>
+                <h5>
+                    État du compte
+                    <span [style]="{color: driver.isActive ? 'rgb(154, 205, 50)' : 'rgb(250, 61, 61)'}">
+                        {{driver.isActive ? 'Activé' : 'Désactivé'}}
+                    </span>
+                </h5>
             </div>
             <div class="row">
                 <div class="col-6">
@@ -43,6 +65,7 @@
             <h5>Activités récentes</h5>
             <ng-container *ngIf="behaviors.length!=0;else emptyActivities">
                 <div class="behavior-card" *ngFor="let behavior of behaviors"
+                    (click)="navigateToRideStatus(behavior)"
                     [style.borderLeft]="'5px solid '+getBehaviorColor(behavior)">
                     <p><span [style]="{color:getBehaviorColor(behavior)}">{{getBehaviorLabel(behavior)}}</span></p>
                     <p>Date : {{formatDate_(behavior.created_at)}}</p>
