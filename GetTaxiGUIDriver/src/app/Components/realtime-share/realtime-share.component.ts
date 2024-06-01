@@ -188,6 +188,7 @@ export class RealtimeShareComponent
               this.clientMarker!.getLatLng().lng,
             ]);
           }
+          //todo-P1 : add a button that centers the details, and only make it centered the first time the user recieves data
           this.map!.fitBounds(toFit, { padding: [50, 50] });
         });
       }

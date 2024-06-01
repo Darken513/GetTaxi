@@ -34,11 +34,13 @@ exports.acceptRide = async (req, res) => {
   const rideId = req.params.rideId;
   const driverId = req.params.driverId;
   const result = await rideStatusService.acceptRide(rideId, driverId);
-  if (result != -1) {
-    res.json(result);
+  if (result == -1) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "La course n'est plus disponible.", error: true });
+  } else if (result == -2) {
+    res.json({ isNotification: true, type: 'error', title: "erreur", body: "Vous n'avez pas assez de crédits,\nVeillez à recharger vos crédits", error: true });
   } else {
     //todo-P3 : log the errors
-    res.json({ isNotification: true, type: 'error', title: "erreur", body: "La course n'est plus disponible.", error: true });
+    res.json(result);
   }
 }
 

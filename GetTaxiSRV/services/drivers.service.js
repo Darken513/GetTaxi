@@ -132,7 +132,7 @@ exports.getDriverByID = async (driverId) => {
 exports.getDriverBehaviorsById = async (driverId, nbr) => {
   const cachedResult = cacheService.getByPath([...DBH_cachepath, driverId]);
   if (cachedResult && Object.values(cachedResult).length >= parseInt(nbr)) {
-    return Object.values(cachedResult).map(val => val.value).slice(0, parseInt(nbr));
+    return { behaviors: Object.values(cachedResult).map(val => val.value).slice(0, parseInt(nbr)) };
   }
   try {
     const querySnapshot = await driverBehaviorRef
@@ -150,7 +150,7 @@ exports.getDriverBehaviorsById = async (driverId, nbr) => {
       });
       return { behaviors };
     }
-    throw Error("Driver with id : " + driverId + " Doesnt exist");
+    return { behaviors: [] };
   } catch (error) {
     console.log(error);
     return -1; //error case "-1"

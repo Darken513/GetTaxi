@@ -411,3 +411,21 @@ strong.metrics {
     background-color: #d53a90;
   }
 }
+.topLeftProfileBtn {
+  background: transparent;
+  color: yellowgreen;
+  border: 1px solid yellowgreen;
+  margin: 10px 0 0 10px;
+  border-radius: 10px;
+  padding: 2px 15px;
+}
+.float {
+  border: 2px solid yellowgreen;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 0;
+  z-index: 99;
+  background: #121927ea;
+  box-shadow: 0 0 10px 2px #121927;
+}

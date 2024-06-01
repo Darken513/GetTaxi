@@ -50,8 +50,8 @@ const cache = {
         fetchedAllOnce: false
     },
 };
-const ttlInSeconds = 45;
-const cleanTimerInSeconds = 25;
+const ttlInSeconds = 5;
+const cleanTimerInSeconds = 5;
 
 exports.cache = cache;
 exports.storeOrUpdateDef = function (pathArray, value) {

@@ -29,24 +29,29 @@ const client = new Client({});
  */
 exports.initRideStatus = async (data) => {
   try {
-    const snapshot = await driversRef
-      .where("carType", "==", data.carType)
-      .where("zone", "==", data.zone)
-      .where("isActive", "==", true)
-      .get();
-    const drivers = snapshot.docs.map((doc) => {
-      return { id: doc.id, ...doc.data() };
-    });
-    if (!drivers.length) {
-      return -2; //no drivers found
-    }
     const distDura = await calculateDistanceBetweenAdrs(data.current_Addressformatted, data.destination_Addressformatted);
     if (!distDura) {
       return -1;
     }
     data.estimatedDistance = distDura.distance.text;
     data.estimatedDuration = distDura.duration.text;
-    data.estimatedPrice = (Math.round(distDura.distance.value * process.env.PRICE_PER_METER * 100) / 100).toFixed(2);
+    data.estimatedPrice = CustomToFixed2(Math.round(distDura.distance.value * process.env.PRICE_PER_METER * 100) / 100);
+
+    creditsCost = calculateCreditsCost(data.estimatedPrice);
+
+    const snapshot = await driversRef
+      .where("carType", "==", data.carType)
+      .where("zone", "==", data.zone)
+      .where("isActive", "==", true)
+      .where("credits", ">=", creditsCost)
+      .get();
+
+    const drivers = snapshot.docs.map((doc) => {
+      return { id: doc.id, ...doc.data() };
+    });
+    if (!drivers.length) {
+      return -2; //no drivers found
+    }
 
     const docRef = await rideStatusRef.add(data);
     const rideStatus = { id: docRef.id, ...data };
@@ -87,6 +92,7 @@ ${driverUrl.rideStatusURL}
     }
     return 0;
   } catch (error) {
+    console.log(error);
     return -1;
   }
 };
@@ -128,7 +134,6 @@ exports.getRideById = async (rideId) => {
  */
 exports.acceptRide = async (rideId, driverId) => {
   try {
-    //todo-P2: check credits first, should have enough credits to accept
     const rideS_docRef = rideStatusRef.doc(rideId);
     const rideS_snapshot = await rideS_docRef.get();
     if (!rideS_snapshot.exists) {
@@ -137,6 +142,14 @@ exports.acceptRide = async (rideId, driverId) => {
     const isOwner = rideS_snapshot.data().takenByDriver == driverId;
     if (!isOwner && rideS_snapshot.data().takenByDriver) {
       return -1;
+    }
+    //check credits first, should have enough credits to accept
+    let driverBH = prepareDriverBehavior(rideS_snapshot, undefined, rideS_snapshot.data().takenByDriver, rideId);
+    let driverData = await driverService.getDriverByID(driverId);
+    if (driverBH.creditsChange < 0) {
+      if (driverData.credits + driverBH.creditsChange < 0) {
+        return -2
+      }
     }
     await rideS_docRef.update({
       takenByDriver: !isOwner ? driverId : "",
@@ -148,7 +161,7 @@ exports.acceptRide = async (rideId, driverId) => {
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, driverId);
-    //todo-P2 : should send sms to client
+    //todo-P1 : should send sms to client
     return toSaveCache;
   } catch (error) {
     return -1;
@@ -200,7 +213,8 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
     reasonObj = { byClient: true, ...reasonObj }
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     if (rideS_snapshot.data().takenByDriver) {
-      const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, rideS_snapshot.data().takenByDriver, reasonObj);
+      let driverBH = prepareDriverBehavior(rideS_snapshot, reasonObj, rideS_snapshot.data().takenByDriver, rideId);
+      const credsUpdateState = updateDriverCredits(driverBH, rideS_snapshot.data().takenByDriver);
     }
     return { error: false, body: "successfully cancelled ride" };
   } catch (error) {
@@ -225,23 +239,28 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     //preparing driverBehavior record
     //on cancel refund 90% of the commission.
-    const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, reasonObj.driverId, reasonObj);
+    let driverBH = prepareDriverBehavior(rideS_snapshot, reasonObj, reasonObj.driverId, rideId);
+    const credsUpdateState = updateDriverCredits(driverBH, reasonObj.driverId);
     return { error: false, body: 'successfully cancelled ride' };
   }
 }
 
-async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) {
-  //todo - ride done
+function calculateCreditsCost(estimatedPrice) {
+  return CustomToFixed2(Math.round(estimatedPrice * process.env.COMMISION_ON_RIDE_PERCENTAGE * 100) / 100)
+}
+
+function prepareDriverBehavior(rideS_snapshot, reasonObj, driverId, rideId) {
+  //todo-p1 - ride done
   const canceledByDriver = reasonObj && !reasonObj.byClient;
   const canceledByClient = reasonObj && reasonObj.byClient;
-  const behaviorType = canceledByClient ? 
-    process.env.RIDE_CANCELED_CLIENT : canceledByDriver ? 
-    process.env.RIDE_CANCELED_DRIVER : 
-    process.env.RIDE_ACCEPTED
+  const behaviorType = canceledByClient ?
+    process.env.RIDE_CANCELED_CLIENT : canceledByDriver ?
+      process.env.RIDE_CANCELED_DRIVER :
+      process.env.RIDE_ACCEPTED
 
-  const creditsCost = (Math.round(rideS_snapshot.data().estimatedPrice * process.env.COMMISION_ON_RIDE_PERCENTAGE * 100) / 100).toFixed(2);
+  const creditsCost = calculateCreditsCost(rideS_snapshot.data().estimatedPrice);
   const creditsChange = creditsCost * (canceledByClient ? 1 : canceledByDriver ? process.env.REFUND_ON_CANCEL_PERCENTAGE : -1)
-  let driverBH = {
+  return {
     behaviorType: behaviorType,
     created_at: new Date(),
     creditsChange: creditsChange,
@@ -249,11 +268,32 @@ async function updateDriverCredits(rideS_snapshot, rideId, driverId, reasonObj) 
     rideId: rideId,
     reason: reasonObj ? reasonObj.reason : {}
   }
+}
+
+function checkRideIsCanceled(driverBH) {
+  driverBH.behaviorType = process.env.RIDE_CANCELED_CLIENT || process.env.RIDE_CANCELED_DRIVER;
+}
+
+async function updateDriverCredits(driverBH, driverId) {
   //update driver (refund some credits) & saving changes to cache
   let driverData = await driverService.getDriverByID(driverId);
   //todo-P3: avoid NaN cases !
   driverData.credits += driverBH.creditsChange;
-  driverService.updateDriversSpecificProp(driverId, 'credits', { credits: (driverData.credits).toFixed(2) });
+  const absChange = Math.abs(driverBH.creditsChange)
+  if (driverBH.creditsChange > 0) {
+    if (checkRideIsCanceled(driverBH)) {
+      driverData.totalSpent -= absChange;
+      driverService.updateDriversSpecificProp(driverId, 'totalSpent', { totalSpent: CustomToFixed2(driverData.totalSpent) });
+    } else {
+      driverData.totalIncome += absChange;
+      driverService.updateDriversSpecificProp(driverId, 'totalIncome', { totalIncome: CustomToFixed2(driverData.totalIncome) });
+    }
+  } else {
+    driverData.totalSpent += absChange;
+    driverService.updateDriversSpecificProp(driverId, 'totalSpent', { totalSpent: CustomToFixed2(driverData.totalSpent) });
+  }
+  driverService.updateDriversSpecificProp(driverId, 'credits', { credits: CustomToFixed2(driverData.credits) });
+
   //saving driverBehavior record & saving changes to cache
   const driverBH_docRef = await driverBehaviorRef.add(driverBH);
   driverBH = { id: driverBH_docRef.id, ...driverBH };
@@ -309,4 +349,8 @@ function deleteFirstOccurrence(mainString, subString) {
   if (index === -1)
     return mainString.trim();
   return (mainString.slice(0, index) + mainString.slice(index + subString.length)).trim();
+}
+
+function CustomToFixed2(val) {
+  return parseFloat(val.toFixed(2));
 }
