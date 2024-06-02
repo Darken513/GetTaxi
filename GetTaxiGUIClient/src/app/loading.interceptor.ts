@@ -30,6 +30,7 @@ export class LoadingInterceptor implements HttpInterceptor {
                         try {
                             this.notificationService.showNotification(event.body)
                         } catch (error) {
+                            console.error(error);
                         }
                     }
                     this.close()

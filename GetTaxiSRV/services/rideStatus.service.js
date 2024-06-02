@@ -92,7 +92,7 @@ ${driverUrl.rideStatusURL}
     }
     return 0;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1;
   }
 };
@@ -122,6 +122,7 @@ exports.getRideById = async (rideId) => {
     });
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -144,7 +145,7 @@ exports.acceptRide = async (rideId, driverId) => {
       return -1;
     }
     //check credits first, should have enough credits to accept
-    let driverBH = prepareDriverBehavior(rideS_snapshot, undefined, rideS_snapshot.data().takenByDriver, rideId);
+    let driverBH = prepareDriverBehavior(rideS_snapshot, undefined, driverId, rideId);
     let driverData = await driverService.getDriverByID(driverId);
     if (driverBH.creditsChange < 0) {
       if (driverData.credits + driverBH.creditsChange < 0) {
@@ -160,10 +161,11 @@ exports.acceptRide = async (rideId, driverId) => {
       takenByDriver: !isOwner ? driverId : "",
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
-    const credsUpdateState = updateDriverCredits(rideS_snapshot, rideId, driverId);
+    const credsUpdateState = updateDriverCredits(driverBH, driverId);
     //todo-P1 : should send sms to client
     return toSaveCache;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -194,6 +196,7 @@ exports.cancelRide = async (rideId, reasonObj) => {
       return await cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reasonObj)
     }
   } catch (error) {
+    console.error(error);
     return { error: true, body: "Error initiating Ride status" };
   }
 };
@@ -218,6 +221,7 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
     }
     return { error: false, body: "successfully cancelled ride" };
   } catch (error) {
+    console.error(error);
     return { error: true, body: "Error initiating Ride status" };
   }
 }
@@ -271,7 +275,10 @@ function prepareDriverBehavior(rideS_snapshot, reasonObj, driverId, rideId) {
 }
 
 function checkRideIsCanceled(driverBH) {
-  driverBH.behaviorType = process.env.RIDE_CANCELED_CLIENT || process.env.RIDE_CANCELED_DRIVER;
+  return (
+    driverBH == process.env.RIDE_CANCELED_CLIENT || 
+    driverBH == process.env.RIDE_CANCELED_DRIVER
+  );
 }
 
 async function updateDriverCredits(driverBH, driverId) {

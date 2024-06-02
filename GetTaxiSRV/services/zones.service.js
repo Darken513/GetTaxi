@@ -17,6 +17,7 @@ exports.getAllZones = async () => {
     cacheService.storeOrUpdateArrayofDefs(cachePath[0], zones);
     return zones;
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -34,6 +35,7 @@ exports.getZoneById = async (zoneId) => {
     }
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -45,6 +47,7 @@ exports.createZone = async (data) => {
     cacheService.storeOrUpdateDef([...cachePath, docRef.id], toret)
     return toret;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -56,6 +59,7 @@ exports.deleteZoneById = async (zoneId) => {
     cacheService.deleteByPath([...cachePath, zoneId])
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };

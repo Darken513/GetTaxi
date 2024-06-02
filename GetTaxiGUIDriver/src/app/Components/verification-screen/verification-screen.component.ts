@@ -118,6 +118,8 @@ export class VerificationScreenComponent implements OnInit {
    * @returns void
    */
   onFieldChange(id: number, event: any) {
+    if(!isNumeric(event.data))
+      return;
     this.finalText = setCharAtStringIndex(this.finalText, id, event.data);
     (document.getElementById(DEFAULT_FIELD_NAME + id)! as any).value = event.data;
     if (id < 3) {

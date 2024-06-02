@@ -34,6 +34,7 @@ export class LoadingInterceptor implements HttpInterceptor {
                         try {
                             this.notificationService.showNotification(event.body)
                         } catch (error) {
+                            console.error(error);
                         }
                     } else if (event && event.body && event.body.tokenError) {
                         try {
@@ -42,6 +43,7 @@ export class LoadingInterceptor implements HttpInterceptor {
                             localStorage.removeItem('token');
                             this.router.navigate(['/']);
                         } catch (error) {
+                            console.error(error);
                         }
                     }
                     this.close()

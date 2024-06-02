@@ -17,6 +17,7 @@ exports.getAllCarTypes = async () => {
     cacheService.storeOrUpdateArrayofDefs(cachePath[0], carTypes);
     return carTypes;
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -34,6 +35,7 @@ exports.getCarByID = async (carTypeId) => {
     }
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -45,6 +47,7 @@ exports.createCarType = async (data) => {
     cacheService.storeOrUpdateDef([...cachePath, docRef.id], toret)
     return toret;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -56,6 +59,7 @@ exports.deleteCarTypeById = async (carTypeId) => {
     cacheService.deleteByPath([...cachePath, carTypeId]);
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };

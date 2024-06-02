@@ -61,6 +61,7 @@ exports.login = async (req) => {
     }
     return -2;
   } catch (error) {
+    console.error(error);
     return -2;
   }
 };
@@ -82,13 +83,14 @@ exports.signUp = async (userData) => {
       email: userData.email,
       password: hashedPassword,
       isActive: false,
-      credits: process.env.DRIVER_DEAFULT_CREDITS,
+      credits: parseFloat(process.env.DRIVER_DEAFULT_CREDITS),
       totalIncome: 0,
       totalSpent: 0,
       created_at: new Date(),
     });
     return 0;
   } catch (error) {
+    console.error(error);
     return -2;
   }
 };
@@ -106,6 +108,7 @@ exports.getAllDrivers = async () => {
     cacheService.storeOrUpdateArrayofDefs(driver_cachePath[0], drivers);
     return drivers;
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -125,6 +128,7 @@ exports.getDriverByID = async (driverId) => {
     cacheService.storeOrUpdateDef([...driver_cachePath, driverId], toSaveCache)
     return { id: snapshot.id, ...snapshot.data() };
   } catch (error) {
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -152,7 +156,7 @@ exports.getDriverBehaviorsById = async (driverId, nbr) => {
     }
     return { behaviors: [] };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return -1; //error case "-1"
   }
 };
@@ -164,6 +168,7 @@ exports.createDriver = async (data) => {
     cacheService.storeOrUpdateDef([...driver_cachePath, docRef.id], toret);
     return toret;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -181,6 +186,7 @@ exports.updateDriver = async (driverId, updatedData) => {
     });
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -194,6 +200,7 @@ exports.updateDriversSpecificProp = async (driverId, key, updatedData) => {
     );
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -208,6 +215,7 @@ exports.changeDriverStatus = async (driverId, updatedData, res) => {
     );
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -219,6 +227,7 @@ exports.deleteDriverById = async (driverId) => {
     cacheService.deleteByPath([...driver_cachePath, driverId]);
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -257,6 +266,7 @@ exports.readFileURL = async (driverId, fileId) => {
     });
     return signedUrl;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
@@ -288,6 +298,7 @@ exports.sendSMSVerificationCode = async (driverId) => {
     console.log("Verification code sent to " + driver.phoneNbr);
     return 0;
   } catch (error) {
+    console.error(error);
     return -1;
   }
 };
