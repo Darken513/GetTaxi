@@ -32,6 +32,8 @@ export class RealtimeComponent
   distanceLeft: string = '';
   currentState: rideState = rideState.goingToClient;
 
+  firstDoubleFetch: boolean = true; //first time the driver/client both data exists
+
   map: L.Map | null = null;
   clientMarker: L.Marker | null = null;
   clientPosition: L.LatLngExpression = [0, 0];
@@ -76,6 +78,9 @@ export class RealtimeComponent
             }
             if (response.event == 'canceledRide') {
               this.isCanceledByDriver = true;
+            }
+            if (response.event == 'arrivedToClient') {
+              this.data.driverArrived = true;
             }
           },
         });
@@ -152,6 +157,7 @@ export class RealtimeComponent
             (this.driverPosition as L.LatLng),
             (this.clientPosition as L.LatLng),
           ],
+          fitSelectedRoutes: false,
           addWaypoints: false,
           show: false,
           lineOptions: {
@@ -171,23 +177,30 @@ export class RealtimeComponent
             this.driverMarker!.setLatLng(this.driverPosition);
           if (this.clientMarker)
             this.clientMarker!.setLatLng(this.clientPosition);
-          let toFit: any = [];
-          if (this.driverMarker) {
-            toFit.push([
-              this.driverMarker!.getLatLng().lat,
-              this.driverMarker!.getLatLng().lng,
-            ]);
+          if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
+            this.mapFitBoundToUser();
+            this.firstDoubleFetch = false;
           }
-          if (this.clientMarker) {
-            toFit.push([
-              this.clientMarker!.getLatLng().lat,
-              this.clientMarker!.getLatLng().lng,
-            ]);
-          }
-          this.map!.fitBounds(toFit, { padding: [50, 50] });
         });
       }
     }
+  }
+
+  mapFitBoundToUser() {
+    let toFit: any = [];
+    if (this.driverMarker) {
+      toFit.push([
+        this.driverMarker!.getLatLng().lat,
+        this.driverMarker!.getLatLng().lng,
+      ]);
+    }
+    if (this.clientMarker) {
+      toFit.push([
+        this.clientMarker!.getLatLng().lat,
+        this.clientMarker!.getLatLng().lng,
+      ]);
+    }
+    this.map!.fitBounds(toFit, { padding: [50, 50] });
   }
 
   protected setupLocationTracking(): void {

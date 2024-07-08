@@ -41,6 +41,12 @@ export class SocketService {
         data
       })
     });
+    this.socket.on('arrivedToClient', (data: any) => {
+      this.socketEvent.emit({
+        event: "arrivedToClient",
+        data
+      })
+    });
   }
 
   public cancelRide(data: any) {

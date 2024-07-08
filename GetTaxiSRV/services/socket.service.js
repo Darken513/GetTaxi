@@ -47,5 +47,12 @@ exports.initSocketSystem = () => {
             };
             io.to(room.driver).emit('clientUpdate', message);
         });
+        socket.on('arrivedToClient', (message) => {
+            let room = exports.rooms.get(message.rideId);
+            if (!room || !room.client) {
+                return;
+            };
+            io.to(room.client).emit('arrivedToClient', message);
+        });
     });
 }

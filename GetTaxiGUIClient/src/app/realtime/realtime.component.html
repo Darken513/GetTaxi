@@ -47,7 +47,8 @@
         </div>
     </div>
     <app-cancel-ride *ngIf="cancelingRideInProgress" (update)="onCancelReasonEvent($event)"></app-cancel-ride>
-    <div class="row">
+    <div class="row" style="position: relative;">
+        <button class="CenterBtnWrapper" (click)="mapFitBoundToUser()"><i class="fa-solid fa-crosshairs"></i></button>
         <div class="col-md-3">
         </div>
         <div class="col-md-6">

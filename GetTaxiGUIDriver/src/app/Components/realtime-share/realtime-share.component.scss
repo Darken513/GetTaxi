@@ -1,0 +1,65 @@
+.CenterBtnWrapper,
+.callBtnWrapper{
+    position: absolute;
+    background-color: #121927;
+    border: 1px solid #121927;
+    padding: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    color: #9acd32;
+    font-size: 30px;
+    i{
+        position: relative;
+        top: -11px;
+        left: -6px;
+    }
+}
+
+.CenterBtnWrapper{
+    top: -100px;
+    left: 25px;
+}
+.callBtnWrapper{
+    top: -100px;
+    right: 25px;
+    font-size: 25px;
+    i{
+        position: relative;
+        top: -8px;
+        left: -4px;
+    }
+}
+
+
+.reachedClientModel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    height: 105vh;
+    background-color: #000000c4;
+    z-index: 99;
+    .reachedClientModel-body{
+        width: 70%;
+        margin: auto;
+        margin-top: 20vh;
+        background: #121927;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        .button-wrapper{
+            text-align: end;
+            margin-top: 15px;
+            margin-bottom: -5px;
+            .btn {
+                width: auto;
+                padding: 0.3rem 0.8rem;
+                max-height: 35px;
+                min-height: 35px;
+                margin-right: 0;
+              }
+        }
+    }
+}

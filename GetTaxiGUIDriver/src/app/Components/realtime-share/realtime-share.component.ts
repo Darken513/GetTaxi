@@ -15,6 +15,8 @@ enum rideState {
   rideEnded,
 }
 
+declare let axios: any;
+
 @Component({
   selector: 'app-realtime-share',
   templateUrl: './realtime-share.component.html',
@@ -27,6 +29,9 @@ export class RealtimeShareComponent
   timeToReachClient: string = "";
   distanceLeft: string = "";
   currentState: rideState = rideState.goingToClient;
+  hasReachedClientModelOn: boolean = false;
+
+  firstDoubleFetch: boolean = true; //first time the driver/client both data exists
 
   map: L.Map | null = null;
   clientMarker: L.Marker | null = null;
@@ -57,6 +62,50 @@ export class RealtimeShareComponent
 
   callUser() {
     window.open('tel:' + this.data.phoneNumber);
+  }
+
+  getStatusBtnText(){
+    switch (this.currentState) {
+      case rideState.goingToClient:
+      case rideState.reachedClient:
+        return "Arrived to client"
+      case rideState.goingToDestination:
+        return "Arrived to destination"
+    }
+    return "Ride done"
+  }
+
+  statusBtnClicked(){
+    switch (this.currentState) {
+      case rideState.goingToClient:
+        this.hasReachedClientModelOn = true;
+        break;
+      case rideState.reachedClient:
+        const toemit = {
+          rideId: this.rideId,
+          isDriver: true,
+        };
+        this.socketService.emit('arrivedToClient', toemit);
+        //this.driverService.changeRideStatus(rideState);
+        this.currentState = rideState.goingToDestination;
+        break;
+      case rideState.goingToDestination:
+        this.currentState = rideState.rideEnded;
+        break;
+      default:
+        this.currentState = rideState.rideEnded;
+        break;
+    }
+  }
+
+  pickedUpClientResponse(response:boolean){
+    if(response){
+      this.currentState = rideState.goingToDestination;
+      this.hasReachedClientModelOn = false;
+      return;
+    }
+    this.currentState = rideState.goingToClient;
+    this.hasReachedClientModelOn = false;
   }
 
   override ngOnInit(): void {
@@ -130,7 +179,7 @@ export class RealtimeShareComponent
           iconSize: [35, 50], // Size of the icon
           iconAnchor: [17.5, 50], // Anchor point of the icon
           popupAnchor: [0, -48], // Popup offset
-        });
+        });        
         this.driverMarker = L.marker(userLocation, { icon: taxiIcon }).addTo(
           this.map!
         );
@@ -139,7 +188,13 @@ export class RealtimeShareComponent
       }
     } else {
       if (!this.clientMarker) {
-        this.clientMarker = L.marker(userLocation).addTo(this.map!);
+        const clientIcon = L.icon({
+          iconUrl: '../../assets/client-icon.png', // Path to the taxi icon image
+          iconSize: [35, 50], // Size of the icon
+          iconAnchor: [17.5, 50], // Anchor point of the icon
+          popupAnchor: [0, -48], // Popup offset
+        });
+        this.clientMarker = L.marker(userLocation, { icon: clientIcon }).addTo(this.map!);
       } else {
         this.clientPosition = userLocation;
       }
@@ -156,6 +211,7 @@ export class RealtimeShareComponent
             (this.driverPosition as L.LatLng),
             (this.clientPosition as L.LatLng),
           ],
+          fitSelectedRoutes: false,
           addWaypoints: false,
           show: false,
           lineOptions: {
@@ -175,24 +231,31 @@ export class RealtimeShareComponent
             this.driverMarker!.setLatLng(this.driverPosition);
           if (this.clientMarker)
             this.clientMarker!.setLatLng(this.clientPosition);
-          let toFit: any = [];
-          if (this.driverMarker) {
-            toFit.push([
-              this.driverMarker!.getLatLng().lat,
-              this.driverMarker!.getLatLng().lng,
-            ]);
+          if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
+            console.log('here !!!');
+            this.mapFitBoundToUser();
+            this.firstDoubleFetch = false;
           }
-          if (this.clientMarker) {
-            toFit.push([
-              this.clientMarker!.getLatLng().lat,
-              this.clientMarker!.getLatLng().lng,
-            ]);
-          }
-          //todo-P1 : add a button that centers the details, and only make it centered the first time the user recieves data
-          this.map!.fitBounds(toFit, { padding: [50, 50] });
         });
       }
     }
+  }
+
+  mapFitBoundToUser() {
+    let toFit: any = [];
+    if (this.driverMarker) {
+      toFit.push([
+        this.driverMarker!.getLatLng().lat,
+        this.driverMarker!.getLatLng().lng,
+      ]);
+    }
+    if (this.clientMarker) {
+      toFit.push([
+        this.clientMarker!.getLatLng().lat,
+        this.clientMarker!.getLatLng().lng,
+      ]);
+    }
+    this.map!.fitBounds(toFit, { padding: [50, 50] });
   }
 
   protected setupLocationTracking(): void {
@@ -248,7 +311,9 @@ export class RealtimeShareComponent
   startIdleCheck() {
     this.clientIdleTimer = setInterval(() => {
       if (this.lastClientUpdateTime && Date.now() - this.lastClientUpdateTime >= 6000) {
+        //todo-p1 : should no longer care about connection if client is onboard
         this.connectionLost = true;
+        this.firstDoubleFetch = true;
       }
     }, 6000);
   }
@@ -346,6 +411,33 @@ export class RealtimeShareComponent
 
     return result;
   }
+
+  markAddressOnMap(address:string){
+    axios.get('https://nominatim.openstreetmap.org/search', {
+      params: {
+        q: address,
+        format: 'json'
+      }
+    }).then((response:any) => {
+        if (response.data.length > 0) {
+            var lat = response.data[0].lat;
+            var lon = response.data[0].lon;
+
+            this.map!.setView([lat, lon], 13);
+
+            L.marker([lat, lon]).addTo(this.map!)
+                .bindPopup(address)
+                .openPopup();
+        } else {
+            alert('Address not found');
+        }
+    }).catch((error:any) => {
+        console.error('Error fetching the address:', error);
+    });
+  }
+  // Example usage
+  //markAddressOnMap('1600 Amphitheatre Parkway, Mountain View, CA');
+
   /* protected setupOrientationTracking(): void {
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', event => {
