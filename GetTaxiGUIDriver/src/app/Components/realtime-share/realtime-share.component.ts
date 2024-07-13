@@ -28,7 +28,6 @@ export class RealtimeShareComponent
 
   timeToReachClient: string = "";
   distanceLeft: string = "";
-  currentState: rideState = rideState.goingToClient;
   hasReachedClientModelOn: boolean = false;
 
   firstDoubleFetch: boolean = true; //first time the driver/client both data exists
@@ -38,6 +37,8 @@ export class RealtimeShareComponent
   clientPosition: L.LatLngExpression = [0, 0];
   driverMarker: L.Marker | null = null;
   driverPosition: L.LatLngExpression = [0, 0];
+  destinationMarker: L.Marker | null = null;
+  destinationPosition: L.LatLngExpression = [0, 0];
   routeControl: L.Routing.Control | null = null;
 
   protected lastEmitTime: number = 0;
@@ -64,8 +65,8 @@ export class RealtimeShareComponent
     window.open('tel:' + this.data.phoneNumber);
   }
 
-  getStatusBtnText(){
-    switch (this.currentState) {
+  getStatusBtnText() {
+    switch (this.data.currentState) {
       case rideState.goingToClient:
       case rideState.reachedClient:
         return "Arrived to client"
@@ -75,48 +76,65 @@ export class RealtimeShareComponent
     return "Ride done"
   }
 
-  statusBtnClicked(){
-    switch (this.currentState) {
+  statusBtnClicked() {
+    let toemit = {
+      rideId: this.rideId,
+      isDriver: true,
+    };
+    switch (this.data.currentState) {
       case rideState.goingToClient:
         this.hasReachedClientModelOn = true;
         break;
       case rideState.reachedClient:
-        const toemit = {
-          rideId: this.rideId,
-          isDriver: true,
-        };
-        this.socketService.emit('arrivedToClient', toemit);
-        //this.driverService.changeRideStatus(rideState);
-        this.currentState = rideState.goingToDestination;
+        this.socketService.emit('reachedClient', toemit);
+        this.data.currentState = rideState.goingToDestination;
+        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState);
         break;
       case rideState.goingToDestination:
-        this.currentState = rideState.rideEnded;
+        this.socketService.emit('rideEnded', toemit);
+        this.data.currentState = rideState.rideEnded;
+        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState);
         break;
       default:
-        this.currentState = rideState.rideEnded;
+        this.socketService.emit('rideEnded', toemit);
+        this.data.currentState = rideState.rideEnded;
+        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
+          return;
+        });
         break;
     }
   }
 
-  pickedUpClientResponse(response:boolean){
-    if(response){
-      this.currentState = rideState.goingToDestination;
+  pickedUpClientResponse(response: boolean) {
+    if (response) {
+      this.data.currentState = rideState.goingToDestination;
+      const toemit = {
+        rideId: this.rideId,
+        isDriver: true,
+      };
+      this.socketService.emit('reachedClient', toemit);
+      this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
+        return;
+      });
       this.hasReachedClientModelOn = false;
       return;
     }
-    this.currentState = rideState.goingToClient;
+    this.data.currentState = rideState.goingToClient;
     this.hasReachedClientModelOn = false;
   }
 
   override ngOnInit(): void {
     const cb = (data: any) => {
-      setTimeout(() => {
-        this.cbOnceReady();
+      setTimeout(async () => {
+        await this.cbOnceReady();
         this.socketService.initRoomJoin(data);
         this.socketSub = this.socketService.socketEvent.subscribe({
           next: (response: any) => {
             if (response.event == 'clientUpdate') {
               this.setUserLocation(response.data.position, false);
+              this.handleCaseConnectionLost();
+            }
+            if (response.event == 'clientHeartBeat') {
               this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
@@ -134,7 +152,7 @@ export class RealtimeShareComponent
     this.killTimersAndWatchers();
   }
 
-  cbOnceReady(): void {
+  async cbOnceReady(): Promise<void> {
     if (this.data.isCanceledRide) {
       this.isCanceledRide = true;
       return;
@@ -145,6 +163,17 @@ export class RealtimeShareComponent
     this.initializeMap();
     this.setupLocationTracking();
     this.startIdleCheck();
+    if (this.data.currentState) {
+      if (!this.destinationMarker) {
+        const taxiIcon = L.icon({
+          iconUrl: '../../assets/taxi-icon.png', // Path to the taxi icon image
+          iconSize: [35, 50], // Size of the icon
+          iconAnchor: [17.5, 50], // Anchor point of the icon
+          popupAnchor: [0, -48], // Popup offset
+        });
+        await this.markDestinationOnMap(this.data.destination_Addressformatted);
+      }
+    }
     //this.setupOrientationTracking();
   }
 
@@ -179,7 +208,7 @@ export class RealtimeShareComponent
           iconSize: [35, 50], // Size of the icon
           iconAnchor: [17.5, 50], // Anchor point of the icon
           popupAnchor: [0, -48], // Popup offset
-        });        
+        });
         this.driverMarker = L.marker(userLocation, { icon: taxiIcon }).addTo(
           this.map!
         );
@@ -199,17 +228,35 @@ export class RealtimeShareComponent
         this.clientPosition = userLocation;
       }
     }
-    if (this.driverMarker && this.clientMarker) {
+    let pos1: L.LatLngExpression | null = null,
+      pos2: L.LatLngExpression | null = null,
+      marker1: L.Marker<any> | null = null,
+      marker2: L.Marker<any> | null = null
+    const cond1 = this.driverMarker && this.clientMarker && (this.data.currentState == rideState.goingToClient);
+    if (cond1) {
+      pos1 = this.driverPosition;
+      pos2 = this.clientPosition;
+      marker1 = this.driverMarker;
+      marker2 = this.clientMarker;
+    }
+    const cond2 = this.driverMarker && (this.data.currentState != rideState.goingToClient);
+    if (cond2) {
+      pos1 = this.driverPosition;
+      pos2 = this.destinationPosition;
+      marker1 = this.driverMarker;
+      marker2 = this.destinationMarker;
+    }
+    if (cond1 || cond2) {
       if (this.routeControl) {
         this.routeControl.setWaypoints([
-          (this.driverPosition as L.LatLng),
-          (this.clientPosition as L.LatLng),
+          (pos1 as L.LatLng),
+          (pos2 as L.LatLng),
         ]);
       } else {
         this.routeControl = L.Routing.control({
           waypoints: [
-            (this.driverPosition as L.LatLng),
-            (this.clientPosition as L.LatLng),
+            (pos1 as L.LatLng),
+            (pos2 as L.LatLng),
           ],
           fitSelectedRoutes: false,
           addWaypoints: false,
@@ -227,13 +274,12 @@ export class RealtimeShareComponent
           const route = event.routes[0];
           this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
           this.distanceLeft = this.formatDistance(route.summary.totalDistance);
-          if (this.driverMarker)
-            this.driverMarker!.setLatLng(this.driverPosition);
-          if (this.clientMarker)
-            this.clientMarker!.setLatLng(this.clientPosition);
-          if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
-            console.log('here !!!');
-            this.mapFitBoundToUser();
+          if (marker1)
+            marker1!.setLatLng(pos1!);
+          if (marker2)
+            marker2!.setLatLng(pos2!);
+          if (this.firstDoubleFetch && marker1 && marker2) {
+            this.mapFitBound();
             this.firstDoubleFetch = false;
           }
         });
@@ -241,7 +287,7 @@ export class RealtimeShareComponent
     }
   }
 
-  mapFitBoundToUser() {
+  mapFitBound() {
     let toFit: any = [];
     if (this.driverMarker) {
       toFit.push([
@@ -249,7 +295,13 @@ export class RealtimeShareComponent
         this.driverMarker!.getLatLng().lng,
       ]);
     }
-    if (this.clientMarker) {
+    if (this.destinationMarker) {
+      toFit.push([
+        this.destinationMarker!.getLatLng().lat,
+        this.destinationMarker!.getLatLng().lng,
+      ]);
+    }
+    if (this.clientMarker && !this.destinationMarker) {
       toFit.push([
         this.clientMarker!.getLatLng().lat,
         this.clientMarker!.getLatLng().lng,
@@ -311,7 +363,6 @@ export class RealtimeShareComponent
   startIdleCheck() {
     this.clientIdleTimer = setInterval(() => {
       if (this.lastClientUpdateTime && Date.now() - this.lastClientUpdateTime >= 6000) {
-        //todo-p1 : should no longer care about connection if client is onboard
         this.connectionLost = true;
         this.firstDoubleFetch = true;
       }
@@ -355,7 +406,7 @@ export class RealtimeShareComponent
   protected resetAllProperties(): void {
     this.timeToReachClient = '';
     this.distanceLeft = '';
-    this.currentState = rideState.goingToClient;
+    this.data.currentState = rideState.goingToClient;
     this.map = null;
     this.clientMarker = null;
     this.driverMarker = null;
@@ -412,31 +463,25 @@ export class RealtimeShareComponent
     return result;
   }
 
-  markAddressOnMap(address:string){
+  markAddressOnMap(address: string) {
     axios.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: address,
         format: 'json'
       }
-    }).then((response:any) => {
-        if (response.data.length > 0) {
-            var lat = response.data[0].lat;
-            var lon = response.data[0].lon;
+    }).then((response: any) => {
+      if (response.data.length > 0) {
+        var lat = response.data[0].lat;
+        var lon = response.data[0].lon;
 
-            this.map!.setView([lat, lon], 13);
-
-            L.marker([lat, lon]).addTo(this.map!)
-                .bindPopup(address)
-                .openPopup();
-        } else {
-            alert('Address not found');
-        }
-    }).catch((error:any) => {
-        console.error('Error fetching the address:', error);
+        L.marker([lat, lon]).addTo(this.map!)
+      } else {
+        alert('Address not found');
+      }
+    }).catch((error: any) => {
+      console.error('Error fetching the address:', error);
     });
   }
-  // Example usage
-  //markAddressOnMap('1600 Amphitheatre Parkway, Mountain View, CA');
 
   /* protected setupOrientationTracking(): void {
     if (window.DeviceOrientationEvent) {
@@ -457,4 +502,29 @@ export class RealtimeShareComponent
       }
     }
   } */
+
+  async markDestinationOnMap(address: string) {
+    try {
+      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        params: {
+          q: address,
+          format: 'json'
+        }
+      });
+
+      if (response.data.length > 0) {
+        const lat = response.data[0].lat;
+        const lon = response.data[0].lon;
+        this.destinationPosition = [lat, lon];
+        this.destinationMarker = L.marker(this.destinationPosition).addTo(this.map!);
+        //todo-p1 : now start drawing path
+        this.mapFitBound();
+      } else {
+        //todo-p1 : display notification error instead of alert
+        alert('Address not found');
+      }
+    } catch (error) {
+      console.error('Error fetching the address:', error);
+    }
+  }
 }

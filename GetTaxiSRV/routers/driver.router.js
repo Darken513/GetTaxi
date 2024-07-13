@@ -39,6 +39,7 @@ router.get('/getZoneById/:zoneId', zone_controller.getZoneById);
 router.get('/getRideById/:rideId', rideStatus_controller.getRideById);
 router.get('/acceptRide/:rideId/:driverId', rideStatus_controller.acceptRide);
 router.post('/cancelRide/:rideId', rideStatus_controller.cancelRide);
+router.get('/changeRideStatus/:driverId/:rideId/:currentState', isValidRequester, rideStatus_controller.changeRideStatus);
 
 //Driver profile edition section
 router.get('/getAllCarTypes', carType_controller.getAllCarTypes);

@@ -47,12 +47,19 @@ exports.initSocketSystem = () => {
             };
             io.to(room.driver).emit('clientUpdate', message);
         });
-        socket.on('arrivedToClient', (message) => {
+        socket.on('clientHeartBeat', (message) => {
+            let room = exports.rooms.get(message.rideId);
+            if (!room || !room.driver) {
+                return;
+            };
+            io.to(room.driver).emit('clientHeartBeat', message);
+        });
+        socket.on('reachedClient', (message) => {
             let room = exports.rooms.get(message.rideId);
             if (!room || !room.client) {
                 return;
             };
-            io.to(room.client).emit('arrivedToClient', message);
+            io.to(room.client).emit('reachedClient', message);
         });
     });
 }

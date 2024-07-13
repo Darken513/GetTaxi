@@ -30,7 +30,6 @@ export class RealtimeComponent
 
   timeToReachClient: string = '';
   distanceLeft: string = '';
-  currentState: rideState = rideState.goingToClient;
 
   firstDoubleFetch: boolean = true; //first time the driver/client both data exists
 
@@ -49,7 +48,8 @@ export class RealtimeComponent
 
   lastDriverUpdateTime: number | null = null;
   protected driverIdleTimer: ReturnType<typeof setInterval> | null = null;
-
+  protected heartBeatEmitter: ReturnType<typeof setInterval> | null = null;
+  
   cancelingRideInProgress: boolean = false;
 
   constructor(
@@ -70,6 +70,7 @@ export class RealtimeComponent
       setTimeout(() => {
         this.cbOnceReady();
         this.socketService.initRoomJoin(data);
+        //todo-p1 : add a hint that says we are still waiting for the driver to share his location
         this.socketSub = this.socketService.socketEvent.subscribe({
           next: (response: any) => {
             if (response.event == 'driverUpdate') {
@@ -79,8 +80,14 @@ export class RealtimeComponent
             if (response.event == 'canceledRide') {
               this.isCanceledByDriver = true;
             }
-            if (response.event == 'arrivedToClient') {
-              this.data.driverArrived = true;
+            if (response.event == 'reachedClient') {
+              this.data.currentState = rideState.goingToDestination;
+              if (this.navigatorWatch) {
+                navigator.geolocation.clearWatch(this.navigatorWatch);
+              }
+              this.heartBeatEmitter = setInterval(() => {
+                this.emitHeartBeat();
+              }, 2500);
             }
           },
         });
@@ -95,7 +102,13 @@ export class RealtimeComponent
 
   cbOnceReady(): void {
     this.initializeMap();
-    this.setupLocationTracking();
+    if (this.data.currentState == 0) {
+      this.setupLocationTracking();
+    } else {
+      this.heartBeatEmitter = setInterval(() => {
+        this.emitHeartBeat();
+      }, 2500);
+    }
     this.startIdleCheck();
     //this.setupOrientationTracking();
   }
@@ -255,6 +268,14 @@ export class RealtimeComponent
     }
   }
 
+  protected emitHeartBeat(): void {
+    const toemit = {
+      rideId: this.rideId,
+      isDriver: false,
+    };
+    this.socketService.emit('clientHeartBeat', toemit);
+  }
+
   startIdleCheck() {
     this.driverIdleTimer = setInterval(() => {
       if (this.lastDriverUpdateTime && Date.now() - this.lastDriverUpdateTime >= 6000) {
@@ -269,6 +290,9 @@ export class RealtimeComponent
     }
     if (this.driverIdleTimer) {
       clearInterval(this.driverIdleTimer);
+    }
+    if (this.heartBeatEmitter) {
+      clearInterval(this.heartBeatEmitter);
     }
     if (this.navigatorWatch) {
       navigator.geolocation.clearWatch(this.navigatorWatch);
@@ -300,7 +324,6 @@ export class RealtimeComponent
   protected resetAllProperties(): void {
     this.timeToReachClient = '';
     this.distanceLeft = '';
-    this.currentState = rideState.goingToClient;
     this.map = null;
     this.clientMarker = null;
     this.driverMarker = null;

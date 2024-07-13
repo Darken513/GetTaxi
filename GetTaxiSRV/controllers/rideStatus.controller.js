@@ -50,3 +50,10 @@ exports.cancelRide = async (req, res) => {
   const result = await rideStatusService.cancelRide(rideId, reasonObj);
   res.json(result);
 }
+
+exports.changeRideStatus = async (req, res) => {
+  const rideId = req.params.rideId;
+  const currentState = parseInt(req.params.currentState);
+  const result = await rideStatusService.changeRideStatus(rideId, currentState);
+  res.json(result);
+}

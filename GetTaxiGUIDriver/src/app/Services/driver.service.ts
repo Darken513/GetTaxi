@@ -26,6 +26,9 @@ export class DriverService {
   public getDriverBehaviorsById(driverId: string, nbr:number): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getDriverBehaviorsById/${driverId}/${nbr}`);
   }
+  public changeRideStatus(driverId: string, rideId: string, rideStatus:number): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/changeRideStatus/${driverId}/${rideId}/${rideStatus}`);
+  }
   public sendSMSVerificationCode(): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/sendSMSVerificationCode`);
   }

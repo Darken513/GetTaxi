@@ -29,7 +29,7 @@ export class RideStatusDataFetcher {
         carBrand: '...', //'carbrand_id',
         driverName: '...',
         takenByDriver: '...',
-        arrivedToClient: false,
+        currentState: 0,
     };
 
     public rideId: string = '';
@@ -116,7 +116,7 @@ export class RideStatusDataFetcher {
     parseRideDetails(val: any) {
         this.ride = val;
         this.data.takenByDriver = val.takenByDriver;
-        this.data.arrivedToClient = val.arrivedToClient;
+        this.data.currentState = val.currentState;
         this.data.phoneNumber = val.phoneNumber;
         this.data.isDeferred = val.isDeferred;
         this.data.isCanceled = val.isCanceled;

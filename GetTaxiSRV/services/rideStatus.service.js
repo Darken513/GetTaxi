@@ -53,8 +53,8 @@ exports.initRideStatus = async (data) => {
       return -2; //no drivers found
     }
 
-    const docRef = await rideStatusRef.add(data);
-    const rideStatus = { id: docRef.id, ...data };
+    const docRef = await rideStatusRef.add({...data, currentState:0});
+    const rideStatus = { id: docRef.id, ...data, currentState: 0 };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
 
     const driverUrls = drivers.map((driver) => {
@@ -198,6 +198,26 @@ exports.cancelRide = async (rideId, reasonObj) => {
   } catch (error) {
     console.error(error);
     return { error: true, body: "Error initiating Ride status" };
+  }
+};
+
+exports.changeRideStatus = async (rideId, currentState) => {
+  try {
+    const rideS_docRef = rideStatusRef.doc(rideId);
+    await rideS_docRef.update({
+      currentState: currentState,
+    });
+    const rideS_snapshot = await rideS_docRef.get();
+    const toSaveCache = {
+      id: rideS_docRef.id,
+      ...rideS_snapshot.data(),
+      currentState: currentState
+    };
+    cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
+    return { error: false, body: "successfully changed ride status" };
+  } catch (error) {
+    console.error(error);
+    return { error: true, body: "Error updating Ride status" };
   }
 };
 

@@ -35,6 +35,12 @@ export class SocketService {
         data
       })
     });
+    this.socket.on('clientHeartBeat', (data: any) => {
+      this.socketEvent.emit({
+        event: "clientHeartBeat",
+        data
+      })
+    });
     this.socket.on('canceledRide', (data: any) => {
       this.socketEvent.emit({
         event: "canceledRide",

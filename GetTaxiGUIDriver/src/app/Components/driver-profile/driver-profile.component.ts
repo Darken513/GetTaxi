@@ -21,6 +21,7 @@ export class DriverProfileComponent implements OnInit {
 
   @Output() update: EventEmitter<any> = new EventEmitter();
 
+  //todo-p1 : add socket here, if client is sending stuff, add a hint to the display that this ride client is connected to the app
   behaviors: Array<any> = [];
   chart: Chart | null = null;
 
