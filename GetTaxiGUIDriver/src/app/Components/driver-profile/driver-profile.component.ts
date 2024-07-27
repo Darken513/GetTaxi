@@ -21,7 +21,7 @@ export class DriverProfileComponent implements OnInit {
 
   @Output() update: EventEmitter<any> = new EventEmitter();
 
-  //todo-p1 : add socket here, if client is sending stuff, add a hint to the display that this ride client is connected to the app
+  //todo-p2 : add socket here, if client is sending stuff, add a hint to the display that this ride client is connected to the app
   behaviors: Array<any> = [];
   chart: Chart | null = null;
 
@@ -93,11 +93,15 @@ export class DriverProfileComponent implements OnInit {
         return 'rgb(250, 61, 61)';
       case this.driverService.env.RIDE_CANCELED_DRIVER:
         return 'rgb(237 134 60)';
-      case this.driverService.env.RIDE_DONE:
+      case this.driverService.env.RIDE_ENDED:
         return 'rgb(207 74 149)';
       default:
         return 'rgb(250, 61, 61)';
     }
+  }
+
+  public isBehaviorRideEnded(behavior: any){
+    return behavior.behaviorType == this.driverService.env.RIDE_ENDED
   }
 
   public getBehaviorLabel(behavior: any) {
@@ -108,7 +112,7 @@ export class DriverProfileComponent implements OnInit {
         return 'Annulée par le client';
       case this.driverService.env.RIDE_CANCELED_DRIVER:
         return 'Annulée par vous';
-      case this.driverService.env.RIDE_DONE:
+      case this.driverService.env.RIDE_ENDED:
         return 'Course terminée';
       default:
         return 'Unkown';

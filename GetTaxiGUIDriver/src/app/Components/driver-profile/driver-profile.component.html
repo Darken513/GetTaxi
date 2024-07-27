@@ -46,7 +46,7 @@
                             <h1>{{driver.totalSpent}} $</h1>
                         </div>
                         <div class="summary-item">
-                            <h2><i class="fa-solid fa-circle"></i>Gagnés</h2>
+                            <h2><i class="fa-solid fa-circle"></i>Gain estimé</h2>
                             <h1>{{driver.totalIncome}} $</h1>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                     [style.borderLeft]="'5px solid '+getBehaviorColor(behavior)">
                     <p><span [style]="{color:getBehaviorColor(behavior)}">{{getBehaviorLabel(behavior)}}</span></p>
                     <p>Date : {{formatDate_(behavior.created_at)}}</p>
-                    <p>Variation du crédit : {{behavior.creditsChange>=0 ? '+'+behavior.creditsChange :
+                    <p *ngIf="!isBehaviorRideEnded(behavior)">Variation du crédit : {{behavior.creditsChange>=0 ? '+'+behavior.creditsChange :
                         behavior.creditsChange}}</p>
                     <p>ID de la course : {{behavior.rideId}}</p>
                 </div>

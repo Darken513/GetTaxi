@@ -113,6 +113,14 @@ app.get('/cached/:path', (req, res) => {
 
 server.listen(port, () => { console.log(`Server started on port ${port}`); });
 
+const defaultErrorHandler = console.error;
+console.error = function(err, debugLevel) {
+  if(debugLevel){
+    defaultErrorHandler(err);
+  }
+  return;
+}
+
 //in case failed dont crash server, just throw error & continue
 process.on('uncaughtException', (error) => {
   console.error('Error: ', error);

@@ -413,7 +413,8 @@ strong.metrics {
     background-color: #d53a90;
   }
 }
-body:has(.reachedClientModel) {
+body:has(.reachedClientModel),
+  body:has(.rideEndedModel){
   overflow: hidden;
 }
 .topLeftProfileBtn {

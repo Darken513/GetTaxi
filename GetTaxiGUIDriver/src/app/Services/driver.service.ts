@@ -13,7 +13,7 @@ export class DriverService {
     RIDE_CANCELED_CLIENT:'RideCanceled_Client',
     RIDE_CANCELED_DRIVER:'RideCanceled_Driver',
     RIDE_ACCEPTED:'RideAccepted',
-    RIDE_DONE:'RideDone'
+    RIDE_ENDED:'RideEnded'
   }
 
   constructor(

@@ -61,5 +61,12 @@ exports.initSocketSystem = () => {
             };
             io.to(room.client).emit('reachedClient', message);
         });
+        socket.on('rideEnded', (message) => {
+            let room = exports.rooms.get(message.rideId);
+            if (!room || !room.client) {
+                return;
+            };
+            io.to(room.client).emit('rideEnded', message);
+        });
     });
 }

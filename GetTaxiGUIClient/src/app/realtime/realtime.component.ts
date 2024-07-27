@@ -39,6 +39,7 @@ export class RealtimeComponent
   driverMarker: L.Marker | null = null;
   driverPosition: L.LatLngExpression = [0, 0];
   routeControl: L.Routing.Control | null = null;
+  protected waitingForDriverToConnect:boolean = true;
 
   protected lastEmitTime: number = 0;
   protected lastLocationSent: { latitude: number; longitude: number } | null = null;
@@ -68,12 +69,19 @@ export class RealtimeComponent
   override ngOnInit(): void {
     const cb = (data: any) => {
       setTimeout(() => {
-        this.cbOnceReady();
+        if(!this.waitingForDriverToConnect){
+          this.cbOnceReady();
+        }
         this.socketService.initRoomJoin(data);
-        //todo-p1 : add a hint that says we are still waiting for the driver to share his location
         this.socketSub = this.socketService.socketEvent.subscribe({
           next: (response: any) => {
             if (response.event == 'driverUpdate') {
+              if(this.waitingForDriverToConnect){
+                this.waitingForDriverToConnect = false;
+                setTimeout(() => {
+                  this.cbOnceReady();
+                }, 1000);
+              }
               this.setUserLocation(response.data.position, true);
               this.handleCaseConnectionLost();
             }
@@ -85,9 +93,19 @@ export class RealtimeComponent
               if (this.navigatorWatch) {
                 navigator.geolocation.clearWatch(this.navigatorWatch);
               }
+              if (this.idleTimer) {
+                clearTimeout(this.idleTimer);
+              }
+              if (this.heartBeatEmitter) {
+                clearInterval(this.heartBeatEmitter);
+              }
               this.heartBeatEmitter = setInterval(() => {
                 this.emitHeartBeat();
               }, 2500);
+            }
+            if (response.event == 'rideEnded') {
+              this.data.currentState = rideState.rideEnded;
+              //todo-p1 ; kill all watchers + display ride ended and a rating maybe ?
             }
           },
         });
@@ -105,6 +123,9 @@ export class RealtimeComponent
     if (this.data.currentState == 0) {
       this.setupLocationTracking();
     } else {
+      if (this.heartBeatEmitter) {
+        clearInterval(this.heartBeatEmitter);
+      }
       this.heartBeatEmitter = setInterval(() => {
         this.emitHeartBeat();
       }, 2500);

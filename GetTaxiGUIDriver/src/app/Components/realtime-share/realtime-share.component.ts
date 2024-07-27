@@ -7,6 +7,7 @@ import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet-routing-machine';
 import { Subscription } from 'rxjs';
+import { NotificationService } from '../../Services/notification.service';
 
 enum rideState {
   goingToClient,
@@ -26,9 +27,10 @@ export class RealtimeShareComponent
   extends RideStatusDataFetcher
   implements OnInit, OnDestroy {
 
-  timeToReachClient: string = "";
+  timeToReach: string = "";
   distanceLeft: string = "";
   hasReachedClientModelOn: boolean = false;
+  isRideEndedModelOn: boolean = false;
 
   firstDoubleFetch: boolean = true; //first time the driver/client both data exists
 
@@ -46,6 +48,7 @@ export class RealtimeShareComponent
   protected idleTimer: ReturnType<typeof setTimeout> | null = null;
   protected navigatorWatch: ReturnType<typeof navigator.geolocation.watchPosition> | null = null;
   protected socketSub: Subscription | null = null;
+  protected waitingForClientToConnect:boolean = true;
 
   lastClientUpdateTime: number | null = null;
   protected clientIdleTimer: ReturnType<typeof setInterval> | null = null;
@@ -56,7 +59,8 @@ export class RealtimeShareComponent
     public override socketService: SocketService,
     public override driverService: DriverService,
     public override activatedRoute: ActivatedRoute,
-    public override router: Router
+    public override router: Router,
+    public notificationService: NotificationService 
   ) {
     super('real-time', socketService, driverService, activatedRoute, router);
   }
@@ -87,13 +91,14 @@ export class RealtimeShareComponent
         break;
       case rideState.reachedClient:
         this.socketService.emit('reachedClient', toemit);
+        this.map!.removeLayer(this.clientMarker!);
         this.data.currentState = rideState.goingToDestination;
-        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState);
+        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
+          return;
+        });
         break;
       case rideState.goingToDestination:
-        this.socketService.emit('rideEnded', toemit);
-        this.data.currentState = rideState.rideEnded;
-        this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState);
+        this.isRideEndedModelOn = true;
         break;
       default:
         this.socketService.emit('rideEnded', toemit);
@@ -116,11 +121,35 @@ export class RealtimeShareComponent
       this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
         return;
       });
+      this.map!.removeLayer(this.clientMarker!);
       this.hasReachedClientModelOn = false;
+      this.firstDoubleFetch = true;
       return;
     }
     this.data.currentState = rideState.goingToClient;
     this.hasReachedClientModelOn = false;
+  }
+
+  reachedDestinationResponse(response: boolean) {
+    if (response) {
+      this.data.currentState = rideState.rideEnded;
+      const toemit = {
+        rideId: this.rideId,
+        isDriver: true,
+      };
+      this.socketService.emit('rideEnded', toemit);
+      //todo-P1 : implement all for client 
+      this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
+        this.router.navigate([`driver/ride-status/${this.rideId}/${this.driverId}`]);
+        return;
+      });
+      this.isRideEndedModelOn = false;
+      this.killTimersAndWatchers();
+      this.connectionLost = false;
+      return;
+    }
+    this.data.currentState = rideState.goingToDestination;
+    this.isRideEndedModelOn = false;
   }
 
   override ngOnInit(): void {
@@ -128,13 +157,16 @@ export class RealtimeShareComponent
       setTimeout(async () => {
         await this.cbOnceReady();
         this.socketService.initRoomJoin(data);
+        this.socketService.initRoomJoin(data);
         this.socketSub = this.socketService.socketEvent.subscribe({
-          next: (response: any) => {
-            if (response.event == 'clientUpdate') {
-              this.setUserLocation(response.data.position, false);
+          next: async (response: any) => {
+            if (response.event == 'clientUpdate' && this.data.currentState == rideState.goingToClient) {
+              this.waitingForClientToConnect = false;
+              await this.setUserLocation(response.data.position, false);
               this.handleCaseConnectionLost();
             }
             if (response.event == 'clientHeartBeat') {
+              this.waitingForClientToConnect = false;
               this.handleCaseConnectionLost();
             }
             if (response.event == 'canceledRide') {
@@ -172,6 +204,7 @@ export class RealtimeShareComponent
           popupAnchor: [0, -48], // Popup offset
         });
         await this.markDestinationOnMap(this.data.destination_Addressformatted);
+        this.mapFitBound();
       }
     }
     //this.setupOrientationTracking();
@@ -195,8 +228,8 @@ export class RealtimeShareComponent
     }).addTo(this.map);
   }
 
-  protected setUserLocation(position: any, isDriver?: boolean) {
-    const randomNumber = 0.01 // Math.random() * (0.02 - 0.01) + 0.01;
+  protected async setUserLocation(position: any, isDriver?: boolean) {
+    const randomNumber = 0.005 // Math.random() * (0.02 - 0.01) + 0.01;
     const userLocation: L.LatLngTuple = [
       position.latitude + (!isDriver ? randomNumber : 0),
       position.longitude + (!isDriver ? randomNumber : 0)
@@ -228,62 +261,100 @@ export class RealtimeShareComponent
         this.clientPosition = userLocation;
       }
     }
-    let pos1: L.LatLngExpression | null = null,
-      pos2: L.LatLngExpression | null = null,
-      marker1: L.Marker<any> | null = null,
-      marker2: L.Marker<any> | null = null
+    console.log('drawPathBetweenMarkers');
+    await this.drawPathBetweenMarkers();
+  }
+
+  public async drawPathBetweenMarkers() {
+    //split the methods, one for destination, one for client
     const cond1 = this.driverMarker && this.clientMarker && (this.data.currentState == rideState.goingToClient);
-    if (cond1) {
-      pos1 = this.driverPosition;
-      pos2 = this.clientPosition;
-      marker1 = this.driverMarker;
-      marker2 = this.clientMarker;
-    }
     const cond2 = this.driverMarker && (this.data.currentState != rideState.goingToClient);
-    if (cond2) {
-      pos1 = this.driverPosition;
-      pos2 = this.destinationPosition;
-      marker1 = this.driverMarker;
-      marker2 = this.destinationMarker;
+    if (cond1) {
+      this.drawPathBetweenMarkersCaseClient();
+      return
     }
-    if (cond1 || cond2) {
-      if (this.routeControl) {
-        this.routeControl.setWaypoints([
-          (pos1 as L.LatLng),
-          (pos2 as L.LatLng),
-        ]);
-      } else {
-        this.routeControl = L.Routing.control({
-          waypoints: [
-            (pos1 as L.LatLng),
-            (pos2 as L.LatLng),
+    if (cond2) {
+      this.drawPathBetweenMarkersCaseDestination();
+    }
+  }
+
+  public drawPathBetweenMarkersCaseClient() {
+    if (this.routeControl) {
+      this.routeControl.setWaypoints([
+        (this.driverPosition as L.LatLng),
+        (this.clientPosition as L.LatLng),
+      ]);
+    } else {
+      this.routeControl = L.Routing.control({
+        waypoints: [
+          (this.driverPosition as L.LatLng),
+          (this.clientPosition as L.LatLng),
+        ],
+        fitSelectedRoutes: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+          styles: [
+            { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
           ],
-          fitSelectedRoutes: false,
-          addWaypoints: false,
-          show: false,
-          lineOptions: {
-            styles: [
-              { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
-            ],
-            extendToWaypoints: false,
-            missingRouteTolerance: 0,
-          },
-        }).addTo(this.map!);
-        this.routeControl.hide();
-        this.routeControl.on('routesfound', (event) => {
-          const route = event.routes[0];
-          this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
-          this.distanceLeft = this.formatDistance(route.summary.totalDistance);
-          if (marker1)
-            marker1!.setLatLng(pos1!);
-          if (marker2)
-            marker2!.setLatLng(pos2!);
-          if (this.firstDoubleFetch && marker1 && marker2) {
-            this.mapFitBound();
-            this.firstDoubleFetch = false;
-          }
-        });
-      }
+          extendToWaypoints: false,
+          missingRouteTolerance: 0,
+        },
+      }).addTo(this.map!);
+      this.routeControl.hide();
+      this.routeControl.on('routesfound', (event) => {
+        const route = event.routes[0];
+        this.timeToReach = this.formatSeconds(route.summary.totalTime);
+        this.distanceLeft = this.formatDistance(route.summary.totalDistance);
+        if (this.driverMarker)
+          this.driverMarker!.setLatLng(this.driverPosition!);
+        if (this.clientMarker)
+          this.clientMarker!.setLatLng(this.clientPosition!);
+        if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
+          this.mapFitBound();
+          this.firstDoubleFetch = false;
+        }
+      });
+    }
+  }
+  public async drawPathBetweenMarkersCaseDestination() {
+    await this.markDestinationOnMap(this.data.destination_Addressformatted);
+    if (this.routeControl) {
+      this.routeControl.setWaypoints([
+        (this.driverPosition as L.LatLng),
+        (this.destinationPosition as L.LatLng),
+      ]);
+    } else {
+      this.routeControl = L.Routing.control({
+        waypoints: [
+          (this.driverPosition as L.LatLng),
+          (this.destinationPosition as L.LatLng),
+        ],
+        fitSelectedRoutes: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+          styles: [
+            { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
+          ],
+          extendToWaypoints: false,
+          missingRouteTolerance: 0,
+        },
+      }).addTo(this.map!);
+      this.routeControl.hide();
+      this.routeControl.on('routesfound', (event) => {
+        const route = event.routes[0];
+        this.timeToReach = this.formatSeconds(route.summary.totalTime);
+        this.distanceLeft = this.formatDistance(route.summary.totalDistance);
+        if (this.driverMarker)
+          this.driverMarker!.setLatLng(this.driverPosition!);
+        if (this.destinationMarker)
+          this.destinationMarker!.setLatLng(this.destinationPosition!);
+        if (this.firstDoubleFetch && this.driverMarker && this.destinationMarker) {
+          this.mapFitBound();
+          this.firstDoubleFetch = false;
+        }
+      });
     }
   }
 
@@ -404,7 +475,7 @@ export class RealtimeShareComponent
   }
 
   protected resetAllProperties(): void {
-    this.timeToReachClient = '';
+    this.timeToReach = '';
     this.distanceLeft = '';
     this.data.currentState = rideState.goingToClient;
     this.map = null;
@@ -517,10 +588,8 @@ export class RealtimeShareComponent
         const lon = response.data[0].lon;
         this.destinationPosition = [lat, lon];
         this.destinationMarker = L.marker(this.destinationPosition).addTo(this.map!);
-        //todo-p1 : now start drawing path
-        this.mapFitBound();
       } else {
-        //todo-p1 : display notification error instead of alert
+        this.notificationService.showNotification({ type: 'error', title: 'erreur', body: 'Impossible de marquer la destination sur la carte' })
         alert('Address not found');
       }
     } catch (error) {

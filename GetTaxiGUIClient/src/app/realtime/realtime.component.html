@@ -24,7 +24,7 @@
         <p></p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && connectionLost">
+<div *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !waitingForDriverToConnect && connectionLost">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le chauffeur</p>
         <p class="lead">
@@ -40,7 +40,23 @@
         </div>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist  && !isCanceledByClient && !isCanceledByDriver && !connectionLost && ready">
+<div *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !connectionLost && waitingForDriverToConnect">
+    <div class="text-center mt-10 container">
+        <p class="fs-3"> <span class="text-danger">veuillez patienter! <br></span></p>
+        <p class="lead">
+            Nous attendons que le conducteur communique sa localisation
+        </p>
+    </div>
+    <div class="loading-container-visible">
+        <div class="loading-center">
+            <h1>Loading</h1>
+            <div class="loading-bar">
+                <div class="loading-obj"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="!rideDoesntExist  && !isCanceledByClient && !isCanceledByDriver && !waitingForDriverToConnect && !connectionLost && ready">
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>

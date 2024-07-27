@@ -19,7 +19,8 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledRide">
+
+<div *ngIf="!rideDoesntExist && !isCanceledRide && data.currentState != 3">
     <div class="mt-5">
         <div class="subContainer-center">
             <h2 class="welcome-msg">Cher <span class="secondaryColor">{{data.driverName}}</span> !</h2>
@@ -36,7 +37,7 @@
                     <p><strong>Date de la course :</strong> {{ data.isDeferred ? 'différé - ' +
                         formatDate_(data.deferredDateTime) :
                         "Immédiatement - "+(data.created_at) }}</p>
-                    <p><strong>De :</strong> {{ getDestination() }}</p>
+                    <p><strong>De :</strong> {{ getCurrentLocation() }}</p>
                 </div>
             </div>
             <div class="button-wrapper mt-3" *ngIf="!data.takenByDriver">
@@ -59,6 +60,19 @@
                     <!-- <button class="btn btn-danger mr-2 w-50" style="font-size: 0.9rem;" (click)="cancelRide()">Cancel Ride</button> -->
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="data.currentState == 3">
+    <div class="text-center mt-5 p-2">
+        <p class="fs-3 mt-4">La course est <span class="text-danger"> terminée!</span></p>
+        <p class="lead">
+            Vous avez terminé avec succès cet course le {{formatDate_(data.rideEndedAt)}}
+        </p>
+        <div class="rideEndedDetails">
+            <p class="cardDesc"><strong>Pickup Location: </strong> {{getCurrentLocation()}}</p>
+            <p class="cardDesc"><strong>Final Destination: </strong> {{data.destination_Addressformatted}}</p>
+            <p class="cardDesc"><strong>Estimated Distance: </strong> {{data.estimatedDistance}}</p>
         </div>
     </div>
 </div>

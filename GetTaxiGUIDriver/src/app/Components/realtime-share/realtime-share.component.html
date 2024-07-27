@@ -33,6 +33,10 @@
         </div>
     </div>
 </div>
+<div *ngIf="waitingForClientToConnect" class="waitingForClientToConnect-wrapper">
+    <div class="title">veuillez patienter!</div>
+    <div class="body">Nous attendons que le conducteur communique sa localisation</div>
+</div>
 <div *ngIf="!rideDoesntExist && !connectionLost && !isCanceledRide && ready">
     <div class="mapWrapper">
         <div class="row">
@@ -49,10 +53,10 @@
             <div class="detailsWrapper">
                 <div class="detailsCard">
                     <p style="font-size: 1.4rem;">Arriving in <strong class="metrics">
-                            {{timeToReachClient ? timeToReachClient : 'counting'}}</strong></p>
+                            {{timeToReach ? timeToReach : 'counting'}}</strong></p>
                     <hr>
                     <p class="cardDesc"><strong>Client Phone number: </strong> {{data.phoneNumber}}</p>
-                    <p class="cardDesc"><strong>Final Destination: </strong> {{getDestination()}}</p>
+                    <p class="cardDesc"><strong>Final Destination: </strong> {{getCurrentLocation()}}</p>
                     <p class="cardDesc">Distance left <strong class="metrics">{{distanceLeft? distanceLeft:
                             'counting'}}</strong></p>
                 </div>
@@ -71,10 +75,19 @@
 
 <div class="reachedClientModel detailsWrapper" *ngIf="hasReachedClientModelOn">
     <div class="reachedClientModel-body">
-        Picked up the client ?
+        Vous avez retrouvé le client ?
         <div class="w-100 button-wrapper">
-            <button class="btn btn-success" (click)="pickedUpClientResponse(true)">Yes</button>
-            <button class="btn btn-danger" (click)="pickedUpClientResponse(false)">Not yet</button>
+            <button class="btn btn-success" (click)="pickedUpClientResponse(true)">Oui</button>
+            <button class="btn btn-danger" (click)="pickedUpClientResponse(false)">Pas encore</button>
+        </div>
+    </div>
+</div>
+<div class="rideEndedModel detailsWrapper" *ngIf="isRideEndedModelOn">
+    <div class="rideEndedModel-body">
+        La destination est atteinte ?
+        <div class="w-100 button-wrapper">
+            <button class="btn btn-success" (click)="reachedDestinationResponse(true)">Oui</button>
+            <button class="btn btn-danger" (click)="reachedDestinationResponse(false)">Pas encore</button>
         </div>
     </div>
 </div>

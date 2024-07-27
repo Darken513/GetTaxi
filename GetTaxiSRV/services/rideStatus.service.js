@@ -204,19 +204,43 @@ exports.cancelRide = async (rideId, reasonObj) => {
 exports.changeRideStatus = async (rideId, currentState) => {
   try {
     const rideS_docRef = rideStatusRef.doc(rideId);
-    await rideS_docRef.update({
+    const toUpdate = {
       currentState: currentState,
-    });
+    }
+    if(currentState == 3){
+      toUpdate['rideEndedAt'] = new Date();
+    }
+    await rideS_docRef.update(toUpdate);
     const rideS_snapshot = await rideS_docRef.get();
     const toSaveCache = {
       id: rideS_docRef.id,
       ...rideS_snapshot.data(),
       currentState: currentState
     };
+    if(currentState == 3){
+      toSaveCache['rideEndedAt'] = toUpdate['rideEndedAt'];
+      let driverBH = {
+        behaviorType: process.env.RIDE_ENDED,
+        created_at: toSaveCache['rideEndedAt'],
+        estimatedGain: rideS_snapshot.data().estimatedPrice,
+        driverId: rideS_snapshot.data().takenByDriver,
+        rideId: rideId,
+      }
+      //saving driverBehavior record & saving changes to cache
+      const driverBH_docRef = await driverBehaviorRef.add(driverBH);
+      driverBH = { id: driverBH_docRef.id, ...driverBH };
+      cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
+      
+      let driverData = await driverService.getDriverByID(driverBH.driverId);
+      const absChange = Math.abs(rideS_snapshot.data().estimatedPrice);
+      
+      driverData.totalIncome += absChange;
+      driverService.updateDriversSpecificProp(driverBH.driverId, 'totalIncome', { totalIncome: CustomToFixed2(driverData.totalIncome) });
+    }
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     return { error: false, body: "successfully changed ride status" };
   } catch (error) {
-    console.error(error);
+    console.error(error, true);
     return { error: true, body: "Error updating Ride status" };
   }
 };
@@ -225,6 +249,7 @@ async function cancelRideCaseClient(rideS_snapshot, rideS_docRef, rideId, reason
   try {
     await rideS_docRef.update({
       isCanceled: true,
+      currentState: 0,
       cancelReason: reasonObj.reason
     });
     const toSaveCache = {
@@ -254,6 +279,7 @@ async function cancelRideCaseDriver(rideS_snapshot, rideS_docRef, rideId, reason
     //letting go the ridestatus and updating it in cache
     await rideS_docRef.update({
       takenByDriver: "",
+      currentState: 0
     });
     const toSaveCache = {
       id: rideS_docRef.id,
@@ -311,9 +337,6 @@ async function updateDriverCredits(driverBH, driverId) {
     if (checkRideIsCanceled(driverBH)) {
       driverData.totalSpent -= absChange;
       driverService.updateDriversSpecificProp(driverId, 'totalSpent', { totalSpent: CustomToFixed2(driverData.totalSpent) });
-    } else {
-      driverData.totalIncome += absChange;
-      driverService.updateDriversSpecificProp(driverId, 'totalIncome', { totalIncome: CustomToFixed2(driverData.totalIncome) });
     }
   } else {
     driverData.totalSpent += absChange;

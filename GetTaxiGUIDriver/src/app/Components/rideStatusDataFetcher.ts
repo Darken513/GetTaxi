@@ -24,12 +24,14 @@ export class RideStatusDataFetcher {
         current_Addressformatted: '...',
         destination_roadNbr: '...',
         destination_Addressformatted: '...',
+        estimatedDistance: '',
         zone: '...', //'zone_id',
         carType: '...', //'cartype_id',
         carBrand: '...', //'carbrand_id',
         driverName: '...',
         takenByDriver: '...',
         currentState: 0,
+        rideEndedAt: ''
     };
 
     public driverId: string = '';
@@ -120,6 +122,8 @@ export class RideStatusDataFetcher {
         this.data.phoneNumber = val.phoneNumber;
         this.data.isDeferred = val.isDeferred;
         this.data.deferredDateTime = val.deferredDateTime;
+        this.data.rideEndedAt = val.rideEndedAt;
+        this.data.estimatedDistance = val.estimatedDistance;
 
         this.data.currentLocation = val.currentLocation;
         this.data.created_at = formatDate(val.created_at);
@@ -165,7 +169,7 @@ export class RideStatusDataFetcher {
 
     public ignoreRide() { }
 
-    getDestination(): string {
+    getCurrentLocation(): string {
         if (this.data.takenByDriver && this.data.takenByDriver == this.driverId) {
             return this.data.current_Addressformatted;
         }
