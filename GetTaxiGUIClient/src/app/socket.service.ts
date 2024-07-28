@@ -11,7 +11,7 @@ export class SocketService {
 
   public initSocket() {
     if (!this.socket) {
-      this.socket = io('http://localhost:8080', { //todo-P2 : use env files
+      this.socket = io('http://localhost:8080', { //todo-P3 : use env files
         withCredentials: true,
         transports: ['websocket', 'polling'],
       });
@@ -50,6 +50,12 @@ export class SocketService {
     this.socket.on('reachedClient', (data: any) => {
       this.socketEvent.emit({
         event: "reachedClient",
+        data
+      })
+    });
+    this.socket.on('rideEnded', (data: any) => {
+      this.socketEvent.emit({
+        event: "rideEnded",
         data
       })
     });

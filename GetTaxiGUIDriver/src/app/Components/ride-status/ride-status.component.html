@@ -65,14 +65,15 @@
 </div>
 <div *ngIf="data.currentState == 3">
     <div class="text-center mt-5 p-2">
-        <p class="fs-3 mt-4">La course est <span class="text-danger"> terminée!</span></p>
+        <p class="fs-3 mt-4">La course est <span class="text-danger" style="color: #9acd32 !important;"> terminée!</span></p>
         <p class="lead">
             Vous avez terminé avec succès cet course le {{formatDate_(data.rideEndedAt)}}
         </p>
         <div class="rideEndedDetails">
-            <p class="cardDesc"><strong>Pickup Location: </strong> {{getCurrentLocation()}}</p>
-            <p class="cardDesc"><strong>Final Destination: </strong> {{data.destination_Addressformatted}}</p>
-            <p class="cardDesc"><strong>Estimated Distance: </strong> {{data.estimatedDistance}}</p>
+            <p class="cardDesc"><strong>Adresse de départ: </strong> {{getCurrentLocation()}}</p>
+            <p class="cardDesc"><strong>Adresse de destination: </strong> {{data.destination_Addressformatted}}</p>
+            <p class="cardDesc"><strong>Distance estimée: </strong> {{data.estimatedDistance}}</p>
+            <p class="cardDesc"><strong>Gain estimé: </strong> {{data.estimatedPrice}} CH</p>
         </div>
     </div>
 </div>

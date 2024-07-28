@@ -25,7 +25,7 @@ export class DriverProfileComponent implements OnInit {
   behaviors: Array<any> = [];
   chart: Chart | null = null;
 
-  public subs: Array<Subscription> = []; //todo-P3 : make sure to unsbscribe !
+  public subs: Array<Subscription> = []; //todo-P2 : make sure to unsbscribe !
 
   constructor(
     public driverService: DriverService,

@@ -61,6 +61,14 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="carPlateNbr" class="form-label">Numéro de plaques:</label>
+                <input type="text" placeholder="AA.000000" id="carPlateNbr" class="form-control"
+                    formControlName="carPlateNbr"
+                    [class.is-invalid]="!driverForm.get('carPlateNbr')?.valid && driverForm.get('carPlateNbr')?.touched" />
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="carDescription" class="form-label">Description de la voiture:</label>
                 <input type="text" placeholder="Description de la voiture" id="carDescription" class="form-control"

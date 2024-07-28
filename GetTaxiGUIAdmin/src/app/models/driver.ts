@@ -15,6 +15,7 @@ export interface Driver {
     taxiPermit: string;
     GrayCard: string;
     carYear: string;
+    carPlateNbr: string;
     carColor: string;
     expertiseVDate: string;
     authorizationVDate: string;

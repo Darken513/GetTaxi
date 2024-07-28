@@ -53,7 +53,7 @@ exports.initRideStatus = async (data) => {
       return -2; //no drivers found
     }
 
-    const docRef = await rideStatusRef.add({...data, currentState:0});
+    const docRef = await rideStatusRef.add({ ...data, currentState: 0 });
     const rideStatus = { id: docRef.id, ...data, currentState: 0 };
     cacheService.storeOrUpdateDef([...RS_cachepath, docRef.id], rideStatus);
 
@@ -86,7 +86,7 @@ ${driverUrl.rideStatusURL}
           to: driverUrl.driver.phoneNbr,
         })
         .then((message) => {
-          console.log("Sent sms to " + driverUrl.driver.phoneNbr);
+          console.info("Sent sms to driver " + driverUrl.driver.phoneNbr);
         })
         .catch((error) => console.error(error));
     }
@@ -133,7 +133,7 @@ exports.getRideById = async (rideId) => {
  * @param {string} driverId - The ID of the driver accepting the ride.
  * @returns {Promise<Object|number>} The updated ride information object if successful, otherwise -1.
  */
-exports.acceptRide = async (rideId, driverId) => {
+exports.acceptRide = async (rideId, driverId, coords) => {
   try {
     const rideS_docRef = rideStatusRef.doc(rideId);
     const rideS_snapshot = await rideS_docRef.get();
@@ -162,13 +162,64 @@ exports.acceptRide = async (rideId, driverId) => {
     };
     cacheService.storeOrUpdateDef([...RS_cachepath, rideS_docRef.id], toSaveCache);
     const credsUpdateState = updateDriverCredits(driverBH, driverId);
-    //todo-P1 : should send sms to client
+    const driverUrl = new DriverURL({ id: driverId, ...driverData }, { id: rideId, ...rideS_snapshot.data() });
+    if (driverUrl.rideStatusObj.isDeferred) {
+      await sendSMStoClientCaseDiferred(driverUrl, coords)
+    } else {
+      await sendSMStoClientCaseImidiateRide(driverUrl, coords)
+    }
     return toSaveCache;
   } catch (error) {
     console.error(error);
     return -1;
   }
 };
+
+async function sendSMStoClientCaseImidiateRide(driverUrl, coords) {
+  const currentDriverPosition = `${coords[0]},${coords[1]}`;
+  const distDura = await calculateDistanceBetweenAdrs(currentDriverPosition, driverUrl.rideStatusObj.current_Addressformatted);
+  //todo-P1 : driverUrl.driver.carBrand should return the string not the id
+  let body = `Merci pour votre commande.
+Le véhicule: ${driverUrl.driver.carBrand + ', ' + driverUrl.driver.carColor}
+Numéro de plaques ${driverUrl.driver.carPlateNbr} arrive avant ${distDura.duration.text} à ${driverUrl.rideStatusObj.current_Addressformatted}
+
+Suivez votre taxi ici -> ${driverUrl.clientURL}`;
+  console.log(body);
+  return;
+  twilioClient.messages
+    .create({
+      body: body,
+      messagingServiceSid: "MG14f760a0ef76b408a639e0e83ab0e9f4",
+      from: "GetTaxi",
+      to: driverUrl.rideStatusObj.phoneNumber,
+    })
+    .then((message) => {
+      console.info("Sent sms to client " + driverUrl.rideStatusObj.phoneNumber);
+    })
+    .catch((error) => console.error(error));
+}
+
+async function sendSMStoClientCaseDiferred(driverUrl) {
+  //todo-P1 : driverUrl.driver.carBrand should return the string not the id
+  let body = `Merci pour votre commande.
+Le véhicule: ${driverUrl.driver.carBrand + ', ' + driverUrl.driver.carColor}
+Numéro de plaques ${driverUrl.driver.carPlateNbr} à la date et à l'heure indiquées ${driverUrl.rideStatusObj.deferredDateTime} à ${driverUrl.rideStatusObj.current_Addressformatted}
+
+Suivez votre taxi ici -> ${driverUrl.clientURL}`;
+  console.log(body);
+  return;
+  twilioClient.messages
+    .create({
+      body: body,
+      messagingServiceSid: "MG14f760a0ef76b408a639e0e83ab0e9f4",
+      from: "GetTaxi",
+      to: driverUrl.rideStatusObj.phoneNumber,
+    })
+    .then((message) => {
+      console.info("Sent sms to client " + driverUrl.rideStatusObj.phoneNumber);
+    })
+    .catch((error) => console.error(error));
+}
 
 /**
  * Cancels a ride and returns an object containing error status and body.
@@ -207,7 +258,7 @@ exports.changeRideStatus = async (rideId, currentState) => {
     const toUpdate = {
       currentState: currentState,
     }
-    if(currentState == 3){
+    if (currentState == 3) {
       toUpdate['rideEndedAt'] = new Date();
     }
     await rideS_docRef.update(toUpdate);
@@ -217,7 +268,7 @@ exports.changeRideStatus = async (rideId, currentState) => {
       ...rideS_snapshot.data(),
       currentState: currentState
     };
-    if(currentState == 3){
+    if (currentState == 3) {
       toSaveCache['rideEndedAt'] = toUpdate['rideEndedAt'];
       let driverBH = {
         behaviorType: process.env.RIDE_ENDED,
@@ -230,10 +281,10 @@ exports.changeRideStatus = async (rideId, currentState) => {
       const driverBH_docRef = await driverBehaviorRef.add(driverBH);
       driverBH = { id: driverBH_docRef.id, ...driverBH };
       cacheService.storeOrUpdateDef([...DBH_cachepath, driverBH_docRef.id], driverBH);
-      
+
       let driverData = await driverService.getDriverByID(driverBH.driverId);
       const absChange = Math.abs(rideS_snapshot.data().estimatedPrice);
-      
+
       driverData.totalIncome += absChange;
       driverService.updateDriversSpecificProp(driverBH.driverId, 'totalIncome', { totalIncome: CustomToFixed2(driverData.totalIncome) });
     }
@@ -300,7 +351,6 @@ function calculateCreditsCost(estimatedPrice) {
 }
 
 function prepareDriverBehavior(rideS_snapshot, reasonObj, driverId, rideId) {
-  //todo-p1 - ride done
   const canceledByDriver = reasonObj && !reasonObj.byClient;
   const canceledByClient = reasonObj && reasonObj.byClient;
   const behaviorType = canceledByClient ?
@@ -322,7 +372,7 @@ function prepareDriverBehavior(rideS_snapshot, reasonObj, driverId, rideId) {
 
 function checkRideIsCanceled(driverBH) {
   return (
-    driverBH == process.env.RIDE_CANCELED_CLIENT || 
+    driverBH == process.env.RIDE_CANCELED_CLIENT ||
     driverBH == process.env.RIDE_CANCELED_DRIVER
   );
 }
@@ -358,6 +408,7 @@ async function calculateDistanceBetweenAdrs(origin, destination) {
         destination: destination,
         key: 'AIzaSyAsh5nn3ADF9DpWipZ3_TuMpZ9m0fjsBr8',
         mode: 'driving',
+        language: 'fr',
       },
     });
     const route = response.data.routes[0];
@@ -365,7 +416,7 @@ async function calculateDistanceBetweenAdrs(origin, destination) {
     const duration = route.legs[0].duration;
     return { distance, duration };
   } catch (err) {
-    console.error('Error:', err.response.data.error_message);
+    console.error('Error: ', err);
   }
 }
 

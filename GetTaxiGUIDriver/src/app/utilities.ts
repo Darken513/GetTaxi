@@ -58,8 +58,30 @@ function formatDate(inputDate: any) {
     return formattedDate;
 }
 
+
+function getCurrentPosition():any {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+}
+
+async function getCoordinates() {
+    try {
+        const position = await getCurrentPosition();
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+        return [latitude, longitude];
+    } catch (error:any) {
+        console.error(`Error: ${error.message}`);
+        return [];
+    }
+}
+
+
 export {
     setCharAtStringIndex,
     isNumeric,
-    formatDate
+    formatDate,
+    getCoordinates
 }

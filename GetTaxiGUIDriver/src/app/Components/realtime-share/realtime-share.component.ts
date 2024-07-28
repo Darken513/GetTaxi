@@ -60,9 +60,9 @@ export class RealtimeShareComponent
     public override driverService: DriverService,
     public override activatedRoute: ActivatedRoute,
     public override router: Router,
-    public notificationService: NotificationService 
+    public override notificationService: NotificationService 
   ) {
-    super('real-time', socketService, driverService, activatedRoute, router);
+    super('real-time', socketService, driverService, activatedRoute, router, notificationService);
   }
 
   callUser() {

@@ -59,6 +59,7 @@ export class EditProfileComponent {
       carBrand: ['', Validators.required],
       carType: ['', Validators.required],
       carYear: ['', [Validators.required, Validators.pattern(/^(19|20)\d{2}$/)]],
+      carPlateNbr: ['', Validators.required],
       carColor: ['', Validators.required],
       carDescription: ['', Validators.required],
       expertiseVDate: ['', [Validators.required]],
@@ -74,6 +75,7 @@ export class EditProfileComponent {
       carType: this.driver.carType ?? '',
       carBrand: this.driver.carBrand ?? '',
       carYear: this.driver.carYear ?? '',
+      carPlateNbr: this.driver.carPlateNbr ?? '',
       carColor: this.driver.carColor ?? '',
       carDescription: this.driver.carDescription ?? '',
       expertiseVDate: this.driver.expertiseVDate ?? '',
@@ -141,6 +143,7 @@ export class EditProfileComponent {
       || !this.driver.carType
       || !this.driver.carDescription
       || !this.driver.carYear
+      || !this.driver.carPlateNbr
       || !this.driver.carColor
       || !this.driver.authorizationVDate
       || !this.driver.expertiseVDate

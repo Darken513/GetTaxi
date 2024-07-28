@@ -16,7 +16,7 @@ export class DriverLoginComponent implements OnInit{
   signUpForm: FormGroup;
 
   signUpScreenOn: boolean = false;
-  public subs: Array<Subscription> = []; //todo-P3 : make sure to unsbscribe !
+  public subs: Array<Subscription> = []; //todo-P2 : make sure to unsbscribe !
 
   constructor(
     private formBuilder: FormBuilder,

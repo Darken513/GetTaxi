@@ -8,7 +8,7 @@ import { AdminService } from '../admin.service';
 import { NotificationService } from '../notification.service';
 import { Router } from '@angular/router';
 
-//todo-P2 : change style - use same colors as client & driver
+//todo-P3 : change style - use same colors as client & driver
 interface DriverFileForm {
   drivingPermit: File | null,
   transportPermit: File | null,
@@ -77,6 +77,7 @@ export class DashboardComponent {
       carBrand: ['', [Validators.required]],
       carType: ['', [Validators.required]],
       carYear: ['', [Validators.required, Validators.pattern(/^(19|20)\d{2}$/)]],
+      carPlateNbr: ['', Validators.required],
       carColor: ['', Validators.required],
       carDescription: ['', [Validators.required]],
       expertiseVDate: ['', [Validators.required]],
@@ -341,6 +342,7 @@ export class DashboardComponent {
       carType: driver.carType ?? '',
       carBrand: driver.carBrand ?? '',
       carYear: driver.carYear ?? '',
+      carPlateNbr: driver.carPlateNbr ?? '',
       carColor: driver.carColor ?? '',
       carDescription: driver.carDescription ?? '',
       expertiseVDate: driver.expertiseVDate ?? '',
@@ -464,6 +466,7 @@ export class DashboardComponent {
       || !driver.carType
       || !driver.carDescription
       || !driver.carYear
+      || !driver.carPlateNbr
       || !driver.carColor
       || !driver.authorizationVDate
       || !driver.expertiseVDate

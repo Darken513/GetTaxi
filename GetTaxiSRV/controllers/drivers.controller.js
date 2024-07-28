@@ -1,6 +1,6 @@
 const driversService = require("../services/drivers.service");
 
-//todo-p2: find a solution to avoid allowing drivers to accept two rides at the same time
+//todo-p3: find a solution to avoid allowing drivers to accept two rides at the same time
 exports.login = async (req, res) => {
   const result = await driversService.login(req);
   if (result == -1) {

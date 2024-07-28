@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ClientService {
 
-  private apiUrl = 'http://localhost:8080/client'; //todo-P2 : use env files
+  private apiUrl = 'http://localhost:8080/client'; //todo-P3 : use env files
 
   constructor(
     private http: HttpClient

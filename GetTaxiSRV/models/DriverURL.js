@@ -2,11 +2,13 @@ class DriverURL {
     constructor(driver, rideStatusObj) {
         this.driver = driver;
         this.rideStatusObj = rideStatusObj;
-        this.createURL()
+        this.createURLs()
     }
-    createURL() {
-        const apiUrl = process.env.DRIVER_API_URL + process.env.RIDE_STATUS_API;
-        this.rideStatusURL = [apiUrl, this.rideStatusObj.id, this.driver.id].join("/")
+    createURLs() {
+        const driverApiUrl = process.env.DRIVER_API_URL + process.env.DRIVER_RIDE_STATUS_API;
+        const clientApiUrl = process.env.CLIENT_API_URL + process.env.CLIENT_RIDE_REALTIME_API;
+        this.rideStatusURL = [driverApiUrl, this.rideStatusObj.id, this.driver.id].join("/")
+        this.clientURL = [clientApiUrl, this.rideStatusObj.id].join("/")
     }
 }
 

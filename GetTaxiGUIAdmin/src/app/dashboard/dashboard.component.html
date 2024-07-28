@@ -68,7 +68,13 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12 mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="carPlateNbr" class="form-label">Numéro de plaques:</label>
+                                <input type="text" placeholder="AA.000000" id="carPlateNbr" class="form-control"
+                                    formControlName="carPlateNbr"
+                                    [class.is-invalid]="!driverForm.get('carPlateNbr')?.valid && driverForm.get('carPlateNbr')?.touched" />
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label for="zone" class="form-label">Zone:</label>
                                 <select id="zone" class="form-control form-select" formControlName="zone"
                                     [class.is-invalid]="!driverForm.get('zone')?.valid && driverForm.get('zone')?.touched">
@@ -415,4 +421,4 @@
         </div>
     </div>
 </div>
-<!--todo-P2 : add "are you sure you want to delete the selected def", maybe use an external component, and give it a callback & an event emitter as an input-->
+<!--todo-P3 : add "are you sure you want to delete the selected def", maybe use an external component, and give it a callback & an event emitter as an input-->

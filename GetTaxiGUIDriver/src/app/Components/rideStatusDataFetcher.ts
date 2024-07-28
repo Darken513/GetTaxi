@@ -3,7 +3,8 @@ import { DriverService } from "../Services/driver.service";
 import { SocketService } from "../Services/socket.service";
 import { Component, Inject } from "@angular/core";
 import { Subscription, take } from "rxjs";
-import { formatDate } from "../utilities";
+import { formatDate, getCoordinates } from "../utilities";
+import { NotificationService } from "../Services/notification.service";
 
 @Component({
     selector: 'app-BasicDataFetcher',
@@ -25,6 +26,7 @@ export class RideStatusDataFetcher {
         destination_roadNbr: '...',
         destination_Addressformatted: '...',
         estimatedDistance: '',
+        estimatedPrice: 0,
         zone: '...', //'zone_id',
         carType: '...', //'cartype_id',
         carBrand: '...', //'carbrand_id',
@@ -49,7 +51,8 @@ export class RideStatusDataFetcher {
         public socketService: SocketService,
         public driverService: DriverService,
         public activatedRoute: ActivatedRoute,
-        public router: Router
+        public router: Router,
+        public notificationService:NotificationService
     ) {
         socketService.initSocket();
     }
@@ -124,6 +127,7 @@ export class RideStatusDataFetcher {
         this.data.deferredDateTime = val.deferredDateTime;
         this.data.rideEndedAt = val.rideEndedAt;
         this.data.estimatedDistance = val.estimatedDistance;
+        this.data.estimatedPrice = val.estimatedPrice;
 
         this.data.currentLocation = val.currentLocation;
         this.data.created_at = formatDate(val.created_at);
@@ -133,8 +137,13 @@ export class RideStatusDataFetcher {
         this.data.destination_Addressformatted = val.destination_Addressformatted;
     }
 
-    public acceptRide() {
-        this.driverService.acceptRide(this.rideId, this.driverId).pipe(take(1)).subscribe({
+    
+    public async acceptRide() {
+        const coords = await getCoordinates();
+        if(coords.length != 2){
+            this.notificationService.showNotification({ type: 'error', title: 'Erreur', body: 'Erreur lors de la spécification de la localisation actuelle' })
+        }
+        this.driverService.acceptRide(this.rideId, this.driverId, coords[0], coords[1]).pipe(take(1)).subscribe({
             next: (value) => {
                 if (value.error) {
                     this.data.takenByDriver = 'other';
@@ -163,7 +172,7 @@ export class RideStatusDataFetcher {
     public redirectToRideStatus() {
         this.router.navigate([`driver/ride-status/${this.rideId}/${this.driverId}`]);
     }
-    public redirectToProfile(){
+    public redirectToProfile() {
         this.router.navigate([`profile/`]);
     }
 

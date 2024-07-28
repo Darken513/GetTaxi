@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class DriverService {
 
-  private apiUrl = 'http://localhost:8080/driver'; //todo-P2 : use env files
+  private apiUrl = 'http://localhost:8080/driver'; //todo-P3 : use env files
 
   public env = {
     RIDE_CANCELED_CLIENT:'RideCanceled_Client',
@@ -47,8 +47,8 @@ export class DriverService {
   public getRideById(rideId: string): Observable<any> {
     return this.http.get<{ response: any }>(`${this.apiUrl}/getRideById/${rideId}`);
   }
-  public acceptRide(rideId: string, driverId: string): Observable<any> {
-    return this.http.get<{ response: any }>(`${this.apiUrl}/acceptRide/${rideId}/${driverId}`);
+  public acceptRide(rideId: string, driverId: string, latitude:string, longitude:string): Observable<any> {
+    return this.http.get<{ response: any }>(`${this.apiUrl}/acceptRide/${rideId}/${driverId}/${latitude}/${longitude}`);
   }
   public cancelRide(rideId: string, driverId: string, reason: any): Observable<any> {
     return this.http.post<{ response: any }>(`${this.apiUrl}/cancelRide/${rideId}`, { reason, driverId });

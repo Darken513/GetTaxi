@@ -33,7 +33,10 @@ exports.getRideById = async (req, res) => {
 exports.acceptRide = async (req, res) => {
   const rideId = req.params.rideId;
   const driverId = req.params.driverId;
-  const result = await rideStatusService.acceptRide(rideId, driverId);
+  const latitude = req.params.latitude;
+  const longitude = req.params.longitude;
+  
+  const result = await rideStatusService.acceptRide(rideId, driverId, [latitude, longitude]);
   if (result == -1) {
     res.json({ isNotification: true, type: 'error', title: "erreur", body: "La course n'est plus disponible.", error: true });
   } else if (result == -2) {
