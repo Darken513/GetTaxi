@@ -35,7 +35,7 @@
 </div>
 <div *ngIf="waitingForClientToConnect" class="waitingForClientToConnect-wrapper">
     <div class="title">veuillez patienter!</div>
-    <div class="body">Nous attendons que le conducteur communique sa localisation</div>
+    <div class="body">Nous attendons que le client communique sa localisation</div>
 </div>
 <div *ngIf="!rideDoesntExist && !connectionLost && !isCanceledRide && ready">
     <div class="mapWrapper">
@@ -52,13 +52,13 @@
         <div class="col-md-6">
             <div class="detailsWrapper">
                 <div class="detailsCard">
-                    <p style="font-size: 1.4rem;">Arriving in <strong class="metrics">
-                            {{timeToReach ? timeToReach : 'counting'}}</strong></p>
+                    <p style="font-size: 1.0rem;">Arriving in <strong class="metrics">
+                            {{timeToReach ? timeToReach : '"calcul en cours"'}}</strong></p>
                     <hr>
                     <p class="cardDesc"><strong>Client Phone number: </strong> {{data.phoneNumber}}</p>
                     <p class="cardDesc"><strong>Final Destination: </strong> {{getCurrentLocation()}}</p>
                     <p class="cardDesc">Distance left <strong class="metrics">{{distanceLeft? distanceLeft:
-                            'counting'}}</strong></p>
+                            '"calcul en cours"'}}</strong></p>
                 </div>
                 <!-- Buttons -->
                 <hr>

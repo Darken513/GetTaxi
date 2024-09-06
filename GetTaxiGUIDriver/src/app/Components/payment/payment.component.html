@@ -1,0 +1,25 @@
+<button class="topLeftProfileBtn" (click)="redirectToProfile()">
+    <i class="fa fa-user"></i> Profile
+</button>
+<div class="logoWrapper">
+    <img src="https://gettaxi.ch/wp-content/uploads/2021/05/gettaxi-logo-new-120x108.png.webp">
+</div>
+<div class="payment-container" [ngStyle]="{'opacity': disabled ? '0.5': '1', 'pointer-events': disabled? 'none':'all'}">
+    <div class="amount-selection">
+        <label>Select amount:</label>
+        <select (change)="updateAmount($event)" [value]="amount">
+            <option *ngFor="let amt of [20, 50, 100]" [value]="amt">{{ amt }} CHF</option>
+        </select>
+        <p>{{ credits }} credits for {{ amount }} CHF</p>
+    </div>
+
+    <form (submit)="handleSubmit($event)" class="payment-form">
+        <div>
+            <div id="card-element" class="card-element">
+                <!-- A Stripe Element will be inserted here. -->
+            </div>
+            <div id="card-errors" role="alert" class="card-errors"></div>
+            <button type="submit" class="submit-button">Pay</button>
+        </div>
+    </form>
+</div>

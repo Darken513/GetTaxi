@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DriverService } from '../../Services/driver.service';
@@ -11,12 +11,12 @@ import { Subscription } from 'rxjs';
   templateUrl: './driver-login.component.html',
   styleUrls: ['./driver-login.component.scss']
 })
-export class DriverLoginComponent implements OnInit{
+export class DriverLoginComponent implements OnInit, OnDestroy{
   loginForm: FormGroup;
   signUpForm: FormGroup;
 
   signUpScreenOn: boolean = false;
-  public subs: Array<Subscription> = []; //todo-P2 : make sure to unsbscribe !
+  public subs: Array<Subscription> = []; 
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,11 +34,12 @@ export class DriverLoginComponent implements OnInit{
       retypedPassword: ['', Validators.required],
     }, { validator: this.passwordsMatchValidator });
   }
+  
 
   ngOnInit(): void {
     const driverId = this.authService.getDriverIdFromToken();
     if(driverId)
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/driver/profile']);
   }
 
   passwordsMatchValidator(formGroup: FormGroup) {
@@ -68,7 +69,7 @@ export class DriverLoginComponent implements OnInit{
               sessionStorage.removeItem('currentPageUrl');
               return;
             }
-            this.router.navigate(['/profile']);
+            this.router.navigate(['/driver/profile']);
           }
         },
         error: (error) => {
@@ -114,5 +115,11 @@ export class DriverLoginComponent implements OnInit{
     Object.values(formGroup.controls).forEach(control => {
       control.markAsUntouched();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(sub => {
+      sub.unsubscribe();
+    })
   }
 }

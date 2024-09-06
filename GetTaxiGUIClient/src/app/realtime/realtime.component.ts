@@ -6,9 +6,10 @@ import { SocketService } from '../socket.service';
 import * as L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet-routing-machine';
-import { NgIf } from '@angular/common';
+import { NgIf, NgStyle } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CancelRideComponent } from '../cancel-ride/cancel-ride.component';
+import { NotificationService } from '../notification.service';
 
 enum rideState {
   goingToClient,
@@ -17,10 +18,12 @@ enum rideState {
   rideEnded,
 }
 
+declare let axios: any;
+
 @Component({
   selector: 'app-realtime',
   standalone: true,
-  imports: [NgIf, CancelRideComponent],
+  imports: [NgIf, CancelRideComponent, NgStyle],
   templateUrl: './realtime.component.html',
   styleUrl: './realtime.component.scss',
 })
@@ -28,7 +31,7 @@ export class RealtimeComponent
   extends RideStatusDataFetcher
   implements OnInit, OnDestroy {
 
-  timeToReachClient: string = '';
+  timeToReach: string = '';
   distanceLeft: string = '';
 
   firstDoubleFetch: boolean = true; //first time the driver/client both data exists
@@ -38,48 +41,63 @@ export class RealtimeComponent
   clientPosition: L.LatLngExpression = [0, 0];
   driverMarker: L.Marker | null = null;
   driverPosition: L.LatLngExpression = [0, 0];
+  destinationMarker: L.Marker | null = null;
+  destinationPosition: L.LatLngExpression = [0, 0];
   routeControl: L.Routing.Control | null = null;
-  protected waitingForDriverToConnect:boolean = true;
 
   protected lastEmitTime: number = 0;
   protected lastLocationSent: { latitude: number; longitude: number } | null = null;
   protected idleTimer: ReturnType<typeof setTimeout> | null = null;
   protected navigatorWatch: ReturnType<typeof navigator.geolocation.watchPosition> | null = null;
   protected socketSub: Subscription | null = null;
+  protected waitingForDriverToConnect: boolean = true;
 
   lastDriverUpdateTime: number | null = null;
   protected driverIdleTimer: ReturnType<typeof setInterval> | null = null;
   protected heartBeatEmitter: ReturnType<typeof setInterval> | null = null;
-  
+
   cancelingRideInProgress: boolean = false;
+  displayDriverDetails: boolean = false;
 
   constructor(
     public override socketService: SocketService,
     public override driverService: ClientService,
     public override activatedRoute: ActivatedRoute,
-    public override router: Router
+    public override router: Router,
+    public override notificationService: NotificationService
   ) {
-    super('real-time', socketService, driverService, activatedRoute, router);
+    super('real-time', socketService, driverService, activatedRoute, router, notificationService);
   }
 
   callDriver() {
     window.open('tel:' + this.driver.phoneNbr);
   }
 
+  getTitleStateText() {
+    switch (this.data.currentState) {
+      case rideState.goingToClient:
+      case rideState.reachedClient:
+        return "Le conducteur arrive en"
+      case rideState.goingToDestination:
+        return "Destination atteinte en"
+    }
+    return "Course terminée"
+  }
+
   override ngOnInit(): void {
     const cb = (data: any) => {
-      setTimeout(() => {
-        if(!this.waitingForDriverToConnect){
-          this.cbOnceReady();
+      setTimeout(async () => {
+        if (!this.waitingForDriverToConnect) {
+          await this.cbOnceReady();
         }
         this.socketService.initRoomJoin(data);
         this.socketSub = this.socketService.socketEvent.subscribe({
-          next: (response: any) => {
+          next: async (response: any) => {
             if (response.event == 'driverUpdate') {
-              if(this.waitingForDriverToConnect){
+              if (this.waitingForDriverToConnect) {
                 this.waitingForDriverToConnect = false;
-                setTimeout(() => {
-                  this.cbOnceReady();
+                setTimeout(async () => {
+                  await this.cbOnceReady();
                 }, 1000);
               }
               this.setUserLocation(response.data.position, true);
@@ -90,6 +108,9 @@ export class RealtimeComponent
             }
             if (response.event == 'reachedClient') {
               this.data.currentState = rideState.goingToDestination;
+              this.firstDoubleFetch = true;
+              this.map!.removeLayer(this.clientMarker!);
+              this.setUserLocation(this.driverPosition, true);
               if (this.navigatorWatch) {
                 navigator.geolocation.clearWatch(this.navigatorWatch);
               }
@@ -105,7 +126,9 @@ export class RealtimeComponent
             }
             if (response.event == 'rideEnded') {
               this.data.currentState = rideState.rideEnded;
-              //todo-p1 ; kill all watchers + display ride ended and a rating maybe ?
+              this.data.rideEnded = new Date();
+              this.killTimersAndWatchers();
+              this.connectionLost = false;
             }
           },
         });
@@ -118,11 +141,24 @@ export class RealtimeComponent
     this.killTimersAndWatchers();
   }
 
-  cbOnceReady(): void {
+  async cbOnceReady(): Promise<void> {
+    if (this.data.isCanceledRide) {
+      return;
+    }
     this.initializeMap();
     if (this.data.currentState == 0) {
-      this.setupLocationTracking();
+      await this.setupLocationTracking();
     } else {
+      if (!this.destinationMarker) {
+        const taxiIcon = L.icon({
+          iconUrl: '../../assets/taxi-icon.png', // Path to the taxi icon image
+          iconSize: [35, 50], // Size of the icon
+          iconAnchor: [17.5, 50], // Anchor point of the icon
+          popupAnchor: [0, -48], // Popup offset
+        });
+        await this.markDestinationOnMap(this.data.destination_Addressformatted);
+        this.mapFitBound();
+      }
       if (this.heartBeatEmitter) {
         clearInterval(this.heartBeatEmitter);
       }
@@ -153,7 +189,7 @@ export class RealtimeComponent
   }
 
   protected setUserLocation(position: any, isDriver?: boolean) {
-    const randomNumber = 0.01 // Math.random() * (0.02 - 0.01) + 0.01;
+    const randomNumber = 0.005 // Math.random() * (0.02 - 0.01) + 0.01;
     const userLocation: L.LatLngTuple = [
       position.latitude + (!isDriver ? randomNumber : 0),
       position.longitude + (!isDriver ? randomNumber : 0),
@@ -174,53 +210,117 @@ export class RealtimeComponent
       }
     } else {
       if (!this.clientMarker) {
-        this.clientMarker = L.marker(userLocation).addTo(this.map!);
+        const clientIcon = L.icon({
+          iconUrl: '../../assets/client-icon.png', // Path to the taxi icon image
+          iconSize: [35, 50], // Size of the icon
+          iconAnchor: [17.5, 50], // Anchor point of the icon
+          popupAnchor: [0, -48], // Popup offset
+        });
+        this.clientMarker = L.marker(userLocation, { icon: clientIcon }).addTo(this.map!);
       } else {
         this.clientPosition = userLocation;
       }
     }
-    if (this.driverMarker && this.clientMarker) {
-      if (this.routeControl) {
-        this.routeControl.setWaypoints([
-          (this.driverPosition as L.LatLng),
-          (this.clientPosition as L.LatLng),
-        ]);
-      } else {
-        this.routeControl = L.Routing.control({
-          waypoints: [
-            (this.driverPosition as L.LatLng),
-            (this.clientPosition as L.LatLng),
-          ],
-          fitSelectedRoutes: false,
-          addWaypoints: false,
-          show: false,
-          lineOptions: {
-            styles: [
-              { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
-            ],
-            extendToWaypoints: false,
-            missingRouteTolerance: 0,
-          },
-        }).addTo(this.map!);
-        this.routeControl.hide();
-        this.routeControl.on('routesfound', (event) => {
-          const route = event.routes[0];
-          this.timeToReachClient = this.formatSeconds(route.summary.totalTime);
-          this.distanceLeft = this.formatDistance(route.summary.totalDistance);
-          if (this.driverMarker)
-            this.driverMarker!.setLatLng(this.driverPosition);
-          if (this.clientMarker)
-            this.clientMarker!.setLatLng(this.clientPosition);
-          if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
-            this.mapFitBoundToUser();
-            this.firstDoubleFetch = false;
-          }
-        });
-      }
+    try {
+      this.drawPathBetweenMarkers();
+    } catch (error) {
     }
   }
 
-  mapFitBoundToUser() {
+  public drawPathBetweenMarkers() {
+    //split the methods, one for destination, one for client
+    const cond1 = this.driverMarker && this.clientMarker && (this.data.currentState == rideState.goingToClient);
+    const cond2 = this.driverMarker && (this.data.currentState != rideState.goingToClient);
+    if (cond1) {
+      this.drawPathBetweenMarkersCaseClient();
+      return
+    }
+    if (cond2) {
+      this.drawPathBetweenMarkersCaseDestination();
+    }
+  }
+
+  public drawPathBetweenMarkersCaseClient() {
+    if (this.routeControl) {
+      this.routeControl.setWaypoints([
+        (this.driverPosition as L.LatLng),
+        (this.clientPosition as L.LatLng),
+      ]);
+    } else {
+      this.routeControl = L.Routing.control({
+        waypoints: [
+          (this.driverPosition as L.LatLng),
+          (this.clientPosition as L.LatLng),
+        ],
+        fitSelectedRoutes: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+          styles: [
+            { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
+          ],
+          extendToWaypoints: false,
+          missingRouteTolerance: 0,
+        },
+      }).addTo(this.map!);
+      this.routeControl.hide();
+      this.routeControl.on('routesfound', (event) => {
+        const route = event.routes[0];
+        this.timeToReach = this.formatSeconds(route.summary.totalTime);
+        this.distanceLeft = this.formatDistance(route.summary.totalDistance);
+        if (this.driverMarker)
+          this.driverMarker!.setLatLng(this.driverPosition!);
+        if (this.clientMarker)
+          this.clientMarker!.setLatLng(this.clientPosition!);
+        if (this.firstDoubleFetch && this.driverMarker && this.clientMarker) {
+          this.mapFitBound();
+          this.firstDoubleFetch = false;
+        }
+      });
+    }
+  }
+  public async drawPathBetweenMarkersCaseDestination() {
+    await this.markDestinationOnMap(this.data.destination_Addressformatted);
+    if (this.routeControl) {
+      this.routeControl.setWaypoints([
+        (this.driverPosition as L.LatLng),
+        (this.destinationPosition as L.LatLng),
+      ]);
+    } else {
+      this.routeControl = L.Routing.control({
+        waypoints: [
+          (this.driverPosition as L.LatLng),
+          (this.destinationPosition as L.LatLng),
+        ],
+        fitSelectedRoutes: false,
+        addWaypoints: false,
+        show: false,
+        lineOptions: {
+          styles: [
+            { color: '#26f', opacity: 0.7, weight: 5 }, // Customize color, opacity, and weight of the route
+          ],
+          extendToWaypoints: false,
+          missingRouteTolerance: 0,
+        },
+      }).addTo(this.map!);
+      this.routeControl.hide();
+      this.routeControl.on('routesfound', (event) => {
+        const route = event.routes[0];
+        this.timeToReach = this.formatSeconds(route.summary.totalTime);
+        this.distanceLeft = this.formatDistance(route.summary.totalDistance);
+        if (this.driverMarker)
+          this.driverMarker!.setLatLng(this.driverPosition!);
+        if (this.destinationMarker)
+          this.destinationMarker!.setLatLng(this.destinationPosition!);
+        if (this.firstDoubleFetch && this.driverMarker && this.destinationMarker) {
+          this.mapFitBound();
+          this.firstDoubleFetch = false;
+        }
+      });
+    }
+  }
+
+  mapFitBound() {
     let toFit: any = [];
     if (this.driverMarker) {
       toFit.push([
@@ -228,7 +328,13 @@ export class RealtimeComponent
         this.driverMarker!.getLatLng().lng,
       ]);
     }
-    if (this.clientMarker) {
+    if (this.destinationMarker) {
+      toFit.push([
+        this.destinationMarker!.getLatLng().lat,
+        this.destinationMarker!.getLatLng().lng,
+      ]);
+    }
+    if (this.clientMarker && !this.destinationMarker) {
       toFit.push([
         this.clientMarker!.getLatLng().lat,
         this.clientMarker!.getLatLng().lng,
@@ -263,7 +369,8 @@ export class RealtimeComponent
   }
 
   protected resetIdleTimer(): void {
-    clearTimeout(this.idleTimer!);
+    if(this.idleTimer)
+      clearTimeout(this.idleTimer!);
     this.startIdleTimer();
   }
 
@@ -301,6 +408,7 @@ export class RealtimeComponent
     this.driverIdleTimer = setInterval(() => {
       if (this.lastDriverUpdateTime && Date.now() - this.lastDriverUpdateTime >= 6000) {
         this.connectionLost = true;
+        this.firstDoubleFetch = true;
       }
     }, 6000);
   }
@@ -343,8 +451,9 @@ export class RealtimeComponent
   }
 
   protected resetAllProperties(): void {
-    this.timeToReachClient = '';
+    this.timeToReach = '';
     this.distanceLeft = '';
+    this.data.currentState = rideState.goingToClient;
     this.map = null;
     this.clientMarker = null;
     this.driverMarker = null;
@@ -400,6 +509,26 @@ export class RealtimeComponent
     return result;
   }
 
+  markAddressOnMap(address: string) {
+    axios.get('https://nominatim.openstreetmap.org/search', {
+      params: {
+        q: address,
+        format: 'json'
+      }
+    }).then((response: any) => {
+      if (response.data.length > 0) {
+        var lat = response.data[0].lat;
+        var lon = response.data[0].lon;
+
+        L.marker([lat, lon]).addTo(this.map!)
+      } else {
+        alert('Address not found');
+      }
+    }).catch((error: any) => {
+      console.error('Error fetching the address:', error);
+    });
+  }
+
   /* protected setupOrientationTracking(): void {
     if (window.DeviceOrientationEvent) {
       window.addEventListener('deviceorientation', event => {
@@ -419,4 +548,27 @@ export class RealtimeComponent
       }
     }
   } */
+
+  async markDestinationOnMap(address: string) {
+    try {
+      const response = await axios.get('https://nominatim.openstreetmap.org/search', {
+        params: {
+          q: address,
+          format: 'json'
+        }
+      });
+
+      if (response.data.length > 0) {
+        const lat = response.data[0].lat;
+        const lon = response.data[0].lon;
+        this.destinationPosition = [lat, lon];
+        this.destinationMarker = L.marker(this.destinationPosition).addTo(this.map!);
+      } else {
+        this.notificationService.showNotification({ type: 'error', title: 'erreur', body: 'Impossible de marquer la destination sur la carte' })
+        alert('Address not found');
+      }
+    } catch (error) {
+      console.error('Error fetching the address:', error);
+    }
+  }
 }

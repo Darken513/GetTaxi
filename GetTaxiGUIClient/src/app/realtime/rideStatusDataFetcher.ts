@@ -3,6 +3,7 @@ import { ClientService } from "../client.service";
 import { SocketService } from "../socket.service";
 import { Component, Inject } from "@angular/core";
 import { Subscription, take } from "rxjs";
+import { NotificationService } from "../notification.service";
 
 @Component({
     selector: 'app-BasicDataFetcher',
@@ -24,12 +25,14 @@ export class RideStatusDataFetcher {
         current_Addressformatted: '...', //'Ville',
         destination_roadNbr: '...', //'Numéro du Rue ( dest )',
         destination_Addressformatted: '...', //'Ville',
+        estimatedDistance: '',
         zone: '...', //'zone_id',
         carType: '...', //'cartype_id',
         carBrand: '...', //'carbrand_id',
         driverName: '...',
         takenByDriver: '...',
         currentState: 0,
+        rideEndedAt: ''
     };
 
     public rideId: string = '';
@@ -46,7 +49,8 @@ export class RideStatusDataFetcher {
         public socketService: SocketService,
         public driverService: ClientService,
         public activatedRoute: ActivatedRoute,
-        public router: Router
+        public router: Router,
+        public notificationService:NotificationService
     ) {
         socketService.initSocket();
     }
@@ -122,6 +126,8 @@ export class RideStatusDataFetcher {
         this.data.isCanceled = val.isCanceled;
         this.isCanceledByClient = val.isCanceled;
         this.data.deferredDateTime = val.deferredDateTime;
+        this.data.rideEndedAt = val.rideEndedAt;
+        this.data.estimatedDistance = val.estimatedDistance;
 
         this.data.currentLocation = val.currentLocation;
         this.data.created_at = this.formatDate(val.created_at);

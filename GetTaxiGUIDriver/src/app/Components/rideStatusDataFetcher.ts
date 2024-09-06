@@ -173,7 +173,7 @@ export class RideStatusDataFetcher {
         this.router.navigate([`driver/ride-status/${this.rideId}/${this.driverId}`]);
     }
     public redirectToProfile() {
-        this.router.navigate([`profile/`]);
+        this.router.navigate([`/driver/profile/`]);
     }
 
     public ignoreRide() { }

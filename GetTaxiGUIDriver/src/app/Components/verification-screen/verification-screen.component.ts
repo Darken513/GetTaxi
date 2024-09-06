@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DriverService } from '../../Services/driver.service';
@@ -21,7 +21,7 @@ interface TxtTimerObj {
   templateUrl: './verification-screen.component.html',
   styleUrls: ['./verification-screen.component.scss']
 })
-export class VerificationScreenComponent implements OnInit {
+export class VerificationScreenComponent implements OnInit, OnDestroy {
 
   public defaultFieldName = DEFAULT_FIELD_NAME;
   public finalText: string = 'XXXX';
@@ -39,7 +39,7 @@ export class VerificationScreenComponent implements OnInit {
   @Input() driver: any; //todo-P3 : use modals
   @Output() update: EventEmitter<any> = new EventEmitter();
 
-  public subs: Array<Subscription> = []; //todo-P3 : make sure to unsbscribe !
+  public subs: Array<Subscription> = [];
 
   constructor(
     public driverService: DriverService,
@@ -127,5 +127,11 @@ export class VerificationScreenComponent implements OnInit {
     } else {
       (document.getElementById(DEFAULT_FIELD_NAME + id)! as any).blur();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(sub => {
+      sub.unsubscribe();
+    })
   }
 }

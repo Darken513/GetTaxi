@@ -17,6 +17,7 @@ import { EditProfileComponent } from './Components/edit-profile/edit-profile.com
 import { DriverProfileComponent } from './Components/driver-profile/driver-profile.component';
 import { VerificationScreenComponent } from './Components/verification-screen/verification-screen.component';
 import { BaseChartDirective } from 'ng2-charts';
+import { PaymentComponent } from './Components/payment/payment.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { BaseChartDirective } from 'ng2-charts';
     EditProfileComponent,
     DriverProfileComponent,
     VerificationScreenComponent,
+    PaymentComponent,
   ],
   imports: [
     BrowserModule,

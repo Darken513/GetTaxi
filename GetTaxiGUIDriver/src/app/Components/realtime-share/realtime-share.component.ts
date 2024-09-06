@@ -48,7 +48,7 @@ export class RealtimeShareComponent
   protected idleTimer: ReturnType<typeof setTimeout> | null = null;
   protected navigatorWatch: ReturnType<typeof navigator.geolocation.watchPosition> | null = null;
   protected socketSub: Subscription | null = null;
-  protected waitingForClientToConnect:boolean = true;
+  protected waitingForClientToConnect: boolean = true;
 
   lastClientUpdateTime: number | null = null;
   protected clientIdleTimer: ReturnType<typeof setInterval> | null = null;
@@ -60,7 +60,7 @@ export class RealtimeShareComponent
     public override driverService: DriverService,
     public override activatedRoute: ActivatedRoute,
     public override router: Router,
-    public override notificationService: NotificationService 
+    public override notificationService: NotificationService
   ) {
     super('real-time', socketService, driverService, activatedRoute, router, notificationService);
   }
@@ -96,6 +96,8 @@ export class RealtimeShareComponent
         this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
           return;
         });
+        this.firstDoubleFetch = true;
+        this.setUserLocation(this.driverPosition, true);
         break;
       case rideState.goingToDestination:
         this.isRideEndedModelOn = true;
@@ -124,6 +126,7 @@ export class RealtimeShareComponent
       this.map!.removeLayer(this.clientMarker!);
       this.hasReachedClientModelOn = false;
       this.firstDoubleFetch = true;
+      this.setUserLocation(this.driverPosition, true);
       return;
     }
     this.data.currentState = rideState.goingToClient;
@@ -138,7 +141,6 @@ export class RealtimeShareComponent
         isDriver: true,
       };
       this.socketService.emit('rideEnded', toemit);
-      //todo-P1 : implement all for client 
       this.driverService.changeRideStatus(this.driverId, this.rideId, this.data.currentState).subscribe((val) => {
         this.router.navigate([`driver/ride-status/${this.rideId}/${this.driverId}`]);
         return;
@@ -157,12 +159,11 @@ export class RealtimeShareComponent
       setTimeout(async () => {
         await this.cbOnceReady();
         this.socketService.initRoomJoin(data);
-        this.socketService.initRoomJoin(data);
         this.socketSub = this.socketService.socketEvent.subscribe({
-          next: async (response: any) => {
+          next: (response: any) => {
             if (response.event == 'clientUpdate' && this.data.currentState == rideState.goingToClient) {
               this.waitingForClientToConnect = false;
-              await this.setUserLocation(response.data.position, false);
+              this.setUserLocation(response.data.position, false);
               this.handleCaseConnectionLost();
             }
             if (response.event == 'clientHeartBeat') {
@@ -193,7 +194,7 @@ export class RealtimeShareComponent
       this.redirectToRideStatus();
     }
     this.initializeMap();
-    this.setupLocationTracking();
+    await this.setupLocationTracking();
     this.startIdleCheck();
     if (this.data.currentState) {
       if (!this.destinationMarker) {
@@ -228,7 +229,7 @@ export class RealtimeShareComponent
     }).addTo(this.map);
   }
 
-  protected async setUserLocation(position: any, isDriver?: boolean) {
+  protected setUserLocation(position: any, isDriver?: boolean) {
     const randomNumber = 0.005 // Math.random() * (0.02 - 0.01) + 0.01;
     const userLocation: L.LatLngTuple = [
       position.latitude + (!isDriver ? randomNumber : 0),
@@ -261,11 +262,13 @@ export class RealtimeShareComponent
         this.clientPosition = userLocation;
       }
     }
-    console.log('drawPathBetweenMarkers');
-    await this.drawPathBetweenMarkers();
+    try {
+      this.drawPathBetweenMarkers();
+    } catch (error) {
+    }
   }
 
-  public async drawPathBetweenMarkers() {
+  public drawPathBetweenMarkers() {
     //split the methods, one for destination, one for client
     const cond1 = this.driverMarker && this.clientMarker && (this.data.currentState == rideState.goingToClient);
     const cond2 = this.driverMarker && (this.data.currentState != rideState.goingToClient);
@@ -383,11 +386,11 @@ export class RealtimeShareComponent
 
   protected setupLocationTracking(): void {
     this.navigatorWatch = navigator.geolocation.watchPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
         const currentTime = Date.now();
         this.lastLocationSent = { latitude, longitude };
-        this.emitLocation();
+        await this.emitLocation();
         if (!this.idleTimer) {
           this.startIdleTimer();
         } else {

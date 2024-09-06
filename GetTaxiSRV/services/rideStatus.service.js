@@ -7,6 +7,7 @@ const driverBehaviorRef = db.collection("DriverBehavior");
 
 const cacheService = require("./cache.service");
 const driverService = require("./drivers.service");
+const carBrandService = require("./carBrands.service");
 
 const RS_cachepath = ["rideStatus", "values"];
 const DBH_cachepath = ["driverBehavior", "values"];
@@ -176,14 +177,28 @@ exports.acceptRide = async (rideId, driverId, coords) => {
 };
 
 async function sendSMStoClientCaseImidiateRide(driverUrl, coords) {
-  const currentDriverPosition = `${coords[0]},${coords[1]}`;
-  const distDura = await calculateDistanceBetweenAdrs(currentDriverPosition, driverUrl.rideStatusObj.current_Addressformatted);
-  //todo-P1 : driverUrl.driver.carBrand should return the string not the id
-  let body = `Merci pour votre commande.
-Le véhicule: ${driverUrl.driver.carBrand + ', ' + driverUrl.driver.carColor}
+  let distDura;
+  try {
+    const currentDriverPosition = `${coords[0]},${coords[1]}`;
+    distDura = await calculateDistanceBetweenAdrs(currentDriverPosition, driverUrl.rideStatusObj.current_Addressformatted);
+  } catch (error) {
+  }
+  let carBrand = (await carBrandService.getCarBrandByID(driverUrl.driver.carBrand)).name;
+  let body;
+  if (distDura && distDura.duration) {
+    body = `Merci pour votre commande.
+Le véhicule: ${carBrand + ', ' + driverUrl.driver.carColor}
 Numéro de plaques ${driverUrl.driver.carPlateNbr} arrive avant ${distDura.duration.text} à ${driverUrl.rideStatusObj.current_Addressformatted}
 
 Suivez votre taxi ici -> ${driverUrl.clientURL}`;
+  } else {
+    body = `Merci pour votre commande.
+Le véhicule: ${carBrand + ', ' + driverUrl.driver.carColor}
+Numéro de plaques ${driverUrl.driver.carPlateNbr} arrive bientôt à ${driverUrl.rideStatusObj.current_Addressformatted}
+
+Suivez votre taxi ici -> ${driverUrl.clientURL}`;
+  }
+
   console.log(body);
   return;
   twilioClient.messages
@@ -200,9 +215,9 @@ Suivez votre taxi ici -> ${driverUrl.clientURL}`;
 }
 
 async function sendSMStoClientCaseDiferred(driverUrl) {
-  //todo-P1 : driverUrl.driver.carBrand should return the string not the id
+  let carBrand = (await carBrandService.getCarBrandByID(driverUrl.driver.carBrand)).name;
   let body = `Merci pour votre commande.
-Le véhicule: ${driverUrl.driver.carBrand + ', ' + driverUrl.driver.carColor}
+Le véhicule: ${carBrand + ', ' + driverUrl.driver.carColor}
 Numéro de plaques ${driverUrl.driver.carPlateNbr} à la date et à l'heure indiquées ${driverUrl.rideStatusObj.deferredDateTime} à ${driverUrl.rideStatusObj.current_Addressformatted}
 
 Suivez votre taxi ici -> ${driverUrl.clientURL}`;
@@ -411,12 +426,21 @@ async function calculateDistanceBetweenAdrs(origin, destination) {
         language: 'fr',
       },
     });
+    
+    if (response.data.routes.length === 0) {
+      throw new Error('No routes found');
+    }
+
     const route = response.data.routes[0];
+    if (!route.legs || route.legs.length === 0) {
+      throw new Error('No legs found in the route');
+    }
+
     const distance = route.legs[0].distance;
     const duration = route.legs[0].duration;
     return { distance, duration };
   } catch (err) {
-    console.error('Error: ', err);
+    console.log('Error:', err.message);
   }
 }
 

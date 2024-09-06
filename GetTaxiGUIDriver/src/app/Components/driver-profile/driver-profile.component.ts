@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DriverService } from '../../Services/driver.service';
@@ -11,7 +11,7 @@ import { formatDate } from '../../utilities';
   templateUrl: './driver-profile.component.html',
   styleUrls: ['./driver-profile.component.scss']
 })
-export class DriverProfileComponent implements OnInit {
+export class DriverProfileComponent implements OnInit, OnDestroy {
   @Input() driverId: string = "";
   @Input() driver: any; //todo-P3 : use modals
 
@@ -25,7 +25,7 @@ export class DriverProfileComponent implements OnInit {
   behaviors: Array<any> = [];
   chart: Chart | null = null;
 
-  public subs: Array<Subscription> = []; //todo-P2 : make sure to unsbscribe !
+  public subs: Array<Subscription> = [];
 
   constructor(
     public driverService: DriverService,
@@ -123,13 +123,22 @@ export class DriverProfileComponent implements OnInit {
     this.router.navigate(['/driver/ride-status/', behavior.rideId, behavior.driverId]);
   }
 
+  public initPaymentScreen(){
+    this.router.navigate(['/driver/payment/']);
+  }
   logout() {
     localStorage.clear();
     sessionStorage.clear();
-    this.router.navigate(['/']);
+    this.router.navigate(['/driver']);
   }
 
   public goToEditProfile() {
     this.update.emit({ editProfile: true });
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(sub => {
+      sub.unsubscribe();
+    })
   }
 }

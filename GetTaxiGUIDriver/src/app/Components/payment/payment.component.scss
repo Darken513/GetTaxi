@@ -1,0 +1,80 @@
+.logoWrapper {
+  text-align: center;
+  margin-top: 70px;
+  margin-bottom: 25px;
+}
+
+.payment-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 15px;
+  margin: auto;
+  width: 90%;
+}
+
+.amount-selection {
+  margin-bottom: 20px;
+  color: #2f3d5b;
+}
+
+.amount-selection label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #2f3d5b;
+}
+
+.amount-selection select {
+  padding: 10px;
+  border-radius: 4px;
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+.amount-selection p {
+  margin-top: 10px;
+  font-size: 16px;
+  text-align: end;
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-element {
+  margin-bottom: 10px;
+}
+
+.card-errors {
+  color: red;
+  margin-top: 10px;
+}
+
+.submit-button {
+  background-color: #f7c72c;
+  color: #121927;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+  font-weight: 600;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+.topLeftProfileBtn {
+  background: transparent;
+  color: #f8c62e;
+  border: 1px solid #f8c62e;
+  margin: 10px 0 0 10px;
+  border-radius: 10px;
+  padding: 2px 15px;
+}

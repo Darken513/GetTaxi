@@ -50,8 +50,9 @@ const cache = {
         fetchedAllOnce: false
     },
 };
-const ttlInSeconds = 5;
-const cleanTimerInSeconds = 5;
+const ttlInSeconds = 0;
+const cleanTimerInSeconds = 0;
+//todo-P1 : work on cache
 
 exports.cache = cache;
 exports.storeOrUpdateDef = function (pathArray, value) {

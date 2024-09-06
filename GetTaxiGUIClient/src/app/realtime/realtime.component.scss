@@ -16,3 +16,57 @@
         left: -6px;
     }
 }
+
+.rideEndedDetails{
+    strong{
+        color: #da4295;
+        font-weight: 400;
+    }
+    padding: 15px 15px 0 15px;
+    border: 2px solid;
+    margin: 30px 15px 15px 15px;
+    border-radius: 20px;
+}
+
+
+.DriverDetails-wrapper{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 999;
+    background: transparent;
+    color: #9acd32;
+    i{
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 20px;
+        background: #121927;
+    }
+    .DriverDetails{
+        background: #121927;
+        font-size: 11px;
+        max-width: 200px;
+        border-radius: 10px;
+        padding: 5px 11px;
+        .btn-close{
+            position: absolute;
+            left: -19px;
+            top: 6.5px;
+            border-radius: 15px;
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+            height: 45px;
+            background: #121927;
+            color: white;
+            opacity: 0.8;
+            border: none;
+        }
+        .title{
+            font-weight: 600;
+            font-size: 13px;
+        }
+        p{
+            margin: 0;
+        }
+    }
+}

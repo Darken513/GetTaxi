@@ -18,7 +18,7 @@ export class AuthService {
   getDriverIdFromToken(): string {
     const token = localStorage.getItem('token');
     if (!token) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/driver']);
       return '';
     } else {
       const payload = jwtDecode(token);

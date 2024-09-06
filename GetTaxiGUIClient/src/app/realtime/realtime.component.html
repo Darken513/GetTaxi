@@ -1,4 +1,4 @@
-<div *ngIf="rideDoesntExist">
+<div *ngIf="rideDoesntExist && data.currentState != 3">
     <div class="text-center mt-5 container">
         <p class="fs-3"> <span class="text-danger">Opps!</span> Une erreur s'est produite.</p>
         <p class="lead">
@@ -6,7 +6,7 @@
         </p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && isCanceledByClient">
+<div *ngIf="!rideDoesntExist && isCanceledByClient && data.currentState != 3">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> Vous semblez avoir annulé cette course</p>
         <p class="lead">
@@ -15,7 +15,7 @@
         <p></p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledByClient && isCanceledByDriver ">
+<div *ngIf="!rideDoesntExist && !isCanceledByClient && data.currentState != 3 && isCanceledByDriver ">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> La course semble être annulée par le chauffeur</p>
         <p class="lead">
@@ -24,7 +24,8 @@
         <p></p>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !waitingForDriverToConnect && connectionLost">
+<div
+    *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !waitingForDriverToConnect && data.currentState != 3 && connectionLost">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">Opps! <br></span> Connexion perdue avec le chauffeur</p>
         <p class="lead">
@@ -40,7 +41,23 @@
         </div>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !connectionLost && waitingForDriverToConnect">
+<div *ngIf="data.currentState == 3">
+    <div class="text-center mt-5 p-2">
+        <p class="fs-3 mt-4">La course est <span class="text-danger" style="color: #9acd32 !important;">
+                terminée!</span></p>
+        <p class="lead">
+            Cette course a été terminée avec succès le {{formatDate(data.rideEndedAt)}}
+        </p>
+        <div class="rideEndedDetails">
+            <p class="cardDesc"><strong>Adresse de départ: </strong> {{data.current_Addressformatted}}</p>
+            <p class="cardDesc"><strong>Adresse de destination: </strong> {{data.destination_Addressformatted}}</p>
+            <p class="cardDesc"><strong>Distance estimée: </strong> {{data.estimatedDistance}}</p>
+        </div>
+        Merci d'avoir utilisé GetTaxi
+    </div>
+</div>
+<div
+    *ngIf="!rideDoesntExist && !isCanceledByClient && !isCanceledByDriver && !connectionLost && data.currentState != 3 && waitingForDriverToConnect">
     <div class="text-center mt-10 container">
         <p class="fs-3"> <span class="text-danger">veuillez patienter! <br></span></p>
         <p class="lead">
@@ -56,7 +73,20 @@
         </div>
     </div>
 </div>
-<div *ngIf="!rideDoesntExist  && !isCanceledByClient && !isCanceledByDriver && !waitingForDriverToConnect && !connectionLost && ready">
+
+<div
+    *ngIf="!rideDoesntExist  && !isCanceledByClient && !isCanceledByDriver && data.currentState != 3 && !waitingForDriverToConnect && !connectionLost && ready">
+    <div class="DriverDetails-wrapper">
+        <i (click)="displayDriverDetails = !displayDriverDetails" *ngIf="!displayDriverDetails" class="fa-solid fa-car"></i>
+        <div *ngIf="displayDriverDetails" class="DriverDetails">
+            <button class="btn-close" (click)="displayDriverDetails = !displayDriverDetails">X</button>
+            <p class="title">Détails du conducteur</p>
+            <div class="body">
+                <p>Nom: <span style="color: white;">{{data ? data.driverName : '...'}}</span></p>
+                <p>Id: <span style="color: white;">{{driver ? driver.id : '...'}}</span></p>
+            </div>
+        </div>
+    </div>
     <div class="mapWrapper">
         <div class="row">
             <div id="map"></div>
@@ -64,29 +94,26 @@
     </div>
     <app-cancel-ride *ngIf="cancelingRideInProgress" (update)="onCancelReasonEvent($event)"></app-cancel-ride>
     <div class="row" style="position: relative;">
-        <button class="CenterBtnWrapper" (click)="mapFitBoundToUser()"><i class="fa-solid fa-crosshairs"></i></button>
+        <button class="CenterBtnWrapper" (click)="mapFitBound()"><i class="fa-solid fa-crosshairs"></i></button>
         <div class="col-md-3">
         </div>
         <div class="col-md-6">
             <div class="detailsWrapper">
                 <div class="detailsCard">
-                    <p style="font-size: 1.4rem;">Driver arrives in <strong class="metrics">{{timeToReachClient ?
-                            timeToReachClient : 'counting'}}</strong></p>
+                    <p style="font-size: 1.0rem;">{{getTitleStateText()}} <strong class="metrics">{{timeToReach ?
+                            timeToReach : '"calcul en cours"'}}</strong></p>
                     <hr>
-                    <p class="cardDesc"><strong>Car Type: </strong> {{data ? data.carType : '...'}}</p>
-                    <p class="cardDesc"><strong>Car Brand: </strong> {{data ? data.carBrand : '...'}}</p>
-                    <p class="cardDesc"><strong>Car description: </strong> {{driver ? driver.carDescription : '...'}}
-                    </p>
-                    <p class="cardDesc"><strong>Driver Name: </strong> {{data ? data.driverName : '...'}}</p>
-                    <p class="cardDesc"><strong>Driver Id: </strong> {{driver ? driver.id : '...'}}</p>
-                    <p class="cardDesc">Distance left <strong class="metrics">{{distanceLeft ? distanceLeft :
-                            'counting'}}</strong></p>
+                    <p class="cardDesc"><strong>Type de voiture: </strong> {{data ? data.carType : '...'}}</p>
+                    <p class="cardDesc"><strong>Marque: </strong> {{data ? data.carBrand : '...'}}</p>
+                    <p class="cardDesc">{{driver ? driver.carDescription : '...'}}</p>
+                    <p class="cardDesc">Distance restante <strong class="metrics">{{distanceLeft ? distanceLeft :
+                            '"calcul en cours"'}}</strong></p>
                 </div>
                 <!-- Buttons -->
                 <hr>
                 <div class="w-100 button-wrapper">
-                    <button class="btn btn-success" (click)="callDriver()">Call Driver</button>
-                    <button class="btn btn-danger" (click)="cancelingRideInProgress=true">Cancel Ride</button>
+                    <button class="btn btn-success" (click)="callDriver()" *ngIf="data.currentState < 2">Appeler le conducteur</button>
+                    <button class="btn btn-danger" (click)="cancelingRideInProgress=true" [ngStyle]="{'width': data.currentState < 2 ? 'calc(50% - 10px)': 'calc(100% - 10px)'}">Annuler la course</button>
                 </div>
             </div>
             <div class="col-md-3">

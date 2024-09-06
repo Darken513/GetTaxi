@@ -5,24 +5,21 @@ import { RealtimeShareComponent } from './Components/realtime-share/realtime-sha
 import { Error404Component } from './Components/error404/error404.component';
 import { DriverComponent } from './Components/driver-profile/driver.component';
 import { DriverLoginComponent } from './Components/driver-login/driver-login.component';
+import { PaymentComponent } from './Components/payment/payment.component'
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'driver',
     children: [
       { path: '', component: DriverLoginComponent },
       { path: 'profile', component: DriverComponent },
-    ]
-  },
-  {
-    path: 'driver',
-    children: [
       { path: 'ride-status/:rideId/:driverId', component: RideStatusComponent },
       { path: 'realtime/:rideId/:driverId', component: RealtimeShareComponent },
+      { path: 'payment', component: PaymentComponent },
       { path: '**', component: Error404Component }
     ]
   },
-  { path: '**', component: Error404Component }
+  { path: '**', component: DriverLoginComponent }
 ];
 
 @NgModule({
